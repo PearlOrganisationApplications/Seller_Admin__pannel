@@ -1,0 +1,152 @@
+.certified-container {
+  padding: 25px;
+  /* margin-left: 260px; */
+  animation: fadeIn 0.4s ease;
+}
+
+.certified-header h2 {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 5px;
+  color: #1b1f3b;
+}
+
+.certified-header p {
+  color: gray;
+  margin-bottom: 25px;
+}
+
+.certified-top-bar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.certified-top-bar input {
+  width: 40%;
+  padding: 10px 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.add-btn {
+  background: #04e4a2;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  color: #1b1f3b;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.add-btn:hover {
+  background: #06c98f;
+}
+
+/* Table */
+.certified-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+}
+
+.certified-table thead {
+  background: #1b1f3b;
+  color: white;
+}
+
+.certified-table th,
+.certified-table td {
+  padding: 14px 18px;
+  text-align: left;
+  font-size: 15px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+/* Status Badge */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+}
+
+.status-badge.approved {
+  background: #04e4a2;
+}
+
+.status-badge.pending {
+  background: #ffb347;
+}
+
+.status-badge.rejected {
+  background: #ff5c5c;
+}
+
+/* Action Buttons */
+.edit-btn,
+.delete-btn {
+  padding: 6px 12px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  border-radius: 6px;
+  margin-right: 5px;
+  font-size: 13px;
+  transition: 0.3s;
+}
+
+.edit-btn {
+  background: #4e8cff;
+  color: white;
+}
+
+.edit-btn:hover {
+  background: #2b6ce0;
+}
+
+.delete-btn {
+  background: #ff5c5c;
+  color: white;
+}
+
+.delete-btn:hover {
+  background: #e64949;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #1b1f3b;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  width: fit-content;
+  cursor: pointer;
+  border: none;
+  margin-bottom: 15px;
+  transition: 0.3s;
+}
+
+.back-btn:hover {
+  background: #333a6c;
+}

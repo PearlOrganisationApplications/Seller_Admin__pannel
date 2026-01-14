@@ -1,0 +1,178 @@
+.advertisement-container {
+  width: 90%;
+  margin: 30px auto;
+  font-family: "Poppins", sans-serif;
+  background-color: #fff;
+}
+
+.advertisement-header h2 {
+  color: #003366;
+  margin-bottom: 20px;
+}
+
+.advertisement-table {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.advertisement-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 12px;
+}
+
+.advertisement-row.header {
+  font-weight: 600;
+  background: #003366;
+  color: #fff;
+  text-align: center;
+}
+
+.image-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.upload-box {
+  width: 90px;
+  height: 90px;
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: #fff;
+}
+
+.upload-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.upload-icon {
+  font-size: 24px;
+  color: #555;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+.target-link {
+  display: flex;
+  justify-content: center;
+}
+
+.target-btn {
+  background-color: #7fd3d3;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 8px;
+  color: #000;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.done-btn-container {
+  display: flex;
+  justify-content: center;
+}
+
+.advertisement-header {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.back-btn {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.back-btn:hover {
+  background-color: #0056b3;
+}
+
+
+
+
+.done-btn {
+  background-color: #004aad;
+  color: #fff;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.done-btn:hover {
+  background-color: #00337a;
+}
+
+/* ========================= DARK MODE ========================= */
+
+.dark-mode.advertisement-container {
+  background-color: #121212 !important;
+  color: #e0e0e0 !important;
+}
+
+.dark-mode .advertisement-header h2 {
+  color: #b0c4ff !important;
+}
+
+.dark-mode .advertisement-row {
+  background: #1f1f1f !important;
+  border-color: #333 !important;
+  color: #e0e0e0 !important;
+}
+
+.dark-mode .advertisement-row.header {
+  background: #222 !important;
+  color: #fff !important;
+}
+
+.dark-mode .upload-box {
+  background-color: #222 !important;
+  border: 2px dashed #555 !important;
+}
+
+.dark-mode .upload-icon {
+  color: #ccc !important;
+}
+
+.dark-mode .target-btn {
+  background-color: #444 !important;
+  color: #fff !important;
+}
+
+.dark-mode .done-btn {
+  background-color: #333 !important;
+  color: #fff !important;
+}
+
+.dark-mode .done-btn:hover {
+  background-color: #555 !important;
+}
+
+.dark-mode .back-btn {
+  background-color: #444 !important;
+  color: #fff !important;
+}
+
+.dark-mode .back-btn:hover {
+  background-color: #666 !important;
+}

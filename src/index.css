@@ -1,0 +1,13 @@
+@import "tailwindcss"; /* Must be at the very top */
+
+/* 
+   IMPORTANT: Check your folder name. 
+   You wrote "assests" in your message. Is it "assets" or "assests"? 
+   The path below must match EXACTLY.
+*/
+@import "./admin/App.css";
+@import "./admin/index.css";
+@import "./admin/pages/BarChart/Login.css";
+
+/* Add any seller panel CSS here as well if it had a separate file */
+/* @import "./seller/assets/css/seller-style.css"; */

@@ -1,0 +1,79 @@
+.manage-page {
+  padding: 30px;
+}
+
+.heading {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.manage-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 25px;
+}
+
+.manage-table th,
+.manage-table td {
+  border: 1px solid #ddd;
+  padding: 18px;
+  font-size: 16px;
+}
+
+.manage-table th {
+  background: #fff;
+  font-weight: bold;
+}
+
+.status-select {
+  width: 160px;
+  padding: 8px;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+  font-size: 15px;
+}
+
+.reason-box {
+  width: 450px;
+  height: 80px;
+  border: 1px solid #666;
+  border-radius: 8px;
+  padding: 10px;
+  resize: none;
+}
+
+.update-btn {
+  background: #d7d6d6;
+  padding: 10px 25px;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.log-box {
+  width: 100%;
+  padding: 22px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 17px;
+}
+
+.notify-btn {
+  background: #1a41ff;
+  color: white;
+  padding: 12px 28px;
+  border-radius: 10px;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.cancel-reason {
+  color: red;
+  font-weight: 600;
+}
+
