@@ -27,7 +27,9 @@ export default function CouponCode() {
   };
 
   const deleteCoupon = (code) => {
-    setGenerated(generated.filter((c) => c !== code));
+    if(window.confirm("Delete this coupon?")) {
+      setGenerated(generated.filter((c) => c !== code));
+    }
   };
 
   const copyCode = (code) => {
@@ -38,7 +40,7 @@ export default function CouponCode() {
 
   return (
     <div className="coupon-container">
-      {/* Header */}
+      {/* Header with fixed styling */}
       <div className="coupon-header">
         <button className="back-link" onClick={() => navigate(-1)}>
           <ArrowLeft size={18} /> Back
@@ -96,7 +98,7 @@ export default function CouponCode() {
             />
           </div>
 
-          <div className="input-group btn-container">
+          <div className="input-group">
             <button className="create-btn" onClick={createCoupon}>
               <PlusCircle size={18} /> Create Coupon
             </button>

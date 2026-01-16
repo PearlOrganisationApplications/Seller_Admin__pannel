@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-// ❌ REMOVE: import AdminLayout from "../layouts/AdminLayout";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import "./BarChart/Sellers.css";
 import { BASE_URL } from "../api/BaseUrl";
 
@@ -7,6 +7,7 @@ export default function Sellers() {
   const [sellers, setSellers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const navigate = useNavigate(); // Initialize navigate
 
   useEffect(() => {
     fetch(`${BASE_URL}/api/admin/Sellers`)
@@ -64,9 +65,14 @@ export default function Sellers() {
   const viewPendingRequests = (id) => alert(`Pending requests for ID: ${id}`);
 
   return (
-    // ✅ Use a simple div container, AdminApp provides the layout
     <div className="sellers-page-container">
-      <h2 className="page-title">Seller Management</h2>
+      {/* Header Container with Back Button */}
+      <div className="header-container">
+        <button className="back-btn" onClick={() => navigate(-1)}>
+          ← Back
+        </button>
+        <h2 className="page-title">Seller Management</h2>
+      </div>
 
       <div className="search-box">
         <input

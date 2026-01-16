@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-// ❌ REMOVE: import AdminLayout from "../layouts/AdminLayout";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import "./BarChart/Orders.css";
-import { useNavigate } from "react-router-dom";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -9,7 +8,7 @@ export default function OrdersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
 
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Initialize navigate
 
   useEffect(() => {
     fetch("https://jsonplaceholder.typicode.com/posts")
@@ -45,9 +44,14 @@ export default function OrdersPage() {
     });
 
   return (
-    // ✅ CHANGE: Use a simple div, NOT AdminLayout
     <div className="orders-page-container">
-      <h2 className="page-title">Order Management</h2>
+      {/* Header Container with Back Button */}
+      <div className="header-container">
+        <button className="back-btn" onClick={() => navigate(-1)}>
+          ← Back
+        </button>
+        <h2 className="page-title">Order Management</h2>
+      </div>
 
       <div className="search-box">
         <input

@@ -9,10 +9,11 @@
   --danger: #ef4444;
 }
 
+/* FIX: Changed width to 100% and removed max-width */
 .coupon-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 20px 40px; /* Increased side padding for a cleaner full-look */
   font-family: 'Inter', sans-serif;
   color: var(--text-main);
   background-color: var(--bg-color);
@@ -23,28 +24,33 @@
 .coupon-header {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 20px;
   margin-bottom: 30px;
 }
 
+/* Back button style consistent with previous pages */
 .back-link {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: none;
+  background-color: #333;
+  color: white;
   border: none;
-  color: var(--text-muted);
+  padding: 8px 16px;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: 500;
-  transition: color 0.2s;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s;
 }
 
 .back-link:hover {
-  color: var(--primary);
+  background-color: #555;
 }
 
 .coupon-header h2 {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
   margin: 0;
 }
@@ -80,8 +86,8 @@
 }
 
 .input-group label {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
 }
@@ -93,13 +99,7 @@
   border-radius: 8px;
   font-size: 15px;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.input-group input:focus, 
-.input-group select:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  transition: border-color 0.2s;
 }
 
 .create-btn {
@@ -114,23 +114,13 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: background 0.2s;
-}
-
-.create-btn:hover {
-  background-color: var(--primary-hover);
 }
 
 /* List Section */
-.section-title {
-  font-size: 20px;
-  margin-bottom: 20px;
-}
-
 .coupon-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
 }
 
 .coupon-card {
@@ -141,59 +131,27 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.coupon-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}
-
-.coupon-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  transition: transform 0.2s;
 }
 
 .coupon-badge {
   font-family: 'Courier New', Courier, monospace;
   font-weight: 800;
   font-size: 18px;
-  letter-spacing: 1px;
   color: var(--primary);
-}
-
-.copied-toast {
-  font-size: 12px;
-  color: #10b981;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  animation: fadeIn 0.3s ease;
-}
-
-.card-actions {
-  display: flex;
-  gap: 8px;
 }
 
 .icon-btn {
   background: #f1f5f9;
   border: none;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s;
   color: var(--text-muted);
-}
-
-.icon-btn.copy:hover {
-  background-color: #dbeafe;
-  color: var(--primary);
 }
 
 .icon-btn.delete:hover {
@@ -201,17 +159,11 @@
   color: var(--danger);
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 @media (max-width: 768px) {
-  .input-grid {
-    grid-template-columns: 1fr;
+  .coupon-container {
+    padding: 15px;
   }
-  
-  .coupon-grid {
-    grid-template-columns: 1fr;
+  .coupon-header h2 {
+    font-size: 20px;
   }
 }

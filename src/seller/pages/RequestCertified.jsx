@@ -1,135 +1,203 @@
 "use client";
-import React, { useState } from "react";
-import { ChevronDown, ChevronLeft } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { ChevronLeft, ShieldCheck, ClipboardCheck, Package, Send, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { fetchKalkiCertificates } from "../api/requestCertificateApi"; // Adjust path
 
 export default function KalkiCertifiedPage() {
+  const navigate = useNavigate();
+  
+  // State Management
+  const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const navigate = useNavigate()
-  const products = [
-    { id: 1, productID: "883484", productName: "Woman Kurti" },
-    { id: 2, productID: "883484", productName: "Woman Kurti" },
-    { id: 3, productID: "883484", productName: "Woman Kurti" },
-    { id: 4, productID: "883484", productName: "Woman Kurti" },
-    { id: 5, productID: "883484", productName: "Woman Kurti" },
-    { id: 6, productID: "883484", productName: "Woman Kurti" },
-    { id: 7, productID: "883484", productName: "Woman Kurti" },
-    { id: 8, productID: "883484", productName: "Woman Kurti" },
-  ];
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch data on component mount
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetchKalkiCertificates();
+      
+      if (res.success) {
+        setProducts(res.data || []);
+      }
+    } catch (err) {
+      setError("Failed to fetch products. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="bg-white min-h-screen w-full p-4 sm:p-6 overflow-x-hidden">
-      {/* ---------- TITLE ---------- */}
-     <div className="mb-6 w-full">
-  <div className="flex items-center justify-between gap-4">
-    <h1 className="text-xl sm:text-2xl font-medium">
-     Request for Kalki Certified
-    </h1>
+    <div className="bg-slate-50 min-h-screen w-full p-4 sm:p-8 font-sans">
+      
+      {/* ---------- HEADER ---------- */}
+      <div className="max-w-7xl mx-auto mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate(-1)}
+              className="p-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 transition-all shadow-sm"
+            >
+              <ChevronLeft size={20} className="text-slate-600" />
+            </button>
+            <div>
+              <h1 className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
+                Kalki Certification <ShieldCheck className="text-blue-600" size={24} />
+              </h1>
+              <p className="text-slate-500 text-sm">Request official quality badges for your top products</p>
+            </div>
+          </div>
+        </div>
+        <div className="h-px bg-slate-200 mt-6" />
+      </div>
 
-    <button
-      onClick={() => navigate(-1)}
-      className="flex items-center gap-1 px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 whitespace-nowrap"
-    >
-      <ChevronLeft className="w-4 h-4" />
-      Back
-    </button>
-  </div>
+      {error && (
+        <div className="max-w-7xl mx-auto mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-center gap-3">
+          <AlertCircle size={20} />
+          <span>{error}</span>
+          <button onClick={loadData} className="ml-auto underline font-bold">Retry</button>
+        </div>
+      )}
 
-  {/* divider must be OUTSIDE flex */}
-  <div className="h-px bg-gray-200 mt-4" />
-</div>
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        {/* ================= LEFT: PRODUCT SELECTION ================= */}
+        <div className="lg:col-span-7 space-y-6">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="p-4 border-b border-slate-50 bg-slate-50/50">
+              <h3 className="font-bold text-slate-700 text-sm flex items-center gap-2">
+                <Package size={16} /> Select a Product to Certify
+              </h3>
+            </div>
 
+            {loading ? (
+              <div className="p-20 flex flex-col items-center justify-center gap-3">
+                <Loader2 className="animate-spin text-blue-600" size={32} />
+                <p className="text-slate-400 text-sm font-medium">Fetching available products...</p>
+              </div>
+            ) : (
+              <>
+                {/* DESKTOP TABLE */}
+                <div className="hidden md:block">
+                  <table className="w-full text-left border-collapse">
+                    <thead className="bg-slate-50/30 text-slate-400 text-[10px] uppercase font-bold tracking-widest">
+                      <tr>
+                        <th className="px-6 py-4">No.</th>
+                        <th className="px-6 py-4">Product ID</th>
+                        <th className="px-6 py-4">Product Name</th>
+                        <th className="px-6 py-4 text-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {products.length > 0 ? products.map((item, index) => (
+                        <tr 
+                          key={item.id} 
+                          onClick={() => setSelectedProduct(item)}
+                          className={`cursor-pointer transition-all ${
+                            selectedProduct?.id === item.id ? "bg-blue-50/50" : "hover:bg-slate-50"
+                          }`}
+                        >
+                          <td className="px-6 py-4 text-slate-400 text-sm">{index + 1}</td>
+                          <td className="px-6 py-4 font-bold text-slate-700 text-sm">#{item.product_uid}</td>
+                          <td className="px-6 py-4 text-slate-600 font-medium text-sm">{item.name}</td>
+                          <td className="px-6 py-4 text-right">
+                            <button className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                              selectedProduct?.id === item.id 
+                              ? "bg-blue-600 text-white shadow-md shadow-blue-200" 
+                              : "bg-slate-100 text-slate-600 hover:bg-blue-100 hover:text-blue-600"
+                            }`}>
+                              {selectedProduct?.id === item.id ? "Selected" : "Select"}
+                            </button>
+                          </td>
+                        </tr>
+                      )) : (
+                        <tr>
+                          <td colSpan={4} className="px-6 py-10 text-center text-slate-400">No products available for certification.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
 
-      <div className="flex flex-col items-center w-full gap-10">
-
-        {/* ================= TABLE (DESKTOP) ================= */}
-        <div className="hidden lg:block w-full max-w-3xl border rounded-md shadow-sm overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-[#f5f5f5] border-b">
-              <tr>
-                <th className="p-3 text-left">No.</th>
-                <th className="p-3 text-left">Product ID</th>
-                <th className="p-3 text-left">Products</th>
-                <th className="p-3 text-left">Request</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {products.map((item) => (
-                <tr key={item.id} className="border-b">
-                  <td className="p-3">{item.id}</td>
-                  <td className="p-3">{item.productID}</td>
-                  <td className="p-3">{item.productName}</td>
-                  <td className="p-3">
-                    <button
+                {/* MOBILE VIEW */}
+                <div className="md:hidden divide-y divide-slate-100">
+                  {products.map((item) => (
+                    <div 
+                      key={item.id} 
                       onClick={() => setSelectedProduct(item)}
-                      className="px-4 py-1 rounded-full bg-[#6bc5ff] hover:bg-[#3db4ff] text-white text-xs"
+                      className={`p-4 transition-all ${selectedProduct?.id === item.id ? "bg-blue-50 border-l-4 border-blue-600" : ""}`}
                     >
-                      Request
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-tighter">ID: #{item.product_uid}</span>
+                        {selectedProduct?.id === item.id && <CheckCircle2 size={16} className="text-blue-600" />}
+                      </div>
+                      <h4 className="font-bold text-slate-800">{item.name}</h4>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
-        {/* ================= CARDS (MOBILE / TABLET) ================= */}
-        <div className="lg:hidden w-full max-w-3xl space-y-4">
-          {products.map((item) => (
-            <div
-              key={item.id}
-              className="border rounded-md p-4 shadow-sm bg-gray-50"
-            >
-              <div className="flex justify-between mb-2 text-sm font-medium">
-                <span>No. {item.id}</span>
-                <span>ID: {item.productID}</span>
+        {/* ================= RIGHT: REQUEST FORM ================= */}
+        <div className="lg:col-span-5 lg:sticky lg:top-24">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 relative overflow-hidden">
+            <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+              <ClipboardCheck size={20} className="text-blue-600" />
+              Certification Request
+            </h2>
+
+            {selectedProduct ? (
+              <div className="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">Target Product</p>
+                <p className="text-blue-900 font-bold">{selectedProduct.name}</p>
+                <p className="text-blue-600 text-xs font-medium">Product ID: #{selectedProduct.product_uid}</p>
+              </div>
+            ) : (
+              <div className="mb-6 p-4 bg-slate-50 rounded-xl border border-dashed border-slate-300 text-center">
+                <p className="text-slate-400 text-sm">Please select a product from the list</p>
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">
+                  Reason for Certification
+                </label>
+                <textarea
+                  className="w-full h-32 border border-slate-200 rounded-xl p-4 text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none"
+                  placeholder="Explain why this product deserves a Kalki Certified badge..."
+                  defaultValue={selectedProduct?.reason || ""}
+                />
               </div>
 
-              <p className="text-sm mb-3">
-                <strong>Product:</strong> {item.productName}
-              </p>
+              <div className="flex items-start gap-3 p-3 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer group">
+                <input type="checkbox" className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                <span className="text-xs text-slate-500 leading-relaxed group-hover:text-slate-700 transition-colors">
+                  I confirm that all product specifications provided are accurate.
+                </span>
+              </div>
 
-              <button
-                onClick={() => setSelectedProduct(item)}
-                className="px-4 py-1 rounded-full bg-[#6bc5ff] hover:bg-[#3db4ff] text-white text-xs"
+              <button 
+                disabled={!selectedProduct || loading}
+                className={`w-full py-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-lg ${
+                  selectedProduct 
+                  ? "bg-blue-600 text-white hover:bg-blue-700 shadow-blue-200" 
+                  : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
+                }`}
               >
-                Request
+                <Send size={18} /> Submit Application
               </button>
             </div>
-          ))}
-        </div>
-
-        {/* ================= REQUEST FORM ================= */}
-        <div className="w-full max-w-md border rounded-md shadow-lg p-6 bg-white">
-          <h2 className="text-sm font-semibold mb-2">
-            Request for KalkiDeals Certification
-          </h2>
-
-          <p className="text-xs mb-2">
-            <strong>Product ID:</strong>{" "}
-            {selectedProduct ? selectedProduct.productID : "------"}
-          </p>
-
-          <label className="text-xs font-medium">
-            Reason for Certification:
-          </label>
-
-          <textarea
-            className="w-full mt-2 h-32 border rounded-md p-2 text-sm outline-none"
-            placeholder="Write your reason..."
-          />
-
-          <div className="mt-3 flex items-start gap-2">
-            <input type="checkbox" className="mt-1 w-4 h-4" />
-            <span className="text-xs">
-              I confirm the information is true and accurate
-            </span>
           </div>
-
-          <button className="mt-4 w-full bg-[#3f7bfd] hover:bg-[#2d66e8] text-white py-2 rounded-md text-sm">
-            Submit Request
-          </button>
         </div>
       </div>
     </div>

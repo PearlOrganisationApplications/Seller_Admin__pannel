@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-// ❌ REMOVE: import AdminLayout from "../layouts/AdminLayout";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import "./BarChart/Users.css";
 import { BASE_URL } from "../api/BaseUrl";
 
@@ -7,6 +7,7 @@ export default function Users() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const navigate = useNavigate(); // Initialize navigate
 
   useEffect(() => {
     fetch(`${BASE_URL}/api/admin/Customers`)
@@ -67,9 +68,14 @@ export default function Users() {
   const viewOrderHistory = (id) => alert(`Order history loaded: ${id}`);
 
   return (
-    // ✅ CHANGE: Use a simple div, NOT AdminLayout
     <div className="users-page-container">
-      <h2 className="page-title">Customer Management</h2>
+      {/* Header with Back Button and Title */}
+      <div className="header-container">
+        <button className="back-btn" onClick={() => navigate(-1)}>
+          ← Back
+        </button>
+        <h2 className="page-title">Customer Management</h2>
+      </div>
 
       <div className="search-box">
         <input

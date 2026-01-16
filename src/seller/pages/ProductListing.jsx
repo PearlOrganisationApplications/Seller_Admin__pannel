@@ -1,300 +1,168 @@
-import React, { useState, useRef, useEffect } from "react";
-import { ChevronDown, ChevronLeft } from "lucide-react";
+"use client";
+import React, { useState, useRef } from "react";
+import { 
+  ChevronLeft, Upload, X, Check, 
+  Info, Layers, Settings, DollarSign, Loader2 
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { addProduct } from "../api/productListingApi";
+import toast from "react-hot-toast";
 
-/* ---------------- OPTIONS ---------------- */
-
-const categoryOptions = [
-  "Clothing",
-  "Footwear",
-  "Accessories",
-  "Electronics",
-  "Home & Kitchen",
-];
-
-const productOptions = [
-  "T-Shirt",
-  "Jeans",
-  "Jacket",
-  "Sneakers",
-  "Watch",
-];
-
-const colorOptions = [
-  "Khaki", "Light Pink", "Black", "Beige", "Brown",
-  "Yellow", "Blue", "White", "Red", "Combo of different color",
-];
-
-const sizeOptions = [
-  "0-2 yrs","2-5 yrs","5-10 yrs","10-16 yrs","10","26","28","28A","28C","28D",
-  "28E","30","30A","30B","30C","30D","30E","32","32A","32B","32C","32D",
-  "32E","34","34A","34B","34C","34D","34E","36","36A","36B","36C","36D",
-  "36E","38","38A","38B","38C","38E","40","40A","40B","40C","40D","40E",
-  "42B","2.4","2.6","2.8","4XL","5XL","6XL","7XL","8XL","9XL","XXS","XS",
-  "S","M","L","XL",
-];
-
-/* ---------------- HOOK ---------------- */
-
-function useOutsideClick(ref, handler) {
-  useEffect(() => {
-    const listener = (e) => {
-      if (!ref.current || ref.current.contains(e.target)) return;
-      handler();
-    };
-    document.addEventListener("mousedown", listener);
-    return () => document.removeEventListener("mousedown", listener);
-  }, [ref, handler]);
-}
-
-/* ---------------- DROPDOWN ---------------- */
-
-function Dropdown({ label, options, value, onChange, placeholder = "Select" }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef(null);
-
-  useOutsideClick(ref, () => setOpen(false));
-
-  return (
-    <div className="relative w-full" ref={ref}>
-      <label className="block text-sm text-gray-600 mb-2">{label}</label>
-
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className="w-full flex justify-between items-center border border-gray-200 rounded px-3 py-2 bg-white text-sm"
-      >
-        <span className={value ? "text-gray-800" : "text-gray-400"}>
-          {value || placeholder}
-        </span>
-        <ChevronDown className="w-4 h-4 text-gray-500" />
-      </button>
-
-      {open && (
-        <ul className="absolute top-full left-0 mt-1 w-full max-h-48 overflow-auto bg-white border rounded shadow-lg z-50">
-          {options.map((opt) => (
-            <li
-              key={opt}
-              onClick={() => {
-                onChange?.(opt);
-                setOpen(false);
-              }}
-              className="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer"
-            >
-              {opt}
-            </li>
-          ))}
-        </ul>
-      )}
+/* ---------------- UI COMPONENTS ---------------- */
+const Section = ({ title, icon: Icon, children }) => (
+  <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6 transition-all hover:shadow-md">
+    <div className="flex items-center gap-3 mb-6">
+      <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
+        <Icon size={20} />
+      </div>
+      <h2 className="text-lg font-bold text-gray-800 tracking-tight">{title}</h2>
     </div>
-  );
-}
+    {children}
+  </div>
+);
 
-/* ---------------- PAGE ---------------- */
+/* ---------------- CONSTANTS ---------------- */
+const colorOptions = [{ id: "1", name: "Khaki" }, { id: "2", name: "Light Pink" }, { id: "3", name: "Black" }];
+const sizeOptions = [{ id: "1", name: "S" }, { id: "2", name: "M" }, { id: "3", name: "L" }];
 
 export default function ProductListing() {
   const navigate = useNavigate();
-
-  const [category, setCategory] = useState("");
-  const [productName, setProductName] = useState("");
-  const [description, setDescription] = useState("");
-  const [sameProductDifferentColor, setSameProductDifferentColor] = useState(null);
-  const [selectedColors, setSelectedColors] = useState([]);
-  const [selectedSizes, setSelectedSizes] = useState([]);
-
-  const [images, setImages] = useState([]);
   const fileInputRef = useRef(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const toggleColor = (c) =>
-    setSelectedColors((p) => p.includes(c) ? p.filter(x => x !== c) : [...p, c]);
-
-  const toggleSize = (s) =>
-    setSelectedSizes((p) => p.includes(s) ? p.filter(x => x !== s) : [...p, s]);
+  const [basicInfo, setBasicInfo] = useState({ category_id: "1", name: "", description: "" });
+  const [pricing, setPricing] = useState({ cost_price: "", mrp: "", estimated_selling_price: "", shipping_fee: "0", show_delivery_charge: "yes" });
+  const [specs, setSpecs] = useState({ Material: "Cotton", Occasion: "Casual", Fabric: "Silk" });
+  const [variants, setVariants] = useState([{ color_id: "1", size_id: "1", price: "", stock: "", sku: "" }]);
+  const [imageFiles, setImageFiles] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    setImages((p) => [...p, ...files.map(f => URL.createObjectURL(f))]);
+    setImageFiles(prev => [...prev, ...files]);
+    setImagePreviews(prev => [...prev, ...files.map(f => URL.createObjectURL(f))]);
   };
 
-  const removeImage = (i) =>
-    setImages((p) => p.filter((_, idx) => idx !== i));
+  const removeImage = (index) => {
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const updateVariant = (index, field, value) => {
+    const newVariants = [...variants];
+    newVariants[index][field] = value;
+    setVariants(newVariants);
+  };
+
+  const addVariantRow = () => setVariants([...variants, { color_id: "1", size_id: "1", price: "", stock: "", sku: "" }]);
+
+  const handleSubmit = async () => {
+    if (!basicInfo.name || imageFiles.length === 0) {
+      toast.error("Product name and at least one image are required.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    const data = new FormData();
+    data.append("category_id", String(basicInfo.category_id));
+    data.append("name", basicInfo.name);
+    data.append("description", basicInfo.description);
+    data.append("cost_price", String(pricing.cost_price));
+    data.append("mrp", String(pricing.mrp));
+    data.append("estimated_selling_price", String(pricing.estimated_selling_price));
+    data.append("shipping_fee", String(pricing.shipping_fee));
+    data.append("show_delivery_charge", pricing.show_delivery_charge);
+
+    imageFiles.forEach(file => data.append("images[]", file, file.name));
+
+    variants.forEach((v, i) => {
+      data.append(`variants[${i}][color_id]`, String(v.color_id));
+      data.append(`variants[${i}][size_id]`, String(v.size_id));
+      data.append(`variants[${i}][price]`, String(v.price));
+      data.append(`variants[${i}][stock]`, String(v.stock));
+      data.append(`variants[${i}][sku]`, String(v.sku));
+    });
+
+    Object.keys(specs).forEach(key => data.append(`specifications[${key}]`, specs[key]));
+
+    try {
+      const res = await addProduct(data);
+      toast.success("Product published successfully!");
+      
+      navigate("/seller/all-details"); 
+      
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Submission Failed");
+    } finally { setIsSubmitting(false); }
+  };
 
   return (
-    <div className="min-h-screen bg-white p-4 sm:p-6">
-
-      {/* HEADER */}
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl sm:text-2xl font-medium">Product Listing</h1>
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-1 px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          <ChevronLeft className="w-4 h-4" />
-          Back
-        </button>
-      </div>
-
-      <div className="h-px bg-gray-200 mb-6" />
-
-      {/* BASIC DETAILS */}
-      <div className="space-y-4 max-w-xl">
-        <Dropdown label="Select Category" options={categoryOptions} value={category} onChange={setCategory} />
-        <Dropdown label="Product Name" options={productOptions} value={productName} onChange={setProductName} />
-
-        <input
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Short description..."
-          className="w-full border rounded px-3 py-2 text-sm"
-        />
-      </div>
-
-      {/* COLORS */}
-      <div className="mt-8">
-        <p className="text-sm mb-3">Choose available colors</p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {colorOptions.map((c) => (
-            <button
-              key={c}
-              onClick={() => toggleColor(c)}
-              className={`px-3 py-2 text-sm border rounded ${
-                selectedColors.includes(c)
-                  ? "bg-blue-600 text-white"
-                  : "bg-white"
-              }`}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* SIZES */}
-      <div className="mt-8">
-        <p className="text-sm mb-3">Choose available sizes</p>
-        <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
-          {sizeOptions.map((s) => (
-            <button
-              key={s}
-              onClick={() => toggleSize(s)}
-              className={`px-3 py-2 text-sm border rounded ${
-                selectedSizes.includes(s)
-                  ? "bg-blue-600 text-white"
-                  : "bg-white"
-              }`}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* MANY DROPDOWNS */}
-      <div className="mt-10">
-        <p className="text-sm mb-4">Specify your product</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Dropdown label="Dial Shape" options={["Round", "Square", "Oval"]} />
-              <Dropdown label="Gender" options={["Male", "Female", "Unisex"]} />
-              <Dropdown label="Compatible Models" options={["Model A", "Model B", "Model C"]} />
-              <Dropdown label="Occasion" options={["Casual", "Party", "Festive", "Office"]} />
-              <Dropdown label="Fabric" options={["Cotton", "Silk", "Rayon", "Polyester"]} />
-              <Dropdown label="Waist Rise" options={["Low", "Mid", "High"]} />
-              <Dropdown label="Color" options={["Red", "Black", "White", "Blue", "Green"]} />
-              <Dropdown label="Combo" options={["Single", "Pack of 2", "Pack of 3"]} />
-              <Dropdown label="Heel Type" options={["Flat", "Block", "Wedge", "Kitten"]} />
-              <Dropdown label="Fit/Shape" options={["Slim", "Regular", "Relaxed"]} />
-              <Dropdown label="Used For" options={["Daily", "Gym", "Party", "Office"]} />
-              <Dropdown label="Concern" options={["Comfort", "Style", "Support"]} />
-              <Dropdown label="Bottom Length" options={["Above Knee", "Knee Length", "Full Length"]} />
-              <Dropdown label="Material" options={["Plastic", "Metal", "Wood", "Fiber"]} />
-              <Dropdown label="Type" options={["Basic", "Premium", "Designer"]} />
-              <Dropdown label="Bottom Style" options={["Straight", "Flared", "Tapered"]} />
-              <Dropdown label="Print or Pattern" options={["Solid", "Printed", "Striped"]} />
-              <Dropdown label="Frame Shape" options={["Round", "Square", "Aviator"]} />
-              <Dropdown label="Ornamentation" options={["None", "Embroidery", "Sequins"]} />
-              <Dropdown label="Bottom Wear" options={["Jeans", "Trousers", "Skirts"]} />
-              <Dropdown label="Frame Type" options={["Full Rim", "Half Rim", "Rimless"]} />
-              <Dropdown label="Border" options={["Yes", "No"]} />
-              <Dropdown label="Border Type" options={["Thin", "Thick", "Double"]} />
-              <Dropdown label="No. of Components" options={["1", "2", "3"]} />
-              <Dropdown label="Back Type" options={["Regular", "Backless", "Tie-up"]} />
-              <Dropdown label="Surface Styling" options={["Plain", "Textured", "Glossy"]} />
-              <Dropdown label="Type of Skin" options={["Normal", "Oily", "Dry"]} />
-              <Dropdown label="Inner Fabric" options={["Cotton", "Polyester", "Nylon"]} />
-              <Dropdown label="Top Pattern" options={["Solid", "Printed"]} />
-              <Dropdown label="Type of Hair" options={["Short", "Medium", "Long"]} />
-              <Dropdown label="Warranty Period" options={["No Warranty", "6 Months", "1 Year"]} />
-              <Dropdown label="Padding" options={["Non-Padded", "Lightly Padded"]} />
-              <Dropdown label="Card Slot" options={["2", "4", "6", "8"]} />
-              <Dropdown label="Bottom Type" options={["Pants", "Shorts", "Tights"]} />
-              <Dropdown label="Lens Material" options={["Glass", "Polycarbonate"]} />
-              <Dropdown label="Base Metal" options={["Alloy", "Brass", "Stainless Steel"]} />
-              <Dropdown label="Dial Design" options={["Simple", "Designer"]} />
-              <Dropdown label="Flavour" options={["Vanilla", "Chocolate", "Strawberry"]} />
-              <Dropdown label="Shade" options={["Light", "Medium", "Dark"]} />
-              <Dropdown label="Brand Name" options={["Nike", "Adidas", "Zara", "H&M"]} />
-        </div>
-      </div>
-
-      {/* IMAGES */}
-       <div className="mt-10">
-        <h2 className="text-sm font-medium mb-3">Add Product Image (at least 3 smartly)</h2>
-
-        <div className="flex flex-col items-center">
-          
-          {/* Large Upload Button */}
-          <div
-            onClick={() => fileInputRef.current.click()}
-            className="border-2 border-dashed border-gray-300 w-40 h-40 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition"
-          >
-            <span className="text-3xl font-bold">+</span>
-            <p className="text-sm mt-1">Upload photos</p>
+    <div className="min-h-screen bg-[#F8FAFC] pb-24 font-sans text-gray-900">
+      <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-100 px-4 sm:px-8 py-4">
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <button onClick={() => navigate(-1)} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><ChevronLeft size={24} /></button>
+            <h1 className="text-xl font-extrabold tracking-tight">Create Listing</h1>
           </div>
+          <button onClick={handleSubmit} disabled={isSubmitting} className="px-6 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-xl shadow-lg flex items-center gap-2 disabled:bg-blue-300 transition-all hover:bg-blue-700">
+            {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : <Check size={18} />} Publish Product
+          </button>
+        </div>
+      </div>
 
-          {/* Hidden File Input */}
-          <input
-            type="file"
-            ref={fileInputRef}
-            multiple
-            accept="image/*"
-            onChange={handleImageUpload}
-            className="hidden"
-          />
-
-          {/* Image Grid */}
-          <div className="grid grid-cols-3 gap-3 mt-6">
-            {images.map((img, index) => (
-              <div key={index} className="relative">
-                <img
-                  src={img}
-                  className="w-24 h-24 object-cover rounded-md border"
-                />
-
-                {/* Delete Button */}
-                <button
-                  onClick={() => removeImage(index)}
-                  className="absolute top-0 right-0 bg-black text-white text-xs px-1 rounded"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-
-            {/* Small + Add More */}
-            <div
-              onClick={() => fileInputRef.current.click()}
-              className="w-24 h-24 border rounded-md border-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-50"
-            >
-              <span className="text-3xl font-bold">+</span>
+      <div className="max-w-6xl mx-auto p-4 sm:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-6">
+          <Section title="General Information" icon={Info}>
+            <div className="space-y-4">
+              <label className="text-xs font-bold text-gray-400 uppercase">Category ID</label>
+              <input value={basicInfo.category_id} className="w-full border rounded-xl px-4 py-2.5 text-sm bg-gray-50 outline-blue-500" onChange={e => setBasicInfo({...basicInfo, category_id: e.target.value})} />
+              <input placeholder="Product Name" className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-blue-500" onChange={e => setBasicInfo({...basicInfo, name: e.target.value})} />
+              <textarea placeholder="Description" rows={3} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-blue-500" onChange={e => setBasicInfo({...basicInfo, description: e.target.value})} />
             </div>
-          </div>
-        </div>
-      </div>
+          </Section>
 
-      {/* FOOTER */}
-      <div className="mt-10 flex gap-3">
-        <button className="px-4 py-2 border rounded">Cancel</button>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded">Save & Continue</button>
+          <Section title="Pricing & Shipping" icon={DollarSign}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div><label className="text-[10px] uppercase font-bold text-gray-400">Cost Price</label><input type="number" className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm outline-blue-500" onChange={e => setPricing({...pricing, cost_price: e.target.value})} /></div>
+              <div><label className="text-[10px] uppercase font-bold text-gray-400">MRP</label><input type="number" className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm outline-blue-500" onChange={e => setPricing({...pricing, mrp: e.target.value})} /></div>
+              <div><label className="text-[10px] uppercase font-bold text-gray-400">Selling Price</label><input type="number" className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm outline-blue-500" onChange={e => setPricing({...pricing, estimated_selling_price: e.target.value})} /></div>
+              <div><label className="text-[10px] uppercase font-bold text-gray-400">Shipping Fee</label><input type="number" className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm outline-blue-500" onChange={e => setPricing({...pricing, shipping_fee: e.target.value})} /></div>
+            </div>
+          </Section>
+
+          <Section title="Product Variants" icon={Layers}>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead><tr className="text-gray-400 text-xs uppercase font-bold"><th className="pb-3 pr-2">Color</th><th className="pb-3 pr-2">Size</th><th className="pb-3 pr-2">Price</th><th className="pb-3 pr-2">Stock</th><th className="pb-3">SKU</th></tr></thead>
+                <tbody>{variants.map((v, i) => (
+                    <tr key={i}>
+                      <td className="pr-2 pb-2"><select className="border border-gray-200 rounded p-2 text-xs w-full" value={v.color_id} onChange={e => updateVariant(i, 'color_id', e.target.value)}>{colorOptions.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></td>
+                      <td className="pr-2 pb-2"><select className="border border-gray-200 rounded p-2 text-xs w-full" value={v.size_id} onChange={e => updateVariant(i, 'size_id', e.target.value)}>{sizeOptions.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select></td>
+                      <td className="pr-2 pb-2"><input className="w-20 border border-gray-200 rounded p-2 text-xs" placeholder="Price" onChange={e => updateVariant(i, 'price', e.target.value)} /></td>
+                      <td className="pr-2 pb-2"><input className="w-16 border border-gray-200 rounded p-2 text-xs" placeholder="Qty" onChange={e => updateVariant(i, 'stock', e.target.value)} /></td>
+                      <td className="pb-2"><input className="w-full border border-gray-200 rounded p-2 text-xs" placeholder="SKU" onChange={e => updateVariant(i, 'sku', e.target.value)} /></td>
+                    </tr>
+                ))}</tbody>
+              </table>
+              <button onClick={addVariantRow} className="mt-2 text-blue-600 text-xs font-bold hover:underline">+ Add row</button>
+            </div>
+          </Section>
+
+          <Section title="Specifications" icon={Settings}>
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{Object.keys(specs).map(key => (
+                 <div key={key}><label className="text-[10px] uppercase font-bold text-gray-400 mb-1 block">{key}</label><input value={specs[key]} className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm bg-gray-50 outline-blue-500" onChange={e => setSpecs({...specs, [key]: e.target.value})} /></div>
+             ))}</div>
+          </Section>
+        </div>
+
+        <div className="lg:col-span-1">
+          <Section title="Media" icon={Upload}>
+            <div onClick={() => fileInputRef.current.click()} className="border-2 border-dashed border-gray-200 rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 transition-all mb-4 group"><Upload className="text-gray-400 group-hover:text-blue-500 mb-2" /><p className="text-xs font-bold text-gray-500">Add Images</p><input type="file" ref={fileInputRef} multiple className="hidden" onChange={handleImageUpload} accept="image/*" /></div>
+            <div className="grid grid-cols-3 gap-2">{imagePreviews.map((src, i) => (
+                <div key={i} className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 shadow-sm"><img src={src} className="w-full h-full object-cover" alt="Preview" /><button onClick={() => removeImage(i)} className="absolute top-1 right-1 bg-white/90 rounded-full p-1 shadow-md hover:bg-red-500 hover:text-white transition-colors"><X size={12} /></button></div>
+            ))}</div>
+          </Section>
+        </div>
       </div>
     </div>
   );

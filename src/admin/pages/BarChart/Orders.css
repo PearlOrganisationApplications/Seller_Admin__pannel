@@ -2,12 +2,39 @@
   padding: 10px;
 }
 
-.page-title {
-  text-align: center;
+/* Header layout for Back Button + Title */
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin: 10px 0 25px 0;
+}
+
+.back-btn {
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.back-btn:hover {
+  background-color: #555;
+}
+
+.page-title {
+  flex-grow: 1;
+  text-align: center;
   color: #333;
   font-size: 26px;
   font-weight: 700;
+  margin: 0;
+  /* Offset to keep title centered relative to the whole page */
+  margin-right: 80px; 
 }
 
 .search-box {
@@ -26,7 +53,7 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-/* FIX: Group boxes properly */
+/* Filter Boxes */
 .container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
@@ -70,6 +97,7 @@
 .orders-table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 1000px;
 }
 
 .orders-table th {
@@ -108,3 +136,14 @@
 
 .btn.save { background: #004aad; }
 .btn.manage { background: #16a34a; }
+
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 20px;
+    margin-right: 0;
+  }
+  .back-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}

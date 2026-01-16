@@ -34,10 +34,6 @@ export default function UnifiedLogin() {
             <span className="font-black text-slate-700 tracking-wider">SELLER PANEL</span>
           </button>
         </div>
-
-        <p className="mt-10 text-slate-400 text-xs font-medium">
-          New seller? <button onClick={() => navigate("/seller/registration")} className="text-blue-600 font-bold underline">Register Now</button>
-        </p>
       </div>
     </div>
   );

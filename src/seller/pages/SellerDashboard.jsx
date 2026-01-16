@@ -50,16 +50,16 @@ export default function SellerDashboard() {
       </div>
 
       {/* Sales Chart */}
-      <div className="border border-blue-100 rounded-2xl p-6 mb-10 bg-white lg:w-[75%]">
+      <div className="border border-blue-100 rounded-2xl p-6 mb-10 bg-white w-full">
         <h3 className="font-bold text-gray-700 mb-6 px-2">Sales Analytics Overview</h3>
-        <div className="h-64">
+        <div className="h-72 w-full"> {/* Increased height for better view */}
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={demoData}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-              <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fontSize: 12}} />
-              <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12}} />
+              <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
               <Tooltip />
-              <Line type="monotone" dataKey="value" stroke="#4A6CF7" strokeWidth={3} dot={{r: 4}} />
+              <Line type="monotone" dataKey="value" stroke="#4A6CF7" strokeWidth={3} dot={{ r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
