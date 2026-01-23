@@ -5,14 +5,14 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  Legend,
   CartesianGrid,
   PieChart,
   Pie,
   ResponsiveContainer
 } from "recharts";
 import Costumers from "../components/Costumers";
-import axios from "axios";
+// Import the new API service
+import { getDashboardBuyers, getDashboardSellers } from "../api/dashboardApi";
 
 const barData = [
   { name: "Jan", orders: 400 },
@@ -25,39 +25,40 @@ const barData = [
 const Dashboard = () => {
   const [totalBuyers, setTotalBuyers] = useState(0);
   const [totalSellers, setTotalSellers] = useState(0);
-
-  const token = localStorage.getItem("access_token");
-  const baseURL = "https://kalkideals.com";
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchBuyers();
-    fetchSellers();
+    const loadDashboardData = async () => {
+      try {
+        setLoading(true);
+        // Run both requests in parallel
+        const [buyersData, sellersData] = await Promise.all([
+          getDashboardBuyers(),
+          getDashboardSellers()
+        ]);
+
+        if (buyersData.status) {
+          setTotalBuyers(buyersData.customers?.length || 0);
+        }
+        if (sellersData.status) {
+          setTotalSellers(sellersData.sellers?.length || 0);
+        }
+      } catch (error) {
+        console.error("Dashboard Data Error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDashboardData();
   }, []);
-
-  const fetchBuyers = async () => {
-    try {
-      const res = await axios.get(`${baseURL}/api/admin/Customers`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setTotalBuyers(res.data?.customers?.length || 0);
-    } catch (error) { console.error("Buyers API Error:", error); }
-  };
-
-  const fetchSellers = async () => {
-    try {
-      const res = await axios.get(`${baseURL}/api/admin/Sellers`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setTotalSellers(res.data?.sellers?.length || 0);
-    } catch (error) { console.error("Sellers API Error:", error); }
-  };
 
   return (
     <div className="p-2">
       {/* Top Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Costumers title={"Total Buyers"} qty={totalBuyers} />
-        <Costumers title={"Total Sellers"} qty={totalSellers} />
+        <Costumers title={"Total Buyers"} qty={loading ? "..." : totalBuyers} />
+        <Costumers title={"Total Sellers"} qty={loading ? "..." : totalSellers} />
         <Costumers title={"Pending Orders"} qty={1192} />
         <Costumers title={"Total Orders"} qty={5692} />
       </div>
@@ -66,16 +67,24 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center">
           <h3 className="font-bold mb-4">Buyer Status</h3>
-          <PieChart width={300} height={250}>
-            <Pie
-              data={[
-                { name: "Active", value: totalBuyers },
-                { name: "Inactive", value: 20 },
-              ]}
-              dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} fill="#004AAD" label
-            />
-            <Tooltip />
-          </PieChart>
+          <ResponsiveContainer width="100%" height={250}>
+            <PieChart>
+              <Pie
+                data={[
+                  { name: "Active Buyers", value: totalBuyers },
+                  { name: "Inactive", value: 20 },
+                ]}
+                dataKey="value" 
+                nameKey="name" 
+                cx="50%" 
+                cy="50%" 
+                outerRadius={80} 
+                fill="#004AAD" 
+                label
+              />
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
         </div>
 
         <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
@@ -92,7 +101,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Table Section */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <table className="w-full text-left">
           <thead className="bg-gray-50 border-b">

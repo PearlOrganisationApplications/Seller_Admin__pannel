@@ -131,3 +131,39 @@
     display: none !important;
   }
 }
+
+/* Base sidebar */
+.sidebar {
+  width: 220px;
+  background: #b6ccd7;
+  height: 100vh;
+  padding-top: 12px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  border-right: 1px solid #f6f8f9;
+  color: black;
+  transition: width 0.25s ease, transform 0.28s ease, box-shadow 0.2s ease;
+  z-index: 1500;
+  display: flex;
+  flex-direction: column;
+
+  /* ADD THESE LINES */
+  overflow-y: auto;   /* Allows vertical scrolling */
+  overflow-x: hidden; /* Prevents accidental horizontal shifting */
+  scrollbar-width: thin; /* Makes scrollbar thinner in Firefox */
+}
+
+/* Optional: Make the scrollbar look cleaner (Chrome/Safari/Edge) */
+.sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}

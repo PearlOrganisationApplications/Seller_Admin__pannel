@@ -6,34 +6,44 @@ import AdminLoginPage from "./admin/pages/Login";
 import SellerLoginPage from "./seller/pages/Login";
 import AdminApp from "./admin/AdminApp"; 
 import SellerApp from "./seller/SellerApp";
+import SellerRegistration from "./seller/pages/SellerRegistration"; 
+import GSTStep from "./seller/pages/GSTStep";
+import AadharStep from "./seller/pages/AadharStep";
+import ThankYou from "./seller/pages/ThankYou";
 
 // AUTH HELPERS
+// AUTH HELPERS
 function PrivateRoute({ children, requiredType }) {
-  const token = localStorage.getItem("access_token");
+  const token = localStorage.getItem("token"); 
   const userType = localStorage.getItem("user_type");
 
-  // If token is missing or is the broken string "undefined"
-  if (!token || token === "undefined") {
-    localStorage.clear();
+  // Improved check for valid token
+  const isAuthenticated = token && token !== "undefined" && token !== "null";
+
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
   
-  // If user tries to access admin panel with seller credentials
+  // Ensure user is accessing their own portal
   if (requiredType && userType !== requiredType) {
     const redirectPath = userType === "admin" ? "/admin/dashboard" : "/seller/dashboard";
     return <Navigate to={redirectPath} replace />;
   }
+  
   return children;
 }
 
 function PublicRoute({ children }) {
-  const token = localStorage.getItem("access_token");
+  const token = localStorage.getItem("token"); 
   const userType = localStorage.getItem("user_type");
 
-  if (token && token !== "undefined") {
+  const isAuthenticated = token && token !== "undefined" && token !== "null";
+
+  if (isAuthenticated) {
     const redirectPath = userType === "admin" ? "/admin/dashboard" : "/seller/dashboard";
     return <Navigate to={redirectPath} replace />;
   }
+  
   return children;
 }
 
@@ -41,11 +51,18 @@ export default function App() {
   return (
     <Router>
       <Routes>
+        {/* PUBLIC ROUTES */}
         <Route path="/login" element={<PublicRoute><UnifiedLogin /></PublicRoute>} /> 
         <Route path="/admin/login" element={<PublicRoute><AdminLoginPage /></PublicRoute>} />
         <Route path="/seller/login" element={<PublicRoute><SellerLoginPage /></PublicRoute>} />
+        
+        {/* MOVED REGISTRATION HERE: It must be a PublicRoute to avoid the PrivateRoute redirect */}
+        <Route path="/seller/registration" element={<PublicRoute><SellerRegistration /></PublicRoute>} />
+        <Route path="/seller/gst" element={<PublicRoute> <GSTStep/> </PublicRoute>} />
+        <Route path="/seller/aadhar" element={<PublicRoute> <AadharStep/> </PublicRoute>} />
+        <Route path="/seller/thankyou" element={<PublicRoute> <ThankYou/> </PublicRoute>} />
 
-        {/* The /* is critical for internal routing to work */}
+        {/* PROTECTED ROUTES */}
         <Route path="/admin/*" element={<PrivateRoute requiredType="admin"><AdminApp /></PrivateRoute>} />
         <Route path="/seller/*" element={<PrivateRoute requiredType="seller"><SellerApp /></PrivateRoute>} />
 
@@ -54,4 +71,4 @@ export default function App() {
       </Routes>
     </Router>
   );
-} 
+}

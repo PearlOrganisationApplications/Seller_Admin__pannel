@@ -40,7 +40,7 @@ export default function SellerDashboard() {
           <Bell className="absolute right-0 h-6 w-6 cursor-pointer" />
         </div>
 
-        {/* ---- (your remaining dashboard code stays SAME) ---- */}
+
 
       </div>
     </>

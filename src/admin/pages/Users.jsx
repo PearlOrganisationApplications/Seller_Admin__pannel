@@ -1,18 +1,20 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 import "./BarChart/Users.css";
-import { BASE_URL } from "../api/BaseUrl";
+// Import the new API functions
+import { getCustomers, deleteCustomerApi } from "../api/userApi"; 
 
 export default function Users() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
 
+  // GET USERS USING THE NEW API SERVICE
   useEffect(() => {
-    fetch(`${BASE_URL}/api/admin/Customers`)
-      .then((res) => res.json())
-      .then((data) => {
+    const loadUsers = async () => {
+      try {
+        const data = await getCustomers();
         if (data.status && Array.isArray(data.customers)) {
           const formatted = data.customers.map((u, i) => ({
             id: u.id,
@@ -28,12 +30,37 @@ export default function Users() {
         } else {
           setUsers([]);
         }
+      } catch (error) {
+        console.error("Error loading customers:", error);
+        // If 401 occurs, your axios interceptor handles logic, 
+        // but you can also handle local error states here.
+      } finally {
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      }
+    };
+
+    loadUsers();
   }, []);
 
-  // FILTER SEARCH
+  // DELETE USER USING THE NEW API SERVICE
+  const deleteUser = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this account?")) return;
+    
+    try {
+      const data = await deleteCustomerApi(id);
+      if (data.status) {
+        alert("User deleted successfully");
+        setUsers(users.filter((u) => u.id !== id));
+      } else {
+        alert("Failed to delete user: " + (data.message || "Unknown error"));
+      }
+    } catch (err) {
+      console.error("Delete Error:", err);
+      alert("Failed to delete user. Please check your permissions.");
+    }
+  };
+
+  // FILTER SEARCH (Logic remains the same)
   const filteredUsers = users.filter((u) => {
     const text = search.toLowerCase();
     return (
@@ -48,28 +75,12 @@ export default function Users() {
     );
   });
 
-  // DELETE USER
-  const deleteUser = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this account?")) return;
-    try {
-      const res = await fetch(`${BASE_URL}/api/admin/DeleteCustomer/${id}`, {
-        method: "DELETE",
-      });
-      const data = await res.json();
-      if (data.status) {
-        alert("User deleted successfully");
-        setUsers(users.filter((u) => u.id !== id));
-      } else { alert("Failed to delete user"); }
-    } catch (err) { alert("Failed to delete user"); }
-  };
-
   const viewSearchHistory = (id) => alert(`Search history loaded: ${id}`);
   const viewReturnHistory = (id) => alert(`Return history loaded: ${id}`);
   const viewOrderHistory = (id) => alert(`Order history loaded: ${id}`);
 
   return (
     <div className="users-page-container">
-      {/* Header with Back Button and Title */}
       <div className="header-container">
         <button className="back-btn" onClick={() => navigate(-1)}>
           ← Back

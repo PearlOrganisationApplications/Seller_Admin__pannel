@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import defaultImg from "../img/admin_profile.webp";
+import { BASE_URL } from "../api/axios"; 
+import { getProfile } from "../api/viewProfileApi"; // <--- Import your profile GET API
+import { Bell } from "lucide-react";
 
 export default function Navbar({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
   const navigate = useNavigate();
@@ -9,18 +12,34 @@ export default function Navbar({ collapsed, setCollapsed, mobileOpen, setMobileO
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  useEffect(() => {
-    const load = () => {
+  const loadFreshData = async () => {
+    try {
+      // 1. Fetch the absolute latest data from the Server
+      const res = await getProfile();
+      const user = res.data.admin || res.data;
+
+      setAdminName(user.name);
+      setProfile(user.image);
+
+      // 2. Sync localStorage so it stays updated for next time
+      localStorage.setItem("adminName", user.name);
+      localStorage.setItem("adminImage", user.image);
+    } catch (err) {
+      // Fallback to localStorage if API fails (offline mode)
       setAdminName(localStorage.getItem("adminName") || "Admin");
       setProfile(localStorage.getItem("adminImage"));
-    };
-    load();
-    const onStorage = () => load();
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    }
+  };
+
+  useEffect(() => {
+    // Load fresh data from API on mount
+    loadFreshData();
+
+    // Listen for changes from the ViewProfile page
+    window.addEventListener("storage", loadFreshData);
+    return () => window.removeEventListener("storage", loadFreshData);
   }, []);
 
-  // close dropdown when clicking outside
   useEffect(() => {
     const handler = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -31,11 +50,11 @@ export default function Navbar({ collapsed, setCollapsed, mobileOpen, setMobileO
     return () => document.removeEventListener("click", handler);
   }, []);
 
-  const profileSrc = profile
-    ? `${process.env.REACT_APP_BASE_URL || "https://kalkideals.com"}/uploads/admin/${profile}`
+  // Add a timestamp (?t=...) to bypass browser image cache
+  const profileSrc = profile 
+    ? `${BASE_URL}/${profile}?t=${Date.now()}` 
     : defaultImg;
 
-  // Hamburger behavior: on small screens open mobile drawer, on large toggle collapsed
   const onHamburger = () => {
     if (window.innerWidth <= 768) {
       setMobileOpen && setMobileOpen(!mobileOpen);
@@ -50,34 +69,42 @@ export default function Navbar({ collapsed, setCollapsed, mobileOpen, setMobileO
       style={{
         left: collapsed ? "60px" : "220px",
         width: collapsed ? "calc(100% - 60px)" : "calc(100% - 220px)",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "0 20px"
       }}
     >
       <div className="nav-left">
         <button className="hamburger" onClick={onHamburger} aria-label="Toggle menu">☰</button>
-
-        {/* admin name — hide on tiny screens via CSS */}
         <h2 className="admin-title">{adminName}</h2>
       </div>
 
-      <div className="nav-right" ref={dropdownRef}>
-        <div className="notification" title="Notifications">
-          <img
-            src="https://cdn-icons-png.flaticon.com/512/3602/3602145.png"
-            className="bell-icon"
-            alt="notify"
-          />
-          <span className="notif-count">3</span>
+      <div className="nav-right flex items-center gap-5" ref={dropdownRef}>
+        
+        {/* BELL ICON (Just navigation now) */}
+        <div 
+          className="relative cursor-pointer hover:bg-gray-100 p-2 rounded-full transition-all"
+          onClick={() => navigate("/admin/notifications")}
+          style={{ marginRight: '15px' }}
+        >
+          <Bell size={24} color="#555" />
         </div>
 
-        <div className="profile-preview" onClick={() => setOpen(!open)} title="Profile">
-          <img src={profileSrc} className="profile-img" alt="Profile" />
+        <div className="profile-preview flex items-center gap-3 cursor-pointer" onClick={() => setOpen(!open)}>
+          <img 
+            src={profileSrc} 
+            className="w-10 h-10 rounded-full object-cover border border-gray-600" 
+            alt="Profile" 
+            onError={(e) => { e.target.src = defaultImg; }} 
+          />
         </div>
 
         {open && (
-          <div className="profile-dropdown">
-            <Link to="/view-profile" className="dropdown-item">View Profile</Link>
+          <div className="profile-dropdown shadow-xl" style={{ position: 'absolute', top: '60px', right: '20px', background: 'white', zIndex: 1000 }}>
+            <Link to="/admin/view-profile" className="dropdown-item">View Profile</Link>
             <div
-              className="dropdown-item logout"
+              className="dropdown-item logout text-red-500 cursor-pointer"
               onClick={() => {
                 localStorage.clear();
                 navigate("/login");

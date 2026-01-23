@@ -1,104 +1,161 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
+import { 
+  fetchAllOrders, 
+  fetchNewOrders,     
+  fetchPendingOrders, 
+  fetchConfirmedOrders, 
+  fetchCancelledOrders,
+  processOrderAction 
+} from "../api/orderManagementApi";
 
 export default function OrderManagement() {
-  const orders = [
-    {
-      id: 1,
-      name: "Aman Sharma",
-      contact: "45634859",
-      date: "28-06-25",
-      address:
-        "Building no 4, Morbi subdistrict, Jaxmi weight bridge , morbi District 363642",
-      orderId: "ord224",
-      product: "Woman T-shirt",
-      size: "XL",
-      color: "Black",
-      price: "₹463",
-      image: "https://via.placeholder.com/100x120.png?text=Product",
-    },
-    {
-      id: 2,
-      name: "Aman Sharma",
-      contact: "45634859",
-      date: "28-06-25",
-      address:
-        "Building no 4, Morbi subdistrict, Jaxmi weight bridge , morbi District 363642",
-      orderId: "ord224",
-      product: "Woman T-shirt",
-      size: "XL",
-      color: "Black",
-      price: "₹463",
-      image: "https://via.placeholder.com/100x120.png?text=Product",
-    },
+  const navigate = useNavigate();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(false);
+  const [activeTab, setActiveTab] = useState("All orders");
+
+  const reasons = [
+    "Out of stock", "Price changed", "Product discontinued",
+    "Can ship to customer’s location", "Damaged product in inventory",
+    "Incorrect product listing", "Minimum order quantity not met",
+    "Payment issue (COD not accepted)", "Delay in restocking", "Other reason",
   ];
 
-  const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedReason, setSelectedReason] = useState("");
+  const [rejectingOrderId, setRejectingOrderId] = useState(null);
+
+  const loadData = async (tab) => {
+    setLoading(true);
+    try {
+      let data;
+      // Switching APIs based on tab
+      if (tab === "New Orders") data = await fetchNewOrders();
+      else if (tab === "Pending Orders") data = await fetchPendingOrders();
+      else if (tab === "Confirmed Orders") data = await fetchConfirmedOrders();
+      else if (tab === "Cancelled Orders") data = await fetchCancelledOrders();
+      else data = await fetchAllOrders();
+
+      if (data && data.success) {
+        setOrders(data.orders || []);
+      } else {
+        setOrders([]);
+      }
+    } catch (err) {
+      alert(err.message); // Show error from try-catch
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData(activeTab);
+  }, [activeTab]);
+
+  const handleAccept = async (orderId) => {
+    if (!window.confirm("Are you sure you want to accept this order?")) return;
+    setProcessing(true);
+    try {
+      const res = await processOrderAction({ order_id: orderId, action: "accept" });
+      if (res.success) {
+        alert("Order accepted successfully!");
+        loadData(activeTab);
+      }
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleConfirmReject = async () => {
+    if (!selectedReason) return;
+    setProcessing(true);
+    try {
+      const res = await processOrderAction({
+        order_id: rejectingOrderId,
+        action: "reject",
+        reason: selectedReason
+      });
+      if (res.success) {
+        alert("Order rejected successfully!");
+        setIsModalOpen(false);
+        setSelectedReason("");
+        loadData(activeTab);
+      }
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleOpenRejectModal = (id) => {
+    setRejectingOrderId(id);
+    setIsModalOpen(true);
+  };
 
   return (
-    <div className="w-full min-h-screen bg-white">
+    <div className={`w-full min-h-screen bg-white ${isModalOpen ? "overflow-hidden" : ""}`}>
+      
+      {/* REJECT MODAL */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-40 p-4">
+          <div className="bg-white w-full max-w-md rounded-sm shadow-2xl relative p-6">
+              <h2 className="text-2xl font-serif text-gray-800">Reject Order</h2>
+              <div className="w-full h-px bg-gray-300 mt-2 mb-4" />
+              <p className="text-sm text-gray-600 mb-6">Reason for rejecting order</p>
+              <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                {reasons.map((reason, index) => (
+                  <label key={index} className="flex items-center gap-4 cursor-pointer group">
+                    <input
+                        type="radio"
+                        name="rejectReason"
+                        className="w-5 h-5 accent-blue-600"
+                        checked={selectedReason === reason}
+                        onChange={() => setSelectedReason(reason)}
+                    />
+                    <span className="text-sm text-gray-700 font-medium">{reason}</span>
+                  </label>
+                ))}
+              </div>
+              <div className="mt-8 flex gap-3">
+                <button onClick={() => setIsModalOpen(false)} disabled={processing} className="flex-1 py-2 border rounded-md text-sm">Cancel</button>
+                <button 
+                  onClick={handleConfirmReject} 
+                  disabled={!selectedReason || processing}
+                  className={`flex-1 py-2 rounded-md text-sm text-white flex items-center justify-center ${selectedReason && !processing ? "bg-red-600" : "bg-gray-400"}`}
+                >
+                  {processing ? <Loader2 className="animate-spin w-4 h-4" /> : "Submit Rejection"}
+                </button>
+              </div>
+          </div>
+        </div>
+      )}
 
-      {/* ---------- TOP BAR ---------- */}
+      {/* TOP BAR */}
       <div className="w-full flex flex-col sm:flex-row flex-wrap gap-3 px-3 sm:px-6 py-4 shadow-sm border-b">
-
-        {/* LEFT SIDE */}
-        <div className="flex flex-wrap items-center gap-2 min-w-0">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition shrink-0"
-          >
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            Back
+        <div className="flex flex-wrap items-center gap-2">
+          <button onClick={() => navigate(-1)} className="flex items-center px-3 py-2 bg-blue-500 text-white rounded">
+            <ChevronLeft className="w-4 h-4 mr-1" /> Back
           </button>
-
-          <h1 className="text-base sm:text-lg md:text-xl font-semibold break-words">
-            Order Management
-          </h1>
-        </div>
-
-        {/* RIGHT SIDE */}
-        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-
-          {/* Search */}
-          <div className="relative w-full sm:w-64">
-            <input
-              placeholder="Search here"
-              className="border rounded-md pl-9 pr-3 py-2 w-full outline-none text-sm"
-            />
-            <span className="absolute left-3 top-2.5 text-gray-500">🔍</span>
-          </div>
-
-          {/* Notification */}
-          <div className="relative cursor-pointer shrink-0">
-            <span className="text-2xl">🔔</span>
-            <span className="absolute -right-2 -top-1 bg-red-600 text-white text-xs px-1 rounded-full">
-              88+
-            </span>
-          </div>
+          <h1 className="text-lg font-semibold">Order Management</h1>
         </div>
       </div>
 
-      {/* ---------- NOTIFICATION BAR ---------- */}
-      <div className="bg-[#2e9bff] text-white text-center py-3 text-xs sm:text-lg font-semibold">
-        88 New Notifications
-      </div>
-
-      {/* ---------- TABS ---------- */}
+      {/* TABS (Added Pending Orders) */}
       <div className="flex flex-wrap gap-2 px-3 sm:px-6 mt-4">
-        {[
-          "All orders",
-          "New Orders",
-          "Confirmed Orders",
-          "Cancelled Orders",
-          "Pending Orders",
-          "Kalki Certified Orders",
-        ].map((tab, index) => (
+        {["All orders", "New Orders", "Pending Orders", "Confirmed Orders", "Cancelled Orders"].map((tab) => (
           <button
-            key={index}
+            key={tab}
+            onClick={() => setActiveTab(tab)}
             className={`px-3 py-1 border rounded-md text-xs sm:text-sm ${
-              index === 0 ? "bg-[#0972f6] text-white" : "bg-white text-black"
+              activeTab === tab ? "bg-[#0972f6] text-white" : "bg-white text-black"
             }`}
           >
             {tab}
@@ -106,80 +163,60 @@ export default function OrderManagement() {
         ))}
       </div>
 
-      {/* ---------- FILTERS ---------- */}
-      <div className="flex flex-wrap gap-2 px-3 sm:px-6 mt-4">
-        {["Date", "Category", "Brand", "Price"].map((filter, index) => (
-          <button
-            key={index}
-            className="px-3 py-1 border rounded-md flex items-center gap-2 text-xs sm:text-sm"
-          >
-            {filter} ▼
-          </button>
-        ))}
-      </div>
-
-      {/* ---------- ORDER LIST ---------- */}
+      {/* ORDER LIST */}
       <div className="mt-6 px-3 sm:px-6">
-        {orders.map((item) => (
-          <div
-            key={item.id}
-            className="border rounded-xl p-4 mb-6 shadow-sm bg-white"
-          >
-            {/* USER DETAILS */}
-            <div className="flex flex-wrap gap-3 items-center text-xs sm:text-sm">
-              <p className="font-semibold">{item.name}</p>
-              <p className="text-gray-600">{item.contact}</p>
-              <p className="text-gray-600">{item.date}</p>
-            </div>
-
-            <p className="text-xs sm:text-sm text-gray-600 mt-1 break-words">
-              {item.address}
-            </p>
-
-            {/* PRODUCT CARD */}
-            <div className="flex flex-col sm:flex-row gap-4 mt-4 w-full">
-
-              {/* IMAGE */}
-              <img
-                src={item.image}
-                alt="product"
-                className="w-24 sm:w-28 h-28 sm:h-32 object-cover rounded-md border"
-              />
-
-              {/* DETAILS */}
-              <div className="flex flex-col text-xs sm:text-sm">
-                <p>
-                  <strong>Order Id - </strong>
-                  {item.orderId}
-                </p>
-                <p>{item.product}</p>
-                <p>Size - {item.size}</p>
-                <p>Color - {item.color}</p>
+        {loading ? (
+          <div className="flex justify-center py-20"><Loader2 className="animate-spin text-blue-500 w-10 h-10" /></div>
+        ) : orders.length === 0 ? (
+          <div className="text-center py-20 text-gray-500">No orders found in this category.</div>
+        ) : (
+          orders.map((order) => (
+            <div key={order.order_id} className="border rounded-xl p-4 mb-6 shadow-sm bg-white">
+              <div className="flex flex-wrap gap-3 items-center text-xs sm:text-sm">
+                <p className="font-semibold">{order.buyer?.name || "Customer"}</p>
+                <p className="text-gray-600">{order.buyer?.mobile || "No Mobile"}</p>
+                <p className="text-gray-600">{order.order_date}</p>
               </div>
+              <p className="text-xs sm:text-sm text-gray-600 mt-1">{order.buyer?.address || order.address}</p>
 
-              {/* RIGHT SECTION */}
-              <div className="sm:ml-auto flex flex-col gap-3 w-full sm:w-auto sm:items-end">
-                <span className="bg-green-500 text-white px-4 py-1 rounded-md font-semibold w-fit text-sm">
-                  {item.price}
-                </span>
+              {order.items?.map((item, idx) => (
+                <div key={idx} className="flex flex-col sm:flex-row gap-4 mt-4 w-full border-t pt-4 first:border-t-0 first:pt-0">
+                  <img src={item.image} alt="" className="w-24 h-28 object-cover rounded-md border" />
+                  <div className="flex flex-col text-xs sm:text-sm flex-1">
+                    <p><strong>Order Id - </strong>{order.order_id}</p>
+                    <p className="font-medium text-blue-600">{item.product_name}</p>
+                    <p>Size - {item.variant?.size || "N/A"} | Color - {item.variant?.color || "N/A"}</p>
+                  </div>
 
-                <p className="text-xs text-gray-600">
-                  Payment method - COD
-                </p>
-
-                {/* ACTION BUTTONS */}
-                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                  <button className="w-full sm:w-auto px-4 py-2 rounded-md bg-gray-300 text-sm">
-                    Reject
-                  </button>
-                  <button className="w-full sm:w-auto px-4 py-2 rounded-md bg-[#0047ab] text-white text-sm">
-                    Accept
-                  </button>
+                  <div className="sm:ml-auto flex flex-col gap-3 sm:items-end">
+                    <span className="bg-green-500 text-white px-4 py-1 rounded-md font-semibold text-sm">₹{order.total_amount}</span>
+                    <p className="text-xs text-gray-600">Method: {order.payment_method || "COD"}</p>
+                    
+                    {/* Buttons for Pending/New */}
+                    {(order.status === "pending" || order.order_status === "pending") && (
+                      <div className="flex gap-2">
+                        <button 
+                          disabled={processing}
+                          onClick={() => handleOpenRejectModal(order.order_id)} 
+                          className="px-4 py-2 rounded-md bg-gray-200 text-sm"
+                        >
+                          Reject
+                        </button>
+                        <button 
+                          disabled={processing}
+                          onClick={() => handleAccept(order.order_id)}
+                          className="px-4 py-2 rounded-md bg-[#0047ab] text-white text-sm"
+                        >
+                          Accept
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

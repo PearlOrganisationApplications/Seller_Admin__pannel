@@ -10,7 +10,10 @@ import {
   FaAd, 
   FaFolderPlus, 
   FaBell, 
-  FaSignOutAlt 
+  FaSignOutAlt,
+  FaServer,      // Icon for SMTP
+  FaHeadset,     // Icon for Support
+  FaInfoCircle   // Icon for About Us
 } from "react-icons/fa";
 
 export default function Sidebar({ collapsed = false, setCollapsed, mobileOpen, setMobileOpen }) {
@@ -98,6 +101,25 @@ export default function Sidebar({ collapsed = false, setCollapsed, mobileOpen, s
           <FaBell />
           {!collapsed && <Link to="/admin/SendNotification">Send Notification</Link>}
         </li>
+
+        {/* SMTP SETTING */}
+        <li className="sidebar-item" onClick={onNavClick}>
+          <FaServer />
+          {!collapsed && <Link to="/admin/smtp-settings">SMTP Setting</Link>}
+        </li>
+
+        {/* SUPPORT */}
+        <li className="sidebar-item" onClick={onNavClick}>
+          <FaHeadset />
+          {!collapsed && <Link to="/admin/support">Support</Link>}
+        </li>
+
+        {/* ABOUT US */}
+        <li className="sidebar-item" onClick={onNavClick}>
+          <FaInfoCircle />
+          {!collapsed && <Link to="/admin/about-us">About Us</Link>}
+        </li>
+     
 
         {/* LOGOUT BUTTON */}
         <li 

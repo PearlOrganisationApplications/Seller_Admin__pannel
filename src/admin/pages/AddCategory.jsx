@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./BarChart/AddCategory.css";
-import { BASE_URL } from "../api/BaseUrl";
+// Import all API functions
+import * as CategoryAPI from "../api/addCategoryApi"; 
 
 export default function AddCategory() {
-  const token = "34|aZU2vxFzktHZcyyLWletpzbszwnNwa3Gh6xhEK960c5cc3eb";
   const navigate = useNavigate();
 
   const [color, setColors] = useState([]);
@@ -13,49 +13,33 @@ export default function AddCategory() {
   const [specifications, setSpecifications] = useState([]);
 
   const [showInput, setShowInput] = useState({
-    category: false,
-    color: false,
-    size: false,
-    spec: false,
+    category: false, color: false, size: false, spec: false,
   });
 
   const [inputs, setInputs] = useState({
-    category: "",
-    color: "",
-    size: "",
-    spec: "",
+    category: "", color: "", size: "", spec: "",
   });
 
   const [editId, setEditId] = useState(null);
   const [editType, setEditType] = useState("");
   const [showModal, setShowModal] = useState(false);
 
+  // 1. FETCH ALL DATA
   const fetchAll = async () => {
     try {
-      const [cat, col, siz, spec] = await Promise.all([
-        fetch(`${BASE_URL}/api/admin/categories`, {
-           headers: {
-             Authorization: `Bearer ${token}` 
-            } }),
-        fetch(`${BASE_URL}/api/admin/colors`, {
-           headers: { 
-            Authorization: `Bearer ${token}`
-           } }),
-        fetch(`${BASE_URL}/api/admin/sizes`, {
-           headers: { 
-            Authorization: `Bearer ${token}`
-           } }),
-        fetch(`${BASE_URL}/api/admin/specifications`, {
-           headers: { Authorization: `Bearer ${token}`
-           } }),
+      const [catRes, colRes, sizRes, specRes] = await Promise.all([
+        CategoryAPI.getCategories(),
+        CategoryAPI.getColors(),
+        CategoryAPI.getSizes(),
+        CategoryAPI.getSpecifications(),
       ]);
 
-      setCategory((await cat.json()).categories || []);
-      setColors((await col.json()).colors || []);
-      setSizes((await siz.json()).sizes || []);
-      setSpecifications((await spec.json()).specifications || []);
+      setCategory(catRes.data.categories || []);
+      setColors(colRes.data.colors || []);
+      setSizes(sizRes.data.sizes || []);
+      setSpecifications(specRes.data.specifications || []);
     } catch (error) {
-      console.log("Fetch error:", error);
+      console.error("Fetch error:", error);
     }
   };
 
@@ -63,174 +47,111 @@ export default function AddCategory() {
     fetchAll();
   }, []);
 
+  // 2. HANDLE ADD
   const handleAdd = async (type) => {
     const value = inputs[type].trim();
     if (!value) return alert("Enter a valid value.");
 
-    let url = "";
-    let body = {};
+    try {
+      let res;
+      if (type === "category") res = await CategoryAPI.addCategory({ categories: [value] });
+      if (type === "color")    res = await CategoryAPI.addColor({ colors: [value] });
+      if (type === "size")     res = await CategoryAPI.addSize({ sizes: [value] });
+      if (type === "spec")     res = await CategoryAPI.addSpecification({ specifications: [value] });
 
-    if (type === "category") {
-      url = `${BASE_URL}/api/admin/add-category`;
-      body = { categories: [value] };
-    }
-    if (type === "color") {
-      url = `${BASE_URL}/api/admin/add-color`;
-      body = { colors: [value] };
-    }
-    if (type === "size") {
-      url = `${BASE_URL}/api/admin/add-size`;
-      body = { sizes: [value] };
-    }
-    if (type === "spec") {
-      url = `${BASE_URL}/api/admin/add-specification`;
-      body = { specifications: [value] };
-    }
-
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-
-    const data = await res.json();
-
-    if (data.status) {
-      alert("Added Successfully!");
-      setInputs((prev) => ({ ...prev, [type]: "" }));
-      setShowInput((prev) => ({ ...prev, [type]: false }));
-      fetchAll();
-    } else {
-      alert("Failed to add: " + JSON.stringify(data));
+      if (res.data.status) {
+        alert("Added Successfully!");
+        setInputs((prev) => ({ ...prev, [type]: "" }));
+        setShowInput((prev) => ({ ...prev, [type]: false }));
+        fetchAll();
+      }
+    } catch (error) {
+      alert("Failed to add item.");
     }
   };
 
+  // 3. HANDLE DELETE
   const handleDelete = async (type, id) => {
     if (!window.confirm("Delete this item?")) return;
-
-    let url = "";
-    if (type === "category") url = `${BASE_URL}/api/admin/delete-category/${id}`;
-    if (type === "color") url = `${BASE_URL}/api/admin/delete-color/${id}`;
-    if (type === "size") url = `${BASE_URL}/api/admin/delete-size/${id}`;
-    if (type === "spec") url = `${BASE_URL}/api/admin/delete-specification/${id}`;
-
-    await fetch(url, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
-    fetchAll();
+    try {
+      if (type === "category") await CategoryAPI.deleteCategory(id);
+      if (type === "color")    await CategoryAPI.deleteColor(id);
+      if (type === "size")     await CategoryAPI.deleteSize(id);
+      if (type === "spec")     await CategoryAPI.deleteSpecification(id);
+      fetchAll();
+    } catch (error) {
+      console.error("Delete failed");
+    }
   };
 
-  // OPEN UPDATE MODAL
-  const openEditModal = (type, item) => {
-    setEditId(item.id);
-    setEditType(type);
-
-    if (type === "category") setInputs((prev) => ({ ...prev, category: item.cetegory }));
-    if (type === "color") setInputs((prev) => ({ ...prev, color: item.color }));
-    if (type === "size") setInputs((prev) => ({ ...prev, size: item.size }));
-    if (type === "spec") setInputs((prev) => ({ ...prev, spec: item.specification }));
-
-    setShowModal(true);
-  };
-
-  
-  // UPDATE API 
+  // 4. HANDLE UPDATE
   const handleUpdate = async () => {
     let value = inputs[editType].trim();
     if (!value) return alert("Enter a valid value");
 
-    let url = "";
-    let body = {};
+    try {
+      let res;
+      if (editType === "category") res = await CategoryAPI.updateCategory(editId, { cetegory: value });
+      if (editType === "color")    res = await CategoryAPI.updateColor(editId, { color: value });
+      if (editType === "size")     res = await CategoryAPI.updateSize(editId, { size: value });
+      if (editType === "spec")     res = await CategoryAPI.updateSpecification(editId, { specification: value });
 
-    if (editType === "category") {
-      url = `${BASE_URL}/api/admin/update-category/${editId}`;
-      body = { cetegory: value };
-    }
-    if (editType === "color") {
-      url = `${BASE_URL}/api/admin/update-color/${editId}`;
-      body = { color: value };
-    }
-    if (editType === "size") {
-      url = `${BASE_URL}/api/admin/update-size/${editId}`;
-      body = { size: value };
-    }
-    if (editType === "spec") {
-      url = `${BASE_URL}/api/admin/update-specification/${editId}`;
-      body = { specification: value };
-    }
-
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-
-    const data = await res.json();
-
-    if (data.status) {
-      alert("Updated Successfully!");
-      setShowModal(false);
-      setEditId(null);
-      setEditType("");
-      setInputs({ category: "", color: "", size: "", spec: "" });
-      fetchAll();
-    } else {
-      alert("Update Failed: " + JSON.stringify(data));
+      if (res.data.status) {
+        alert("Updated Successfully!");
+        setShowModal(false);
+        setEditId(null);
+        setInputs({ category: "", color: "", size: "", spec: "" });
+        fetchAll();
+      }
+    } catch (error) {
+      alert("Update Failed", error);
     }
   };
 
-  
+  // OPEN MODAL
+  const openEditModal = (type, item) => {
+    setEditId(item.id);
+    setEditType(type);
+    setInputs((prev) => ({
+      ...prev,
+      category: item.cetegory || "",
+      color: item.color || "",
+      size: item.size || "",
+      spec: item.specification || "",
+    }));
+    setShowModal(true);
+  };
+
   const renderSection = (title, type, items, keyName) => (
     <div className="section">
       <h3>{title}</h3>
-
       <div className="options">
         {items.map((item) => (
           <div className="option-item" key={item.id}>
             <span>{item[keyName]}</span>
-
-            <button className="edit-btn" onClick={() => openEditModal(type, item)}>
-              ✏️
-            </button>
-
-            <button className="delete-hover-btn" onClick={() => handleDelete(type, item.id)}>
-              ❌
-            </button>
+            <button className="edit-btn" onClick={() => openEditModal(type, item)}>✏️</button>
+            <button className="delete-hover-btn" onClick={() => handleDelete(type, item.id)}>❌</button>
           </div>
         ))}
       </div>
-
-      {/* Input for ADD */}
       {showInput[type] ? (
         <>
-          <input
-            className="input-box"
-            autoFocus
-            value={inputs[type]}
-            onChange={(e) => setInputs({ ...inputs, [type]: e.target.value })}
-          />
+          <input className="input-box" autoFocus value={inputs[type]} onChange={(e) => setInputs({ ...inputs, [type]: e.target.value })} />
           <button className="btn" onClick={() => handleAdd(type)}>Submit</button>
-          <button
-            className="btn cancel-btn"
-            onClick={() => setShowInput((prev) => ({ ...prev, [type]: false }))}
-          >
-            Cancel
-          </button>
+          <button className="btn cancel-btn" onClick={() => setShowInput((prev) => ({ ...prev, [type]: false }))}>Cancel</button>
         </>
       ) : (
-        <button className="add-btn" onClick={() => setShowInput((prev) => ({ ...prev, [type]: true }))}>
-          Add {title}
-        </button>
+        <button className="add-btn" onClick={() => setShowInput((prev) => ({ ...prev, [type]: true }))}>Add {title}</button>
       )}
     </div>
   );
 
   return (
-  <div className={`add-category-container ${localStorage.getItem("darkMode") === "true" ? "dark-mode" : ""}`}>
+    <div className={`add-category-container ${localStorage.getItem("darkMode") === "true" ? "dark-mode" : ""}`}>
       <h2 className="page-title">Manage Category</h2>
       <div className="nav">
         <h3>Add Category</h3>
-        <button onClick={() => navigate("/admin/dashboard")} className="btn">
-          Done
-        </button>
+        <button onClick={() => navigate("/admin/dashboard")} className="btn">Done</button>
       </div>
 
       {renderSection("Category", "category", category, "cetegory")}
@@ -238,23 +159,14 @@ export default function AddCategory() {
       {renderSection("Size", "size", sizes, "size")}
       {renderSection("Specification", "spec", specifications, "specification")}
 
-      {/* ========================== MODAL ========================== */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-box">
             <h3>Update {editType.toUpperCase()}</h3>
-
-            <input
-              className="input-box"
-              value={inputs[editType]}
-              onChange={(e) => setInputs({ ...inputs, [editType]: e.target.value })}
-            />
-
+            <input className="input-box" value={inputs[editType]} onChange={(e) => setInputs({ ...inputs, [editType]: e.target.value })} />
             <div className="modal-actions">
               <button className="btn" onClick={handleUpdate}>Update</button>
-              <button className="btn cancel-btn" onClick={() => setShowModal(false)}>
-                Cancel
-              </button>
+              <button className="btn cancel-btn" onClick={() => setShowModal(false)}>Cancel</button>
             </div>
           </div>
         </div>

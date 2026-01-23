@@ -12,6 +12,10 @@ import Advertisement from "./pages/Advertisement";
 import AddCategory from "./pages/AddCategory";
 import SendNotification from "./pages/SendNotification";
 import OrderTracking from "./pages/OrderTracking";
+import ViewProfile from "./pages/ViewProfile";
+import SmtpSettings from "./pages/SmtpSettings";
+import Support from "./pages/Support";
+import AboutUs from "./pages/AboutUs";  
 
 export default function AdminApp() {
   return (
@@ -19,7 +23,7 @@ export default function AdminApp() {
       <Routes>
         {/* Default redirect to dashboard */}
         <Route index element={<Navigate to="dashboard" replace />} />
-        
+
         {/* Match these paths exactly with Sidebar Links */}
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="users" element={<Users />} />
@@ -31,6 +35,10 @@ export default function AdminApp() {
         <Route path="AddCategory" element={<AddCategory />} />
         <Route path="SendNotification" element={<SendNotification />} />
         <Route path="order-tracking" element={<OrderTracking />} />
+        <Route path="view-profile" element={<ViewProfile />} />
+        <Route path="smtp-settings" element={<SmtpSettings />} />
+        <Route path="support" element={<Support />} />
+        <Route path="about-us" element={<AboutUs />} />
 
         {/* Catch-all for admin sub-routes */}
         <Route path="*" element={<div className="p-10 text-center">Admin Page Not Found</div>} />

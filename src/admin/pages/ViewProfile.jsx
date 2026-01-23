@@ -1,283 +1,199 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { BASE_URL } from "../api/BaseUrl";
-import axios from "axios";
+import * as ProfileAPI from "../api/viewProfileApi";
 import Defaulting from "../img/admin_profile.webp";
 
 export default function ViewProfile() {
   const [profile, setProfile] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
+  
   const [editData, setEditData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    gender: "",
-    city: "",
-    state: "",
-    address: "",
+    name: "", email: "", phone: "", gender: "",
+    city: "", state: "", address: "",
   });
+
+  const [selectedFile, setSelectedFile] = useState(null); 
+  const [previewUrl, setPreviewUrl] = useState(null);    
 
   const fileInputRef = useRef();
   const navigate = useNavigate();
-  const token = localStorage.getItem("access_token"); // fixed token key
 
   useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    const token = localStorage.getItem('token');
+    
     if (!token) {
+      alert("No session found. Redirecting to login...");
       navigate("/login");
       return;
     }
 
-    const fetchProfile = async () => {
-      try {
-        const res = await fetch(`${BASE_URL}/api/admin/profile`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!res.ok) throw new Error("Failed to fetch profile");
-
-        const data = await res.json();
-        const user = data.admin || data;
-
-        setProfile(user);
-        setEditData({
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          gender: user.gender,
-          state: user.state,
-          city: user.city,
-          address: user.address,
-        });
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching profile:", err);
-        setError("Failed to load profile.");
+    try {
+      setLoading(true);
+      const res = await ProfileAPI.getProfile();
+      
+      // Handle the data structure returned by your backend
+      const user = res.data.admin || res.data.data || res.data;
+      
+      setProfile(user);
+      setEditData({
+        name: user.name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        gender: user.gender || "",
+        state: user.state || "",
+        city: user.city || "",
+        address: user.address || "",
+      });
+      setLoading(false);
+    } catch (err) {
+      console.error("Profile Fetch Error:", err.response);
+      
+      if (err.response?.status === 401) {
+        // If the token is invalid/expired, we MUST log out
+        alert("Your session has expired or is invalid. Please log in again.");
+        localStorage.removeItem('token');
+        navigate("/login");
+      } else {
+        alert("An error occurred while fetching profile data.");
         setLoading(false);
       }
-    };
+    }
+  };
 
-    fetchProfile();
-  }, [token, navigate]);
+  const handleImageSelect = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file)); 
+  };
 
   const handleSave = async () => {
     try {
-      await axios.post(
-        `${BASE_URL}/api/admin/profile-update`,
-        editData,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const formData = new FormData();
+      formData.append("name", editData.name);
+      formData.append("phone", editData.phone);
+      formData.append("gender", editData.gender);
+      formData.append("city", editData.city);
+      formData.append("state", editData.state);
+      formData.append("address", editData.address);
 
-      alert("Profile updated successfully!");
-      setProfile({ ...profile, ...editData });
-      localStorage.setItem("adminName", editData.name);
-      window.dispatchEvent(new Event("storage"));
-      setEditMode(false);
+      if (selectedFile) {
+        formData.append("image", selectedFile);
+      }
+
+      const res = await ProfileAPI.updateProfileData(formData);
+      
+      if (res.data.status || res.data.success) {
+        alert("Profile updated successfully!");
+        setEditMode(false);
+        fetchProfile(); // Refresh the data from the server
+      }
     } catch (err) {
-      alert("Update failed");
-      console.error(err);
+      const msg = err.response?.data?.message || "Update Failed";
+      alert("Error: " + msg);
     }
   };
 
-  const handleImageUpload = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex flex-col justify-center items-center text-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+        <p className="text-xl">Loading Profile...</p>
+      </div>
+    );
+  }
 
-    const formData = new FormData();
-    formData.append("image", file);
-
-    try {
-      const res = await axios.post(
-        `${BASE_URL}/api/admin/profile-update-image`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      alert("Profile picture updated!");
-      setProfile({ ...profile, image: res.data.image });
-      localStorage.setItem("adminImage", res.data.image);
-      window.dispatchEvent(new Event("storage"));
-    } catch (error) {
-      console.error("Image update error", error);
-      alert("Failed to update image");
-    }
-  };
-
-  if (loading) return <h2 style={{ color: "white", textAlign: "center", marginTop: "100px" }}>Loading...</h2>;
-  if (error) return <h2 style={{ color: "red", textAlign: "center", marginTop: "100px" }}>{error}</h2>;
+  // Define display image logic
+  const displayImage = previewUrl 
+    ? previewUrl 
+    : (profile?.image ? `https://kalkideals.com/${profile.image}` : Defaulting);
 
   return (
-    <div style={{ padding: "40px", background: "#111827", minHeight: "100vh", color: "white", display: "flex", flexDirection: "column", alignItems: "center" }}>
-      <button
-        onClick={() => navigate("/dashboard")}
-        style={buttonHome}
-      >
-        🏠 Home
-      </button>
+    <div className="min-h-screen bg-gray-900 text-white p-6 flex flex-col items-center">
+      <div className="w-full max-w-lg">
+        <button 
+          onClick={() => navigate("/admin/dashboard")} 
+          className="mb-6 bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg border border-gray-700 transition-all"
+        >
+          ← Back to Dashboard
+        </button>
 
-      <div style={containerStyle}>
-        <h2 style={{ marginBottom: "20px", fontWeight: "bold" }}>My Profile</h2>
+        <div className="bg-gray-800 rounded-3xl p-8 shadow-2xl border border-gray-700 text-center">
+          <h2 className="text-2xl font-bold mb-8 text-blue-400">Admin Profile</h2>
 
-        <div style={{ position: "relative", display: "inline-block" }}>
-          <img
-            src={profile.image && profile.image.trim() !== "" ? `https://kalkideals.com/uploads/admin/${profile.image}` : Defaulting}
-            alt="Profile"
-            style={profileImageStyle}
-          />
-
-          {editMode && (
-            <>
-              <span
-                onClick={() => fileInputRef.current.click()}
-                style={editIconStyle}
+          {/* Image Section */}
+          <div className="relative inline-block mb-8">
+            <img
+              src={displayImage}
+              alt="Profile"
+              className="w-32 h-32 rounded-full object-cover border-4 border-blue-500 shadow-lg"
+              onError={(e) => { e.target.src = Defaulting; }}
+            />
+            {editMode && (
+              <div 
+                onClick={() => fileInputRef.current.click()} 
+                className="absolute bottom-1 right-1 bg-blue-600 p-2 rounded-full cursor-pointer hover:bg-blue-500 shadow-md transition-all"
               >
                 ✎
-              </span>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleImageUpload}
-                accept="image/*"
-                style={{ display: "none" }}
-              />
-            </>
-          )}
-        </div>
-
-        <div style={{ textAlign: "left", marginTop: "20px", color: "#e5e7eb" }}>
-          {renderField("Name", "name", editMode, editData, setEditData)}
-          {renderField("Email", "email", editMode, editData, setEditData)}
-          {renderField("Phone", "phone", editMode, editData, setEditData)}
-          {renderField("Gender", "gender", editMode, editData, setEditData)}
-          {renderField("City", "city", editMode, editData, setEditData)}
-          {renderField("State", "state", editMode, editData, setEditData)}
-          {renderField("Address", "address", editMode, editData, setEditData)}
-        </div>
-
-        {!editMode ? (
-          <>
-            <button onClick={() => setEditMode(true)} style={buttonPrimary}>Edit Profile</button>
-            <button onClick={() => navigate("/change-password")} style={buttonSecondary}>Change Password</button>
-          </>
-        ) : (
-          <div style={{ marginTop: "20px" }}>
-            <button onClick={handleSave} style={buttonPrimary}>Save Changes</button>
-            <button onClick={() => setEditMode(false)} style={buttonCancel}>Cancel</button>
+                <input type="file" ref={fileInputRef} onChange={handleImageSelect} accept="image/*" className="hidden" />
+              </div>
+            )}
           </div>
-        )}
+
+          {/* Form Fields */}
+          <div className="text-left space-y-5">
+            {Object.keys(editData).map((key) => (
+              <div key={key}>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">{key}</label>
+                {editMode ? (
+                  <input
+                    disabled={key === "email"}
+                    value={editData[key]}
+                    onChange={(e) => setEditData({ ...editData, [key]: e.target.value })}
+                    className={`w-full p-2.5 rounded-lg bg-gray-700 border border-gray-600 outline-none focus:border-blue-500 transition-all ${key === "email" ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  />
+                ) : (
+                  <p className="text-gray-200 border-b border-gray-700 pb-2">
+                    {profile?.[key] || "N/A"}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Buttons */}
+          <div className="mt-10">
+            {!editMode ? (
+              <button 
+                onClick={() => setEditMode(true)} 
+                className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-bold transition-all shadow-lg"
+              >
+                Edit Profile
+              </button>
+            ) : (
+              <div className="flex gap-4">
+                <button 
+                  onClick={handleSave} 
+                  className="flex-1 py-3 bg-green-600 hover:bg-green-700 rounded-xl font-bold transition-all shadow-lg"
+                >
+                  Save Changes
+                </button>
+                <button 
+                  onClick={() => { setEditMode(false); setPreviewUrl(null); setSelectedFile(null); }} 
+                  className="flex-1 py-3 bg-gray-600 hover:bg-gray-500 rounded-xl font-bold transition-all shadow-lg"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
-
-function renderField(label, key, editMode, data, setData) {
-  return (
-    <p style={{ marginBottom: "12px" }}>
-      <strong style={{ color: "white" }}>{label}:</strong> <br />
-      {editMode ? (
-        <input
-          value={data[key] || ""}
-          onChange={(e) => setData({ ...data, [key]: e.target.value })}
-          style={inputStyle}
-        />
-      ) : (
-        <span style={{ color: "#d1d5db" }}>{data[key] || "N/A"}</span>
-      )}
-    </p>
-  );
-}
-
-const containerStyle = {
-  width: "450px",
-  background: "#1f2937",
-  borderRadius: "12px",
-  padding: "30px",
-  boxShadow: "0 4px 12px rgba(0,0,0,0.6)",
-  textAlign: "center",
-  color: "white",
-};
-
-const profileImageStyle = {
-  width: "140px",
-  height: "140px",
-  borderRadius: "50%",
-  objectFit: "cover",
-  border: "3px solid #374151",
-};
-
-const editIconStyle = {
-  position: "absolute",
-  bottom: "8px",
-  right: "10px",
-  background: "#2563eb",
-  color: "white",
-  padding: "8px",
-  borderRadius: "50%",
-  cursor: "pointer",
-  fontSize: "14px",
-};
-
-const inputStyle = {
-  width: "100%",
-  padding: "10px",
-  borderRadius: "6px",
-  border: "1px solid #4b5563",
-  background: "#374151",
-  color: "white",
-  marginTop: "5px",
-};
-
-const buttonPrimary = {
-  width: "100%",
-  padding: "12px",
-  backgroundColor: "#2563eb",
-  color: "white",
-  borderRadius: "8px",
-  border: "none",
-  cursor: "pointer",
-  fontSize: "16px",
-  marginTop: "20px",
-};
-
-const buttonSecondary = {
-  width: "100%",
-  padding: "12px",
-  backgroundColor: "#10b981",
-  color: "white",
-  borderRadius: "8px",
-  border: "none",
-  cursor: "pointer",
-  fontSize: "16px",
-  marginTop: "12px",
-};
-
-const buttonCancel = {
-  width: "100%",
-  padding: "12px",
-  backgroundColor: "#6b7280",
-  color: "white",
-  borderRadius: "8px",
-  border: "none",
-  cursor: "pointer",
-  fontSize: "16px",
-  marginTop: "10px",
-};
-
-const buttonHome = {
-  alignSelf: "flex-start",
-  padding: "8px 16px",
-  background: "#1d4ed8",
-  color: "white",
-  fontSize: "15px",
-  border: "none",
-  borderRadius: "6px",
-  cursor: "pointer",
-  marginBottom: "25px",
-};
