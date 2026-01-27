@@ -1,5 +1,4 @@
-import api from './axios'; // Ensure the path to your axios.js is correct
-
+import api from './axios'; 
 // Fetch all customers
 export const getCustomers = async () => {
   try {

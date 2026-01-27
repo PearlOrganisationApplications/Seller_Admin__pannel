@@ -11,22 +11,21 @@ import {
   FaFolderPlus, 
   FaBell, 
   FaSignOutAlt,
-  FaServer,      // Icon for SMTP
-  FaHeadset,     // Icon for Support
-  FaInfoCircle   // Icon for About Us
+  FaServer,
+  FaHeadset,
+  FaInfoCircle,
+  FaImage  // Imported for Banner icon
 } from "react-icons/fa";
 
 export default function Sidebar({ collapsed = false, setCollapsed, mobileOpen, setMobileOpen }) {
   const navigate = useNavigate();
 
-  // Closes the sidebar when a link is clicked (on mobile view only)
   const onNavClick = () => {
     if (window.innerWidth <= 768 && setMobileOpen) {
       setMobileOpen(false);
     }
   };
 
-  // Clears local storage and redirects to the portal selection page
   const handleLogout = () => {
     localStorage.clear();
     window.location.href = "/login";
@@ -36,7 +35,6 @@ export default function Sidebar({ collapsed = false, setCollapsed, mobileOpen, s
 
   return (
     <aside className={cls}>
-      {/* Top Section: Title and Toggle Button */}
       <div className="sidebar-top">
         {!collapsed && <h2 className="sidebar-title font-bold">Admin Panel</h2>}
         <button 
@@ -102,6 +100,12 @@ export default function Sidebar({ collapsed = false, setCollapsed, mobileOpen, s
           {!collapsed && <Link to="/admin/SendNotification">Send Notification</Link>}
         </li>
 
+        {/* BANNER MANAGEMENT (New implementation below Notification) */}
+        <li className="sidebar-item" onClick={onNavClick}>
+          <FaImage />
+          {!collapsed && <Link to="/admin/banners">Banner Management</Link>}
+        </li>
+
         {/* SMTP SETTING */}
         <li className="sidebar-item" onClick={onNavClick}>
           <FaServer />
@@ -119,7 +123,6 @@ export default function Sidebar({ collapsed = false, setCollapsed, mobileOpen, s
           <FaInfoCircle />
           {!collapsed && <Link to="/admin/about-us">About Us</Link>}
         </li>
-     
 
         {/* LOGOUT BUTTON */}
         <li 

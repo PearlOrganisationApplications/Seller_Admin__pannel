@@ -16,6 +16,7 @@ import ViewProfile from "./pages/ViewProfile";
 import SmtpSettings from "./pages/SmtpSettings";
 import Support from "./pages/Support";
 import AboutUs from "./pages/AboutUs";  
+import Banners from "./pages/Banners";
 
 export default function AdminApp() {
   return (
@@ -34,6 +35,7 @@ export default function AdminApp() {
         <Route path="Advertisement" element={<Advertisement />} />
         <Route path="AddCategory" element={<AddCategory />} />
         <Route path="SendNotification" element={<SendNotification />} />
+        <Route path="banners" element={<Banners />} />
         <Route path="order-tracking" element={<OrderTracking />} />
         <Route path="view-profile" element={<ViewProfile />} />
         <Route path="smtp-settings" element={<SmtpSettings />} />

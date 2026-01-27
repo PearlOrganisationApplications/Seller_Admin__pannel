@@ -12,7 +12,6 @@ import AadharStep from "./seller/pages/AadharStep";
 import ThankYou from "./seller/pages/ThankYou";
 
 // AUTH HELPERS
-// AUTH HELPERS
 function PrivateRoute({ children, requiredType }) {
   const token = localStorage.getItem("token"); 
   const userType = localStorage.getItem("user_type");

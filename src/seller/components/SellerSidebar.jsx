@@ -1,6 +1,9 @@
 "use client";
 import React from "react";
-import { X, User, Info, LogOut, LayoutDashboard, ShoppingBag, ClipboardList, Star, Headphones } from "lucide-react";
+import { 
+  X, User, Info, LogOut, LayoutDashboard, ShoppingBag, 
+  ClipboardList, Star, Headphones, Image as ImageIcon 
+} from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export default function SellerSidebar({ isOpen, close }) {
@@ -14,7 +17,6 @@ export default function SellerSidebar({ isOpen, close }) {
 
   const navTo = (path) => {
     navigate(path);
-    // Only close sidebar on mobile (screen < 1024px)
     if (window.innerWidth < 1024) close();
   };
 
@@ -22,31 +24,32 @@ export default function SellerSidebar({ isOpen, close }) {
 
   return (
     <div
-      className={`fixed top-0 left-0 h-full w-72 bg-white shadow-2xl z-50 
+      className={`fixed top-0 left-0 h-screen w-72 bg-white shadow-2xl z-[60] 
       transform transition-transform duration-300 ease-in-out border-r
+      flex flex-col ${/* Uses flexbox to manage internal layout */ ""}
       ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
     >
       {/* Mobile Close Button */}
       <button 
-        className="lg:hidden absolute top-4 right-4 p-1 bg-gray-100 rounded-md"
+        className="lg:hidden absolute top-4 right-4 p-2 bg-gray-100 rounded-full z-10"
         onClick={close}
       >
         <X size={20} />
       </button>
 
-      {/* Profile Header */}
-      <div className="h-40 bg-gradient-to-br from-[#0074A8] to-[#138A63] p-6 flex items-center gap-4">
+      {/* 1. Profile Header (Fixed height) */}
+      <div className="shrink-0 h-40 bg-gradient-to-br from-[#0074A8] to-[#138A63] p-6 flex items-center gap-4">
         <div className="h-16 w-16 rounded-full border-2 border-white/50 bg-white/20 flex items-center justify-center">
              <User className="text-white" size={32} />
         </div>
-        <div>
-          <p className="text-white font-bold text-lg leading-tight">Seller Account</p>
+        <div className="overflow-hidden">
+          <p className="text-white font-bold text-lg leading-tight truncate">Seller Account</p>
           <p className="text-white/70 text-xs">Verified Store</p>
         </div>
       </div>
 
-      {/* Nav Items */}
-      <div className="px-4 mt-6 space-y-1">
+      {/* 2. Scrollable Menu Area (flex-1 makes this fill the gap) */}
+      <div className="flex-1 overflow-y-auto py-6 px-4 space-y-1 custom-scrollbar">
         <NavItem 
           icon={<LayoutDashboard size={20} />} 
           label="Dashboard" 
@@ -55,25 +58,32 @@ export default function SellerSidebar({ isOpen, close }) {
         />
         <NavItem 
           icon={<ShoppingBag size={20} />} 
-          label="Products & Inventory" 
+          label="Inventory" 
           active={isActive("/seller/inventory")}
           onClick={() => navTo("/seller/inventory")}
         />
         <NavItem 
           icon={<ClipboardList size={20} />} 
-          label="Order Management" 
+          label="Orders" 
           active={isActive("/seller/order-management")}
           onClick={() => navTo("/seller/order-management")}
         />
         <NavItem 
           icon={<Star size={20} />} 
           label="Reviews & Ratings" 
+          active={isActive("/seller/reviews")}
           onClick={() => navTo("/seller/reviews")} 
+        />
+        <NavItem 
+          icon={<ImageIcon size={20} />} 
+          label="Banners" 
+          active={isActive("/seller/banners")}
+          onClick={() => navTo("/seller/banners")} 
         />
       </div>
 
-      {/* Footer Nav */}
-      <div className="px-4 mt-auto absolute bottom-0 w-full pb-6 border-t pt-4 bg-white">
+      {/* 3. Footer Area (Stays at bottom, but NOT absolute) */}
+      <div className="shrink-0 px-4 pb-6 border-t pt-4 bg-white">
         <NavItem icon={<Headphones size={20} />} label="Help & Contact" onClick={() => {}} />
         <NavItem icon={<Info size={20} />} label="About Us" onClick={() => {}} />
         <button 
@@ -84,11 +94,16 @@ export default function SellerSidebar({ isOpen, close }) {
           <span>Log out</span>
         </button>
       </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 10px; }
+      `}} />
     </div>
   );
 }
 
-// Helper Component for cleaner code
 function NavItem({ icon, label, active, onClick }) {
   return (
     <div 

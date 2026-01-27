@@ -26,7 +26,7 @@ export default function SellerApp() {
         <Route path="request-certified" element={<RequestCertified />} />
         <Route path="certified-products" element={<CertifiedProducts />} />
         <Route path="reviews" element={<ReviewRatingList />} />
-        <Route path="reviews/detail" element={<ReviewRatingDetail />} />
+       <Route path="reviews/detail/:id" element={<ReviewRatingDetail />} />
         <Route path="notifications" element={<SellerNotifications />} />
       </Route>
       <Route path="*" element={<div>Page Not Found</div>} />

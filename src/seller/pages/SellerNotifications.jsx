@@ -75,7 +75,7 @@ export default function SellerNotifications() {
             >
               <div className="flex gap-5">
                 {/* Visual Icon/Image */}
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   {item.image_url ? (
                     <img 
                       src={item.image_url} 
