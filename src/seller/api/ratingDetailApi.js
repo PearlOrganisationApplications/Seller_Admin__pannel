@@ -14,10 +14,7 @@ export const getReviewDetail = async (productId) => {
   }
 };
 
-/**
- * Delete a specific review
- * URL format: /product/{productId}/ratings/{reviewId}
- */
+      
 export const deleteReview = async (productId, reviewId) => {
   try {
     // Using .delete method based on the RESTful URL structure provided
