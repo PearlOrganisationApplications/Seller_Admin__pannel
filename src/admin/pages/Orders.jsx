@@ -1,78 +1,104 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { orderApi } from "../api/orderApi";
+import { BASE_URL } from "../api/axios"; 
 import "./BarChart/Orders.css";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
+  const [filterStatus, setFilterStatus] = useState("Pending"); // Default
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/posts")
-      .then((res) => res.json())
-      .then((data) => {
-        const formatted = data.slice(0, 5).map((o, i) => ({
-          id: "E2454" + i,
-          date: "29-10-2020",
-          customer: ["Binod", "Vineet", "Ajay", "Alankhe", "Arjun"][i],
-          amount: 600,
-          status: ["Out for delivery", "Shipped", "Confirmed", "Processing", "Out for delivery"][i],
-          exp: "30-10-2020",
-          buyerId: "5054M",
-          sellerId: "60234M",
-          productId: "85034M",
-        }));
-        setOrders(formatted);
-        setLoading(false);
-      });
+  const fetchOrders = useCallback(async (status) => {
+    setLoading(true);
+    try {
+      let response;
+      switch (status) {
+        case "Today": 
+          response = await orderApi.getTodayOrders(); 
+          break;
+        case "Cancelled": 
+          response = await orderApi.getCancelledOrders(); 
+          break;
+        case "Returns": 
+          response = await orderApi.getReturnOrders(); 
+          break;
+        case "Confirmed": 
+          response = await orderApi.getConfirmedOrders(); 
+          break;
+        case "All": 
+          response = await orderApi.getAllOrders(); 
+          break;
+        case "Pending":
+        default: 
+          response = await orderApi.getPendingOrders(); 
+          break;
+      }
+
+      if (response.data.status) {
+        setOrders(response.data.data);
+      } else {
+        setOrders([]);
+      }
+    } catch (error) {
+      console.error("Fetch Error:", error);
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const filteredOrders = orders
-    .filter((o) =>
-      Object.values(o).join(" ").toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .filter((o) => {
-      if (!filterStatus) return true;
-      if (filterStatus === "Pending") return o.status === "Out for delivery";
-      if (filterStatus === "Cancelled") return o.status === "Cancelled";
-      if (filterStatus === "Processing") return o.status === "Processing";
-      if (filterStatus === "New") return o.status === "Confirmed";
-      return true;
-    });
+  useEffect(() => {
+    fetchOrders(filterStatus);
+  }, [filterStatus, fetchOrders]);
+
+  const handleSeeOrder = async (orderId) => {
+    try {
+      const res = await orderApi.getOrderSee(orderId);
+      if (res.data.status) setSelectedOrder(res.data.data);
+    } catch (err) {
+      alert("Error fetching details");
+    }
+  };
+
+  // Filter local state based on Search Term
+  const filteredOrders = orders.filter((o) =>
+    (o.order_id || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (o.customer_name || "").toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="orders-page-container">
-      {/* Header Container with Back Button */}
       <div className="header-container">
-        <button className="back-btn" onClick={() => navigate(-1)}>
-          ← Back
-        </button>
+        <button className="back-btn" onClick={() => navigate(-1)}>← Back</button>
         <h2 className="page-title">Order Management</h2>
       </div>
 
       <div className="search-box">
         <input
           type="text"
-          placeholder="Search orders..."
+          placeholder="Search by Order ID or Customer..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 
-      <div className="container">
+      <div className="filter-container">
         {[
-          { label: "Pending Orders", status: "Pending" },
-          { label: "Cancelled Orders", status: "Cancelled" },
-          { label: "Processing Orders", status: "Processing" },
-          { label: "New Orders", status: "New" },
-          { label: "All Orders", status: "" },
+          { label: "Today's Orders", status: "Today" }, // Added Today's filter
+          { label: "All Orders", status: "All" },
+          { label: "Pending", status: "Pending" },
+          { label: "Confirmed", status: "Confirmed" },
+          { label: "Cancelled", status: "Cancelled" },
+          { label: "Returns", status: "Returns" },
         ].map((box) => (
           <button
-            key={box.status || "all"}
-            className={`box ${filterStatus === box.status ? "selected" : ""}`}
+            key={box.status}
+            className={`filter-box ${filterStatus === box.status ? "selected" : ""}`}
             onClick={() => setFilterStatus(box.status)}
           >
             {box.label}
@@ -81,7 +107,9 @@ export default function OrdersPage() {
       </div>
 
       {loading ? (
-        <p style={{ color: "#666", textAlign: "center" }}>Loading orders...</p>
+        <div className="loader-container">
+            <p className="loading-text">Fetching {filterStatus} orders...</p>
+        </div>
       ) : (
         <div className="table-responsive">
           <table className="orders-table">
@@ -89,35 +117,84 @@ export default function OrdersPage() {
               <tr>
                 <th>Order ID</th>
                 <th>Date</th>
-                <th>Customer</th>
                 <th>Amount</th>
                 <th>Status</th>
-                <th>Dispatch</th>
-                <th>Buyer ID</th>
-                <th>Seller ID</th>
-                <th>Product ID</th>
-                <th>Order Details</th>
-                <th>Order Tracking</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              {filteredOrders.map((o, i) => (
-                <tr key={i}>
-                  <td>{o.id}</td>
-                  <td>{o.date}</td>
-                  <td>{o.customer}</td>
-                  <td>{o.amount}</td>
-                  <td><span className="status-tag">{o.status}</span></td>
-                  <td>{o.exp}</td>
-                  <td>{o.buyerId}</td>
-                  <td>{o.sellerId}</td>
-                  <td>{o.productId}</td>
-                  <td><button className="btn save">See</button></td>
-                  <td><button className="btn manage" onClick={() => navigate("/admin/order-tracking")} >Manage</button></td>
+              {filteredOrders.length > 0 ? (
+                filteredOrders.map((o, i) => (
+                  <tr key={i}>
+                    <td>{o.order_id}</td>
+                    <td>{o.created_at || o.date || "N/A"}</td>
+                    <td>₹{o.total_amount}</td>
+                    <td><span className={`status-tag ${o.status?.toLowerCase()}`}>{o.status}</span></td>
+                    <td className="action-cell">
+                      <button className="btn save" onClick={() => handleSeeOrder(o.order_id)}>See</button>
+                      <button className="btn manage" onClick={() => navigate("/admin/order-tracking")}>Track</button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="no-data">No {filterStatus} orders found.</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* --- DETAILS MODAL --- */}
+      {selectedOrder && (
+        <div className="modal-overlay" onClick={() => setSelectedOrder(null)}>
+          <div className="order-modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Order: {selectedOrder.order_id}</h3>
+              <button className="close-x" onClick={() => setSelectedOrder(null)}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="info-grid">
+                <div>
+                  <p className="label">Buyer Name</p>
+                  <p className="val">{selectedOrder.buyer?.name || 'N/A'}</p>
+                  <p className="label">Buyer Phone</p>
+                  <p className="val">{selectedOrder.buyer?.phone || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="label">Payment Amount</p>
+                  <p className="val highlight">₹{selectedOrder.total_amount}</p>
+                  <p className="label">Order Status</p>
+                  <p className={`status-tag ${selectedOrder.status}`}>{selectedOrder.status}</p>
+                </div>
+              </div>
+
+              <div className="product-section">
+                <p className="label">Ordered Products</p>
+                {selectedOrder.products?.map((p, idx) => (
+                  <div key={idx} className="product-row">
+                    <span>{p.name} <small>x{p.quantity}</small></span>
+                    <span>₹{p.price}</span>
+                  </div>
+                ))}
+              </div>
+
+              {selectedOrder.return_details && (
+                <div className="return-box">
+                  <p className="label">Return Details</p>
+                  <p>Reason: {selectedOrder.return_details.reason}</p>
+                  {selectedOrder.return_details.product_image && (
+                    <img 
+                      src={`${BASE_URL}${selectedOrder.return_details.product_image}`} 
+                      alt="Product Return" 
+                      className="modal-img" 
+                    />
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>
