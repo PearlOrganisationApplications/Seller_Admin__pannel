@@ -118,8 +118,12 @@ export default function Users() {
               <tr>
                 <th>ID</th>
                 <th>Name</th>
+                <th>DOB</th>
                 <th>Mob. No.</th>
+                <th>Gender</th>
                 <th>Email</th>
+                <th>Address</th>
+                <th>Search History</th>
                 <th>Return History</th>
                 <th>Order History</th>
                 <th>Action</th>
@@ -130,8 +134,12 @@ export default function Users() {
                 <tr key={u.id}>
                   <td>{u.id}</td>
                   <td className="font-bold">{u.name}</td>
+                  <td>{u.dob}</td>
                   <td>{u.mobile}</td>
+                  <td>{u.gender}</td>
                   <td>{u.email}</td>
+                  <td>{u.address}</td>
+                  <td><button className="btn save" onClick={() => viewSearchHistory(u.id)}>Search</button></td>
                   <td><button className="btn save" onClick={() => viewReturnHistory(u.id)}>Returns</button></td>
                   <td><button className="btn save" onClick={() => viewOrderHistory(u.id)}>Orders</button></td>
                   <td><button className="btn delete" onClick={() => deleteUser(u.id)}>Delete</button></td>

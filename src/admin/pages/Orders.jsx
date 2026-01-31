@@ -1,14 +1,14 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { orderApi } from "../api/orderApi";
-import { BASE_URL } from "../api/axios"; 
+import { BASE_URL } from "../api/axios";
 import "./BarChart/Orders.css";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("Pending"); // Default
+  const [filterStatus, setFilterStatus] = useState("All");
   const [selectedOrder, setSelectedOrder] = useState(null);
 
   const navigate = useNavigate();
@@ -18,25 +18,13 @@ export default function OrdersPage() {
     try {
       let response;
       switch (status) {
-        case "Today": 
-          response = await orderApi.getTodayOrders(); 
-          break;
-        case "Cancelled": 
-          response = await orderApi.getCancelledOrders(); 
-          break;
-        case "Returns": 
-          response = await orderApi.getReturnOrders(); 
-          break;
-        case "Confirmed": 
-          response = await orderApi.getConfirmedOrders(); 
-          break;
-        case "All": 
-          response = await orderApi.getAllOrders(); 
-          break;
+        case "Today": response = await orderApi.getTodayOrders(); break;
+        case "Cancelled": response = await orderApi.getCancelledOrders(); break;
+        case "Returns": response = await orderApi.getReturnOrders(); break;
+        case "Confirmed": response = await orderApi.getConfirmedOrders(); break;
+        case "All": response = await orderApi.getAllOrders(); break;
         case "Pending":
-        default: 
-          response = await orderApi.getPendingOrders(); 
-          break;
+        default: response = await orderApi.getPendingOrders(); break;
       }
 
       if (response.data.status) {
@@ -59,16 +47,17 @@ export default function OrdersPage() {
   const handleSeeOrder = async (orderId) => {
     try {
       const res = await orderApi.getOrderSee(orderId);
+      // Based on your JSON, the data is inside res.data.data
       if (res.data.status) setSelectedOrder(res.data.data);
     } catch (err) {
       alert("Error fetching details");
     }
   };
 
-  // Filter local state based on Search Term
+  // Filter local state based on Search Term (Updated to buyer.name)
   const filteredOrders = orders.filter((o) =>
     (o.order_id || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (o.customer_name || "").toLowerCase().includes(searchTerm.toLowerCase())
+    (o.buyer?.name || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -81,7 +70,7 @@ export default function OrdersPage() {
       <div className="search-box">
         <input
           type="text"
-          placeholder="Search by Order ID or Customer..."
+          placeholder="Search by Order ID or Buyer Name..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -89,7 +78,7 @@ export default function OrdersPage() {
 
       <div className="filter-container">
         {[
-          { label: "Today's Orders", status: "Today" }, // Added Today's filter
+          { label: "Today's Orders", status: "Today" },
           { label: "All Orders", status: "All" },
           { label: "Pending", status: "Pending" },
           { label: "Confirmed", status: "Confirmed" },
@@ -108,7 +97,7 @@ export default function OrdersPage() {
 
       {loading ? (
         <div className="loader-container">
-            <p className="loading-text">Fetching {filterStatus} orders...</p>
+          <p className="loading-text">Fetching {filterStatus} orders...</p>
         </div>
       ) : (
         <div className="table-responsive">
@@ -118,6 +107,8 @@ export default function OrdersPage() {
                 <th>Order ID</th>
                 <th>Date</th>
                 <th>Amount</th>
+                <th>Buyer Id</th>
+                <th>Product Id</th>
                 <th>Status</th>
                 <th>Action</th>
               </tr>
@@ -127,9 +118,20 @@ export default function OrdersPage() {
                 filteredOrders.map((o, i) => (
                   <tr key={i}>
                     <td>{o.order_id}</td>
-                    <td>{o.created_at || o.date || "N/A"}</td>
+                    <td>{o.created_at ? new Date(o.created_at).toLocaleString().split(',')[0] : "N/A"}</td>
                     <td>₹{o.total_amount}</td>
-                    <td><span className={`status-tag ${o.status?.toLowerCase()}`}>{o.status}</span></td>
+                    <td>{o.user_id || o.buyer?.id || "N/A"}</td>
+                    <td>
+                      {o.order_items
+                        ? o.order_items.map(item => item.product_id).join(", ")
+                        : (o.products ? o.products.map(p => p.product_id).join(", ") : "N/A")
+                      }
+                    </td>
+                    <td>
+                      <span className={`status-tag ${o.status?.toLowerCase()}`}>
+                        {o.status}
+                      </span>
+                    </td>
                     <td className="action-cell">
                       <button className="btn save" onClick={() => handleSeeOrder(o.order_id)}>See</button>
                       <button className="btn manage" onClick={() => navigate("/admin/order-tracking")}>Track</button>
@@ -138,7 +140,7 @@ export default function OrdersPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="no-data">No {filterStatus} orders found.</td>
+                  <td colSpan="7" className="no-data">No {filterStatus} orders found.</td>
                 </tr>
               )}
             </tbody>
@@ -181,15 +183,19 @@ export default function OrdersPage() {
               </div>
 
               {selectedOrder.return_details && (
-                <div className="return-box">
-                  <p className="label">Return Details</p>
-                  <p>Reason: {selectedOrder.return_details.reason}</p>
+                <div className="return-box" style={{ marginTop: '20px', padding: '15px', background: '#fff5f5', borderRadius: '8px', border: '1px solid #fed7d7' }}>
+                  <p className="label" style={{ color: '#c53030' }}>Return Details</p>
+                  <p><strong>Reason:</strong> {selectedOrder.return_details.reason}</p>
+                  <p><strong>Return Status:</strong> <span className="status-tag refunded">{selectedOrder.return_details.status}</span></p>
                   {selectedOrder.return_details.product_image && (
-                    <img 
-                      src={`${BASE_URL}${selectedOrder.return_details.product_image}`} 
-                      alt="Product Return" 
-                      className="modal-img" 
-                    />
+                    <div style={{ marginTop: '10px' }}>
+                      <p className="label">Return Proof Image:</p>
+                      <img
+                        src={`${BASE_URL}${selectedOrder.return_details.product_image}`}
+                        alt="Product Return"
+                        style={{ width: '100%', maxWidth: '200px', borderRadius: '8px', border: '1px solid #ddd' }}
+                      />
+                    </div>
                   )}
                 </div>
               )}

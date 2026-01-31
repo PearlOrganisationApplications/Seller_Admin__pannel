@@ -1,19 +1,8 @@
-import api from './axios'; // Ensure this path is correct
+import api from './axios';
 
-// Get All Buyers/Customers
-export const getDashboardBuyers = async () => {
+export const getDashboardSummary = async () => {
   try {
-    const response = await api.get('/api/admin/Customers');
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-// Get All Sellers
-export const getDashboardSellers = async () => {
-  try {
-    const response = await api.get('/api/admin/Sellers');
+    const response = await api.get('/api/admin/dashboard');
     return response.data;
   } catch (error) {
     throw error;

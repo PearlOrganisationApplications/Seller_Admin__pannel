@@ -5,13 +5,13 @@ export const BASE_URL = "https://kalkideals.com";
 const api = axios.create({
   baseURL: BASE_URL,
   headers: {
-    'Accept': 'application/json', // We want JSON responses
+    'Accept': 'application/json',
   },
 });
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token'); // Ensure this matches your login storage key
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -21,16 +21,19 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Some APIs return 200 OK but { status: false } for auth errors
+    if (response.data && response.data.message === "admin token required") {
+      console.error("Auth Error: Token is invalid or missing");
+      // Optional: window.location.href = '/login'; 
+    }
+    return response;
+  },
   (error) => {
-    if (error.response) {
-      const status = error.response.status;
-      if (status === 401) {
-        // localStorage.clear();
-        // window.location.href = '/login';
-      } else if (status === 500) {
-        console.error("Internal Server Error: Check backend logs.");
-      }
+    if (error.response && error.response.status === 401) {
+      // Token expired or unauthorized
+      localStorage.removeItem('token');
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }

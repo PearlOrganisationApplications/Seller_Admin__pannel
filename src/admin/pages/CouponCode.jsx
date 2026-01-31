@@ -1,46 +1,96 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Copy, Trash2, ArrowLeft, CheckCircle, PlusCircle } from "lucide-react";
+import { Copy, Trash2, ArrowLeft, CheckCircle, PlusCircle, Loader2 } from "lucide-react";
+import toast from 'react-hot-toast'; // REMOVED Toaster from here
+import { getCoupons, addCoupon, deleteCouponApi } from "../api/couponApi";
 import "./BarChart/CouponCode.css";
 
 export default function CouponCode() {
-  const [coupon, setCoupon] = useState("");
-  const [discountType, setDiscountType] = useState("Percentage");
+  const [couponsList, setCouponsList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  const [code, setCode] = useState("");
+  const [discountType, setDiscountType] = useState("percentage");
+  const [discountValue, setDiscountValue] = useState("");
   const [minOrder, setMinOrder] = useState("500");
-  const [usage, setUsage] = useState("Single Time");
-  const [applyOn, setApplyOn] = useState("All Products");
-
-  const [generated, setGenerated] = useState([
-    "Dis1022",
-    "Dis0100",
-    "New1245",
-    "Kal1245",
-  ]);
+  const [usageLimit, setUsageLimit] = useState(1);
+  const [applicableOn, setApplicableOn] = useState("all");
 
   const [copiedCode, setCopiedCode] = useState("");
   const navigate = useNavigate();
 
-  const createCoupon = () => {
-    if (!coupon.trim()) return;
-    setGenerated([coupon, ...generated]);
-    setCoupon("");
-  };
-
-  const deleteCoupon = (code) => {
-    if(window.confirm("Delete this coupon?")) {
-      setGenerated(generated.filter((c) => c !== code));
+  const fetchCoupons = async () => {
+    try {
+      setLoading(true);
+      const data = await getCoupons();
+      setCouponsList(data.coupons || []);
+    } catch (error) {
+      toast.error("Failed to load coupons");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const copyCode = (code) => {
-    navigator.clipboard.writeText(code);
-    setCopiedCode(code);
+  useEffect(() => {
+    fetchCoupons();
+  }, []);
+
+  const handleCreateCoupon = async () => {
+    if (!code.trim() || !discountValue) {
+      toast.error("Please fill required fields");
+      return;
+    }
+
+    const payload = {
+      code: code.toUpperCase(),
+      discount_type: discountType,
+      discount_value: Number(discountValue),
+      minimal_order_value: Number(minOrder),
+      usage_limit: Number(usageLimit),
+      applicable_on: applicableOn,
+      applicable_product_id: null,
+      applicable_category_id: null
+    };
+
+    const loadToast = toast.loading("Creating coupon...");
+    try {
+      const response = await addCoupon(payload);
+      // Adding ID 'coupon-action' ensures it replaces any previous toast
+      toast.success(response.message || "Coupon created!", { id: loadToast });
+      
+      setCode("");
+      setDiscountValue("");
+      fetchCoupons(); 
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || "Failed to create coupon";
+      toast.error(errorMsg, { id: loadToast });
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this coupon?")) {
+      const loadToast = toast.loading("Deleting...");
+      try {
+        await deleteCouponApi(id);
+        toast.success("Coupon deleted", { id: loadToast });
+        fetchCoupons();
+      } catch (error) {
+        toast.error("Delete failed", { id: loadToast });
+      }
+    }
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    setCopiedCode(text);
+    toast.success("Code copied!", { id: 'copy-toast' });
     setTimeout(() => setCopiedCode(""), 2000);
   };
 
   return (
     <div className="coupon-container">
-      {/* Header with fixed styling */}
+      {/* DELETED LOCAL TOASTER FROM HERE */}
+      
       <div className="coupon-header">
         <button className="back-link" onClick={() => navigate(-1)}>
           <ArrowLeft size={18} /> Back
@@ -48,89 +98,80 @@ export default function CouponCode() {
         <h2>Coupon Management</h2>
       </div>
 
-      {/* Creation Card */}
       <div className="creation-card">
         <h3>Create New Coupon</h3>
         <div className="input-grid">
           <div className="input-group">
             <label>Coupon Code</label>
-            <input
-              type="text"
-              placeholder="e.g. SUMMER50"
-              value={coupon}
-              onChange={(e) => setCoupon(e.target.value)}
-            />
+            <input type="text" placeholder="DISK01" value={code} onChange={(e) => setCode(e.target.value)} />
           </div>
 
           <div className="input-group">
             <label>Discount Type</label>
             <select value={discountType} onChange={(e) => setDiscountType(e.target.value)}>
-              <option>Percentage</option>
-              <option>Flat Amount</option>
-              <option>Free Shipping</option>
+              <option value="percentage">Percentage (%)</option>
+              <option value="fixed">Flat Amount (₹)</option>
             </select>
+          </div>
+
+          <div className="input-group">
+            <label>Discount Value</label>
+            <input type="number" placeholder="10" value={discountValue} onChange={(e) => setDiscountValue(e.target.value)} />
           </div>
 
           <div className="input-group">
             <label>Min. Order Value</label>
-            <input
-              type="number"
-              value={minOrder}
-              onChange={(e) => setMinOrder(e.target.value)}
-            />
+            <input type="number" value={minOrder} onChange={(e) => setMinOrder(e.target.value)} />
           </div>
 
           <div className="input-group">
             <label>Usage Limit</label>
-            <select value={usage} onChange={(e) => setUsage(e.target.value)}>
-              <option>Single Time</option>
-              <option>Unlimited</option>
-              <option>First Order Only</option>
-            </select>
+            <input type="number" value={usageLimit} onChange={(e) => setUsageLimit(e.target.value)} />
           </div>
 
           <div className="input-group">
-            <label>Applicable On</label>
-            <input
-              type="text"
-              value={applyOn}
-              onChange={(e) => setApplyOn(e.target.value)}
-            />
-          </div>
-
-          <div className="input-group">
-            <button className="create-btn" onClick={createCoupon}>
+            <button className="create-btn" onClick={handleCreateCoupon}>
               <PlusCircle size={18} /> Create Coupon
             </button>
           </div>
         </div>
       </div>
 
-      {/* List Section */}
       <div className="list-section">
         <h3 className="section-title">Active Coupons</h3>
-        <div className="coupon-grid">
-          {generated.map((code, index) => (
-            <div className="coupon-card" key={index}>
-              <div className="coupon-info">
-                <span className="coupon-badge">{code}</span>
-                {copiedCode === code && (
-                  <span className="copied-toast">
-                    <CheckCircle size={14} /> Copied
-                  </span>
-                )}
+        {loading ? (
+          <div className="flex justify-center py-10">
+            <Loader2 className="animate-spin text-blue-600" size={40} />
+          </div>
+        ) : (
+          <div className="coupon-grid">
+            {couponsList.map((cpn) => (
+              <div className="coupon-card" key={cpn.id}>
+                <div className="coupon-info">
+                  <div className="flex flex-col">
+                    <span className="coupon-badge">{cpn.code}</span>
+                    <small className="discount-text">
+                      {cpn.discount_type === 'percentage' ? `${parseFloat(cpn.discount_value)}% OFF` : `₹${parseFloat(cpn.discount_value)} OFF`}
+                    </small>
+                  </div>
+                  {copiedCode === cpn.code && (
+                    <span className="copied-toast">
+                      <CheckCircle size={14} /> Copied
+                    </span>
+                  )}
+                </div>
+                <div className="card-actions">
+                  <button className="icon-btn copy" onClick={() => copyToClipboard(cpn.code)}>
+                    <Copy size={18} />
+                  </button>
+                  <button className="icon-btn delete" onClick={() => handleDelete(cpn.id)}>
+                    <Trash2 size={18} />
+                  </button>
+                </div>
               </div>
-              <div className="card-actions">
-                <button className="icon-btn copy" onClick={() => copyCode(code)} title="Copy Code">
-                  <Copy size={18} />
-                </button>
-                <button className="icon-btn delete" onClick={() => deleteCoupon(code)} title="Delete">
-                  <Trash2 size={18} />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -51,26 +51,38 @@ export default function Sellers() {
   });
 
   // Delete Seller using Axios Service
-  const deleteSeller = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this seller?")) return;
-    
-    try {
-      const data = await deleteSellerById(id);
-      if (data.status) {
-        alert("Seller deleted successfully");
-        setSellers((prev) => prev.filter((s) => s.id !== id));
-      } else {
-        alert(data.message || "Failed to delete user");
-      }
-    } catch (err) {
-      console.error("Delete error:", err);
-      alert("An error occurred while deleting the seller.");
-    }
-  };
+// Inside your Sellers component...
 
-  const viewListedProducts = (id) => alert(`Listed products for ID: ${id}`);
-  const viewOrderManagement = (id) => alert(`Order management for ID: ${id}`);
-  const viewPendingRequests = (id) => alert(`Pending requests for ID: ${id}`);
+const deleteSeller = async (id) => {
+  // 1. Ask for confirmation
+  const confirmDelete = window.confirm("Are you sure you want to delete this seller? This action cannot be undone.");
+  if (!confirmDelete) return;
+
+  try {
+    // 2. Call the API
+    const data = await deleteSellerById(id);
+
+    // 3. Check for success (usually based on a 'status' or 'message' field in your API)
+    if (data.status === true || data.message?.toLowerCase().includes("success")) {
+      alert("Seller deleted successfully");
+      
+      // 4. Update the UI locally so the row disappears without refreshing
+      setSellers((prevSellers) => prevSellers.filter((s) => s.id !== id));
+    } else {
+      alert(data.message || "Failed to delete seller.");
+    }
+  } catch (err) {
+    console.error("Delete error:", err);
+    
+    // Improved error handling
+    const errorMessage = err.response?.data?.message || "An error occurred while deleting the seller.";
+    alert(errorMessage);
+  }
+};
+
+    const viewListedProducts = (id) => navigate(`/admin/seller/products/${id}`);
+  const viewOrderManagement = (id) => navigate(`/admin/seller/orders/${id}`);
+  const viewPendingRequests = (id) => navigate(`/admin/seller/pending-requests/${id}`);
 
   return (
     <div className="sellers-page-container">
@@ -101,7 +113,9 @@ export default function Sellers() {
                 <th>Name</th>
                 <th>Business Type</th>
                 <th>Mob. No.</th>
+                <th>Gender</th>
                 <th>Email</th>
+                <th>Address</th>
                 <th>Status</th>
                 <th>Products</th>
                 <th>Orders</th>
@@ -118,7 +132,9 @@ export default function Sellers() {
                     <td className="font-bold">{s.name}</td>
                     <td>{s.type}</td>
                     <td>{s.mobile}</td>
+                    <td>{s.gender}</td>
                     <td>{s.email}</td>
+                    <td>{s.address}</td>
                     <td>
                       <span className={`status-pill ${s.status.toLowerCase()}`}>
                         {s.status}
