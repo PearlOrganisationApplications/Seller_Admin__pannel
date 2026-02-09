@@ -15,14 +15,18 @@ export default function AllDetails() {
     fetchProducts();
   }, []);
 
-  const fetchProducts = async () => {
+const fetchProducts = async () => {
     try {
       setLoading(true);
-      // Using the Interceptor-powered service
       const result = await getSellerProducts();
       
       if (result.success) {
-        setProducts(result.data);
+        // --- SORTING LOGIC: Newest products at the top ---
+        const sortedData = (result.data || []).sort((a, b) => {
+          return new Date(b.created_at) - new Date(a.created_at);
+        });
+        
+        setProducts(sortedData);
       } else {
         setError(result.message || "Failed to load products");
       }
@@ -111,7 +115,6 @@ export default function AllDetails() {
                 <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">In-Hand Profit</th>
                 <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Certified</th>
                 <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Status</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Actions</th>
               </tr>
             </thead>
 
@@ -165,17 +168,7 @@ export default function AllDetails() {
                       {p.status}
                     </span>
                   </td>
-                  <td className="p-4 text-center">
-                    <div className="flex justify-center gap-2">
-                      <button className="p-2 hover:bg-blue-50 text-slate-400 hover:text-blue-600 rounded-lg transition-all">
-                        <Pencil size={16} />
-                      </button>
-                      <button className="p-2 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-lg transition-all">
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+               </tr>
               ))}
             </tbody>
           </table>

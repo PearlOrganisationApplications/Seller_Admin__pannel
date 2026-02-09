@@ -14,17 +14,24 @@ import ThankYou from "./seller/pages/ThankYou";
 // AUTH HELPERS
 function PrivateRoute({ children, requiredType }) {
   const token = localStorage.getItem("token"); 
-  const userType = localStorage.getItem("user_type");
+  // IMPORTANT: Make sure this key matches what you set during Login!
+  const userType = localStorage.getItem("user_type"); 
 
-  // Improved check for valid token
   const isAuthenticated = token && token !== "undefined" && token !== "null";
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
   
-  // Ensure user is accessing their own portal
+  // If user_type is missing, send them to login to get a fresh session
+  if (!userType) {
+    localStorage.clear();
+    return <Navigate to="/login" replace />;
+  }
+
   if (requiredType && userType !== requiredType) {
+    // If admin tries to access seller path, send to admin. 
+    // If seller tries to access admin path, send to seller.
     const redirectPath = userType === "admin" ? "/admin/dashboard" : "/seller/dashboard";
     return <Navigate to={redirectPath} replace />;
   }

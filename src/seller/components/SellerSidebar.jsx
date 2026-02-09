@@ -74,12 +74,12 @@ export default function SellerSidebar({ isOpen, close }) {
           active={isActive("/seller/reviews")}
           onClick={() => navTo("/seller/reviews")} 
         />
-        <NavItem 
+        {/* <NavItem 
           icon={<ImageIcon size={20} />} 
           label="Banners" 
           active={isActive("/seller/banners")}
           onClick={() => navTo("/seller/banners")} 
-        />
+        /> */}
       </div>
 
       {/* 3. Footer Area (Stays at bottom, but NOT absolute) */}

@@ -33,7 +33,14 @@ export default function ListedProducts() {
       const res = await fetchListedProducts();
       
       if (res.success || res.status) {
-        setProducts(res.data || []);
+        const rawData = res.data || [];
+        
+        // --- SORTING LOGIC: Newest products at the top ---
+        const sortedData = [...rawData].sort((a, b) => {
+            return new Date(b.created_at) - new Date(a.created_at);
+        });
+
+        setProducts(sortedData);
       } else {
         setError("Failed to fetch products from server.");
       }

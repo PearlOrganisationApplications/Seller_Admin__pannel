@@ -14,7 +14,8 @@ import {
   FaServer,
   FaHeadset,
   FaInfoCircle,
-  FaImage  // Imported for Banner icon
+  FaImage,
+  FaGavel // Imported for Terms and Policies
 } from "react-icons/fa";
 
 export default function Sidebar({ collapsed = false, setCollapsed, mobileOpen, setMobileOpen }) {
@@ -100,7 +101,7 @@ export default function Sidebar({ collapsed = false, setCollapsed, mobileOpen, s
           {!collapsed && <Link to="/admin/SendNotification">Send Notification</Link>}
         </li>
 
-        {/* BANNER MANAGEMENT (New implementation below Notification) */}
+        {/* BANNER MANAGEMENT */}
         <li className="sidebar-item" onClick={onNavClick}>
           <FaImage />
           {!collapsed && <Link to="/admin/banners">Banner Management</Link>}
@@ -122,6 +123,12 @@ export default function Sidebar({ collapsed = false, setCollapsed, mobileOpen, s
         <li className="sidebar-item" onClick={onNavClick}>
           <FaInfoCircle />
           {!collapsed && <Link to="/admin/about-us">About Us</Link>}
+        </li>
+
+        {/* TERMS & POLICIES (Newly Added) */}
+        <li className="sidebar-item" onClick={onNavClick}>
+          <FaGavel />
+          {!collapsed && <Link to="/admin/terms-policies">Terms & Policies</Link>}
         </li>
 
         {/* LOGOUT BUTTON */}

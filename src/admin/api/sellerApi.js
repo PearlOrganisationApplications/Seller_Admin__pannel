@@ -45,3 +45,12 @@ export const deleteSellerById = async (id) => {
         throw error;
     }
 };
+
+export const updateProductStatus = async (product_uid, status) => {
+    const formData = new FormData();
+    formData.append('product_uid', product_uid);
+    formData.append('status', status);
+    
+    const response = await api.post('/api/admin/get/seller/product/update', formData);
+    return response.data;
+};

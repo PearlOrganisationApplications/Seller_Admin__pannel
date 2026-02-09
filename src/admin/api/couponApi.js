@@ -1,6 +1,9 @@
-import api from './axios';
+import api from './axios'; // Import your configured axios instance
 
-// Fetch all coupons
+/**
+ * Fetch all coupons
+ * GET {{baseURL}}/api/admin/coupons
+ */
 export const getCoupons = async () => {
   try {
     const response = await api.get('/api/admin/coupons');
@@ -10,20 +13,28 @@ export const getCoupons = async () => {
   }
 };
 
-// Create a new coupon - EXACT ENDPOINT UPDATE
-export const addCoupon = async (couponData) => {
+/**
+ * Create a new coupon
+ * POST {{baseURL}}/api/admin/createCoupon
+ */
+export const addCoupon = async (payload) => {
   try {
-    const response = await api.post('/api/admin/createCoupon', couponData);
+    const response = await api.post('/api/admin/createCoupon', payload);
     return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-// Delete a coupon
+/**
+ * Delete a coupon
+ * Note: You didn't provide the specific delete endpoint, 
+ * but standard practice for your API structure would be:
+ */
 export const deleteCouponApi = async (id) => {
   try {
-    const response = await api.delete(`/api/admin/coupons/${id}`);
+    // Assuming the endpoint is /deleteCoupon/{id} or similar
+    const response = await api.get(`/api/admin/deleteCoupon/${id}`);
     return response.data;
   } catch (error) {
     throw error;
