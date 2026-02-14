@@ -1,8 +1,10 @@
+"use client";
 import React, { useState, useEffect, useMemo } from "react";
 import { FaArrowLeft, FaTimes, FaSearch, FaCheckCircle, FaHourglassHalf, FaTimesCircle, FaEdit } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { getKalkiCertificates, updateKalkiCertificate } from "../api/certificateApi"; 
 import "./BarChart/KalkiCertified.css";
+import toast from "react-hot-toast";
 
 export default function KalkiCertified() {
   const [search, setSearch] = useState("");
@@ -29,40 +31,33 @@ export default function KalkiCertified() {
       }
     } catch (err) {
       console.error("Fetch error:", err);
+      toast.error("Failed to load certificates");
     } finally {
       setLoading(false);
     }
   };
 
-  /**
-   * REVISED STATUS LOGIC:
-   * Backend returns "status": "approved" / "rejected" / "pending"
-   * and "kalki_certified": null / 1 / 2
-   * We check both to be safe.
-   */
   const getStatusDetails = (item) => {
+    // Priority 1: Check the string status returned by backend
+    // Priority 2: Check numeric kalki_certified flag
     const statusStr = (item.status || "").toLowerCase();
     const numeric = item.kalki_certified;
 
-    if (statusStr === "approved" || numeric == 1) {
+    if (statusStr === "approved" || numeric === 1 || numeric === "1") {
       return { text: "Approved", class: "approved", icon: <FaCheckCircle />, val: 1 };
-    } else if (statusStr === "rejected" || numeric == 2) {
+    } else if (statusStr === "rejected" || numeric === 2 || numeric === "2") {
       return { text: "Rejected", class: "rejected", icon: <FaTimesCircle />, val: 2 };
     } else {
       return { text: "Pending", class: "pending", icon: <FaHourglassHalf />, val: 0 };
     }
   };
 
-  // Stats calculation based on the string status from backend
   const stats = useMemo(() => {
     return {
       total: certificates.length,
-      approved: certificates.filter(c => (c.status || "").toLowerCase() === "approved" || c.kalki_certified == 1).length,
-      rejected: certificates.filter(c => (c.status || "").toLowerCase() === "rejected" || c.kalki_certified == 2).length,
-      pending: certificates.filter(c => 
-        ((c.status || "").toLowerCase() !== "approved" && (c.status || "").toLowerCase() !== "rejected") && 
-        (c.kalki_certified === null || c.kalki_certified == 0)
-      ).length,
+      approved: certificates.filter(c => getStatusDetails(c).val === 1).length,
+      rejected: certificates.filter(c => getStatusDetails(c).val === 2).length,
+      pending: certificates.filter(c => getStatusDetails(c).val === 0).length,
     };
   }, [certificates]);
 
@@ -83,24 +78,36 @@ export default function KalkiCertified() {
 
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
-    setIsUpdating(true);
-    try {
-      const payload = {
-        product_uid: selectedItem.product_uid,
-        status: parseInt(updateData.status),
-        reason: updateData.reason
-      };
+    if (!selectedItem) return;
 
-      const res = await updateKalkiCertificate(payload);
-      
-      if (res.success) {
+    setIsUpdating(true);
+    
+    // Payload sent as per your JSON requirement
+    const payload = {
+      product_uid: selectedItem.product_uid,
+      status: parseInt(updateData.status),
+      reason: updateData.reason
+    };
+
+    const updatePromise = updateKalkiCertificate(payload);
+
+    toast.promise(updatePromise, {
+      loading: 'Updating certification...',
+      success: (res) => {
         setShowModal(false);
-        // CRITICAL: Re-fetch data to get the updated "status" string from the server
-        await fetchCertificates();
-        alert("Certification updated successfully!");
+        // We delay the refresh slightly to allow the server to settle
+        setTimeout(() => fetchCertificates(), 500);
+        return "Certification updated successfully!";
+      },
+      error: (err) => {
+        return err.response?.data?.message || "Update failed. Please try again.";
       }
+    });
+
+    try {
+      await updatePromise;
     } catch (err) {
-      alert("Update failed: " + (err.response?.data?.message || "Server Error"));
+      console.error("Update error:", err);
     } finally {
       setIsUpdating(false);
     }
@@ -108,6 +115,8 @@ export default function KalkiCertified() {
 
   return (
     <div className="certified-container">
+      {/* NO TOASTER HERE - It's handled globally in AdminApp.jsx */}
+
       <div className="header-section">
         <button className="back-btn-new" onClick={() => navigate(-1)}>
           <FaArrowLeft />
@@ -155,7 +164,7 @@ export default function KalkiCertified() {
             type="text"
             placeholder="Search UID or Name..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)} // FIXED: e.target.value
           />
         </div>
         <button className="refresh-btn" onClick={fetchCertificates}>Refresh Data</button>
@@ -180,10 +189,10 @@ export default function KalkiCertified() {
                 </tr>
               ))
             ) : filteredCertificates.length > 0 ? (
-              filteredCertificates.map((item) => {
+              filteredCertificates.map((item, index) => {
                 const status = getStatusDetails(item);
                 return (
-                  <tr key={item.id}>
+                  <tr key={item.id || index}>
                     <td className="uid-cell">{item.product_uid}</td>
                     <td className="name-cell">{item.name}</td>
                     <td>

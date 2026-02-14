@@ -14,7 +14,7 @@ export default function CouponCode() {
   const [discountValue, setDiscountValue] = useState("");
   const [minOrder, setMinOrder] = useState("500");
   const [usageLimit, setUsageLimit] = useState(1);
-  const [productId, setProductId] = useState(""); // New State for target product
+  const [productId, setProductId] = useState(""); 
 
   const [copiedCode, setCopiedCode] = useState("");
   const navigate = useNavigate();
@@ -23,6 +23,7 @@ export default function CouponCode() {
     try {
       setLoading(true);
       const data = await getCoupons();
+      // Handling both nested and direct data arrays
       setCouponsList(data.coupons || data.data || []);
     } catch (error) {
       toast.error("Failed to load coupons");
@@ -36,23 +37,21 @@ export default function CouponCode() {
   }, []);
 
   const handleCreateCoupon = async () => {
-    // 1. Validation
     if (!code.trim()) {
       toast.error("Coupon code is required");
       return;
     }
     if (!discountValue || discountValue <= 0) {
-      toast.error("Please enter a valid percentage");
+      toast.error("Please enter a valid percentage value");
       return;
     }
 
     const payload = {
       code: code.toUpperCase().replace(/\s+/g, ''),
-      discount_type: "percentage", // Always percentage
+      discount_type: "percentage", // Hardcoded per requirement
       discount_value: Number(discountValue),
       minimal_order_value: Number(minOrder),
       usage_limit: Number(usageLimit),
-      // If productId is provided, set to 'product', else 'all'
       applicable_on: productId.trim() ? "product" : "all",
       applicable_product_id: productId.trim() ? productId.trim() : null,
       applicable_category_id: null
@@ -63,7 +62,7 @@ export default function CouponCode() {
     try {
       const response = await addCoupon(payload);
 
-      // Refined Success Check based on your API response structure
+      // Check for success pattern in your specific API
       if (response.coupon || response.message?.toLowerCase().includes("success")) {
         toast.success(response.message || "Coupon created successfully!", { id: loadToast });
         
@@ -74,23 +73,23 @@ export default function CouponCode() {
         setUsageLimit(1);
         setProductId("");
         
-        // Refresh List
         fetchCoupons(); 
       } else {
-        toast.error(response.message || "Failed to create coupon", { id: loadToast });
+        toast.error(response.message || "Failed to create", { id: loadToast });
       }
     } catch (error) {
-      const errorMsg = error.response?.data?.message || "Server Error: Failed to create";
+      const errorMsg = error.response?.data?.message || "Error: Could not create coupon";
       toast.error(errorMsg, { id: loadToast });
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this coupon?")) {
-      const loadToast = toast.loading("Deleting...");
+    if (window.confirm("Are you sure you want to delete this coupon permanently?")) {
+      const loadToast = toast.loading("Deleting coupon...");
       try {
         const res = await deleteCouponApi(id);
-        toast.success(res.message || "Coupon deleted", { id: loadToast });
+        // Your API likely returns a message on success
+        toast.success(res.message || "Coupon removed", { id: loadToast });
         fetchCoupons();
       } catch (error) {
         toast.error(error.response?.data?.message || "Delete failed", { id: loadToast });
@@ -116,32 +115,34 @@ export default function CouponCode() {
 
       <div className="creation-card">
         <h3>Create New Percentage Coupon</h3>
+        <p className="sub-label">All coupons created here apply as a percentage discount.</p>
+        
         <div className="input-grid">
           <div className="input-group">
             <label>Coupon Code *</label>
             <input 
               type="text" 
-              placeholder="e.g. DISK40" 
+              placeholder="e.g. SAVE50" 
               value={code} 
               onChange={(e) => setCode(e.target.value)} 
             />
           </div>
 
           <div className="input-group">
-            <label>Discount Percentage (%) *</label>
+            <label>Discount (%) *</label>
             <input 
               type="number" 
-              placeholder="e.g. 10" 
+              placeholder="e.g. 25" 
               value={discountValue} 
               onChange={(e) => setDiscountValue(e.target.value)} 
             />
           </div>
 
           <div className="input-group">
-            <label>Apply to Product ID (Optional)</label>
+            <label>Specific Product ID (Optional)</label>
             <input 
               type="text" 
-              placeholder="Leave blank for all products" 
+              placeholder="Empty for all products" 
               value={productId} 
               onChange={(e) => setProductId(e.target.value)} 
             />
@@ -190,10 +191,13 @@ export default function CouponCode() {
                       <small className="discount-text">
                         {parseFloat(cpn.discount_value)}% OFF
                       </small>
-                      <div className="mt-1 flex flex-col gap-0.5">
-                        <small className="min-order-sub">Min Order: ₹{cpn.minimal_order_value}</small>
-                        <small className="target-text flex items-center gap-1">
-                          <Tag size={10} /> {cpn.applicable_on === 'product' ? `Product ID: ${cpn.applicable_product_id}` : 'All Products'}
+                      <div className="mt-2 flex flex-col gap-1">
+                        <small className="min-order-sub font-bold text-gray-500">
+                           Min: ₹{cpn.minimal_order_value}
+                        </small>
+                        <small className={`target-badge ${cpn.applicable_on === 'product' ? 'product-specific' : 'global-badge'}`}>
+                          <Tag size={10} className="inline mr-1" />
+                          {cpn.applicable_on === 'product' ? `ID: ${cpn.applicable_product_id}` : 'Global'}
                         </small>
                       </div>
                     </div>
@@ -204,17 +208,17 @@ export default function CouponCode() {
                     )}
                   </div>
                   <div className="card-actions">
-                    <button className="icon-btn copy" onClick={() => copyToClipboard(cpn.code)}>
+                    <button className="icon-btn copy" title="Copy Code" onClick={() => copyToClipboard(cpn.code)}>
                       <Copy size={18} />
                     </button>
-                    <button className="icon-btn delete" onClick={() => handleDelete(cpn.id)}>
+                    <button className="icon-btn delete" title="Delete Coupon" onClick={() => handleDelete(cpn.id)}>
                       <Trash2 size={18} />
                     </button>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="no-data">No active coupons found.</p>
+              <p className="no-data">No active coupons available.</p>
             )}
           </div>
         )}

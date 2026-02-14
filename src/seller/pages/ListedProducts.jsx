@@ -6,7 +6,7 @@ import { fetchListedProducts } from "../api/listedProductApi";
 
 export default function ListedProducts() {
   const navigate = useNavigate();
-  
+
   // State Management
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,13 +31,13 @@ export default function ListedProducts() {
       setLoading(true);
       setError(null);
       const res = await fetchListedProducts();
-      
+
       if (res.success || res.status) {
         const rawData = res.data || [];
-        
+
         // --- SORTING LOGIC: Newest products at the top ---
         const sortedData = [...rawData].sort((a, b) => {
-            return new Date(b.created_at) - new Date(a.created_at);
+          return new Date(b.created_at) - new Date(a.created_at);
         });
 
         setProducts(sortedData);
@@ -65,7 +65,7 @@ export default function ListedProducts() {
 
   return (
     <div className="bg-[#f8fafc] min-h-screen w-full px-4 sm:px-8 py-8 font-sans">
-      
+
       {/* ---------- HEADER ---------- */}
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div className="flex items-center gap-4">
@@ -83,10 +83,10 @@ export default function ListedProducts() {
             <p className="text-xs text-gray-500">Manage your product catalog visibility</p>
           </div>
         </div>
-        
+
         {/* Status Summary Cards */}
         <div className="flex gap-3">
-          <div className="flex items-center gap-3 bg-white px-5 py-3 rounded-xl border border-green-100 shadow-sm min-w-[120px]">
+          <div className="flex items-center gap-3 bg-white px-5 py-3 rounded-xl border border-green-100 shadow-sm min-w-30">
             <div className="bg-green-100 p-2 rounded-lg">
               <CheckCircle2 size={18} className="text-green-600" />
             </div>
@@ -96,7 +96,7 @@ export default function ListedProducts() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 bg-white px-5 py-3 rounded-xl border border-red-100 shadow-sm min-w-[120px]">
+          <div className="flex items-center gap-3 bg-white px-5 py-3 rounded-xl border border-red-100 shadow-sm min-w-30">
             <div className="bg-red-100 p-2 rounded-lg">
               <AlertCircle size={18} className="text-red-600" />
             </div>
@@ -120,7 +120,7 @@ export default function ListedProducts() {
       {/* ---------- MAIN TABLE CONTAINER ---------- */}
       <div className="max-w-7xl mx-auto">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          
+
           {/* DESKTOP TABLE */}
           <div className="hidden sm:block overflow-x-auto">
             <table className="w-full text-left">
@@ -199,12 +199,12 @@ export default function ListedProducts() {
                 </div>
               ))
             ) : (
-               <div className="p-10 text-center text-gray-400">No products found</div>
+              <div className="p-10 text-center text-gray-400">No products found</div>
             )}
           </div>
 
         </div>
-        
+
         {/* Footer info */}
         <p className="mt-6 text-center text-gray-400 text-sm">
           Showing {products.length} products listed in your catalog

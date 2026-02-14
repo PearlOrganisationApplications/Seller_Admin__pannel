@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./BarChart/Users.css";
-import { 
-  getCustomers, 
-  deleteCustomerApi, 
-  getUserOrderHistory, 
-  getUserReturnHistory 
-} from "../api/userApi"; 
+import {
+  getCustomers,
+  deleteCustomerApi,
+  getUserOrderHistory,
+  getUserReturnHistory
+} from "../api/userApi";
 import { BASE_URL } from "../api/axios"; // To show return images
 
 export default function Users() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  
+
   // History Modal States
   const [historyData, setHistoryData] = useState(null);
   const [historyType, setHistoryType] = useState(null); // 'orders' or 'returns'
@@ -158,7 +158,7 @@ export default function Users() {
               <h3>{historyType === 'orders' ? 'Order History' : 'Return History'}</h3>
               <button className="close-btn" onClick={closeHistory}>×</button>
             </div>
-            
+
             <div className="modal-body">
               {historyLoading ? (
                 <p>Loading details...</p>

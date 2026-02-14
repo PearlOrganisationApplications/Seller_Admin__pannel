@@ -1,4 +1,4 @@
-import api from './axios'; // Import your configured axios instance
+import api from './axios'; // Ensure this points to your axios config file
 
 /**
  * Fetch all coupons
@@ -28,13 +28,12 @@ export const addCoupon = async (payload) => {
 
 /**
  * Delete a coupon
- * Note: You didn't provide the specific delete endpoint, 
- * but standard practice for your API structure would be:
+ * GET {{baseURL}}/api/admin/coupons/delete/{id}
  */
 export const deleteCouponApi = async (id) => {
   try {
-    // Assuming the endpoint is /deleteCoupon/{id} or similar
-    const response = await api.get(`/api/admin/deleteCoupon/${id}`);
+    // Updated to match your specific endpoint
+    const response = await api.delete(`/api/admin/coupons/delete/${id}`);
     return response.data;
   } catch (error) {
     throw error;

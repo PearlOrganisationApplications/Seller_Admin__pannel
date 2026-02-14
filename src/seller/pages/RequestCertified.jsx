@@ -2,7 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ShieldCheck, ClipboardCheck, Package, Send, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { fetchKalkiCertificates } from "../api/requestCertificateApi"; // Adjust path
+// 1. Updated Imports
+import { fetchKalkiCertificates, requestKalkiCertificate } from "../api/requestCertificateApi"; 
+import toast, { Toaster } from "react-hot-toast";
 
 export default function KalkiCertifiedPage() {
   const navigate = useNavigate();
@@ -10,7 +12,10 @@ export default function KalkiCertifiedPage() {
   // State Management
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [reason, setReason] = useState("");
+  const [isAgreed, setIsAgreed] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
   // Fetch data on component mount
@@ -23,7 +28,6 @@ export default function KalkiCertifiedPage() {
       setLoading(true);
       setError(null);
       const res = await fetchKalkiCertificates();
-      
       if (res.success) {
         setProducts(res.data || []);
       }
@@ -34,8 +38,53 @@ export default function KalkiCertifiedPage() {
     }
   };
 
+  // 2. Handle Form Submission
+  const handleSubmit = async () => {
+    // Validation
+    if (!selectedProduct) return toast.error("Please select a product first");
+    if (!reason.trim()) return toast.error("Please provide a reason for certification");
+    if (reason.length < 10) return toast.error("Reason must be at least 10 characters");
+    if (!isAgreed) return toast.error("Please confirm product accuracy");
+
+    setSubmitting(true);
+    
+    const payload = {
+      product_uid: selectedProduct.product_uid,
+      reason: reason.trim()
+    };
+
+    // Use toast.promise for professional feedback
+    const requestPromise = requestKalkiCertificate(payload);
+
+    toast.promise(requestPromise, {
+      loading: 'Submitting your application...',
+      success: (res) => {
+        // Reset form on success
+        setSelectedProduct(null);
+        setReason("");
+        setIsAgreed(false);
+        return "Application submitted successfully!";
+      },
+      error: (err) => {
+        const msg = err.response?.data?.message || "Failed to submit. Please try again.";
+        return msg;
+      }
+    }, {
+      style: { borderRadius: '10px', background: '#333', color: '#fff' }
+    });
+
+    try {
+      await requestPromise;
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="bg-slate-50 min-h-screen w-full p-4 sm:p-8 font-sans">
+      <Toaster position="top-right" reverseOrder={false} />
       
       {/* ---------- HEADER ---------- */}
       <div className="max-w-7xl mx-auto mb-8">
@@ -84,7 +133,6 @@ export default function KalkiCertifiedPage() {
               </div>
             ) : (
               <>
-                {/* DESKTOP TABLE */}
                 <div className="hidden md:block">
                   <table className="w-full text-left border-collapse">
                     <thead className="bg-slate-50/30 text-slate-400 text-[10px] uppercase font-bold tracking-widest">
@@ -126,7 +174,6 @@ export default function KalkiCertifiedPage() {
                   </table>
                 </div>
 
-                {/* MOBILE VIEW */}
                 <div className="md:hidden divide-y divide-slate-100">
                   {products.map((item) => (
                     <div 
@@ -175,26 +222,40 @@ export default function KalkiCertifiedPage() {
                 <textarea
                   className="w-full h-32 border border-slate-200 rounded-xl p-4 text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none"
                   placeholder="Explain why this product deserves a Kalki Certified badge..."
-                  defaultValue={selectedProduct?.reason || ""}
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
                 />
               </div>
 
-              <div className="flex items-start gap-3 p-3 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer group">
-                <input type="checkbox" className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+              <div 
+                className="flex items-start gap-3 p-3 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer group"
+                onClick={() => setIsAgreed(!isAgreed)}
+              >
+                <input 
+                    type="checkbox" 
+                    checked={isAgreed}
+                    readOnly
+                    className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" 
+                />
                 <span className="text-xs text-slate-500 leading-relaxed group-hover:text-slate-700 transition-colors">
                   I confirm that all product specifications provided are accurate.
                 </span>
               </div>
 
               <button 
-                disabled={!selectedProduct || loading}
+                onClick={handleSubmit}
+                disabled={!selectedProduct || submitting || loading}
                 className={`w-full py-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-lg ${
-                  selectedProduct 
-                  ? "bg-blue-600 text-white hover:bg-blue-700 shadow-blue-200" 
+                  selectedProduct && !submitting
+                  ? "bg-blue-600 text-white hover:bg-blue-700 shadow-blue-200 active:scale-[0.98]" 
                   : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
                 }`}
               >
-                <Send size={18} /> Submit Application
+                {submitting ? (
+                    <> <Loader2 className="animate-spin" size={18} /> Processing... </>
+                ) : (
+                    <> <Send size={18} /> Submit Application </>
+                )}
               </button>
             </div>
           </div>

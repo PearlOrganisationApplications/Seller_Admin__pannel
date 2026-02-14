@@ -2,14 +2,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Loader2 } from "lucide-react";
-import { 
-  fetchAllOrders, 
-  fetchNewOrders,     
-  fetchPendingOrders, 
-  fetchConfirmedOrders, 
+import {
+  fetchAllOrders,
+  fetchNewOrders,
+  fetchPendingOrders,
+  fetchConfirmedOrders,
   fetchCancelledOrders,
-  processOrderAction 
-} from "../api/orderManagementApi";
+  processOrderAction
+} from "../api/orderApi";
 
 export default function OrderManagement() {
   const navigate = useNavigate();
@@ -102,38 +102,38 @@ export default function OrderManagement() {
 
   return (
     <div className={`w-full min-h-screen bg-white ${isModalOpen ? "overflow-hidden" : ""}`}>
-      
+
       {/* REJECT MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-40 p-4">
           <div className="bg-white w-full max-w-md rounded-sm shadow-2xl relative p-6">
-              <h2 className="text-2xl font-serif text-gray-800">Reject Order</h2>
-              <div className="w-full h-px bg-gray-300 mt-2 mb-4" />
-              <p className="text-sm text-gray-600 mb-6">Reason for rejecting order</p>
-              <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-                {reasons.map((reason, index) => (
-                  <label key={index} className="flex items-center gap-4 cursor-pointer group">
-                    <input
-                        type="radio"
-                        name="rejectReason"
-                        className="w-5 h-5 accent-blue-600"
-                        checked={selectedReason === reason}
-                        onChange={() => setSelectedReason(reason)}
-                    />
-                    <span className="text-sm text-gray-700 font-medium">{reason}</span>
-                  </label>
-                ))}
-              </div>
-              <div className="mt-8 flex gap-3">
-                <button onClick={() => setIsModalOpen(false)} disabled={processing} className="flex-1 py-2 border rounded-md text-sm">Cancel</button>
-                <button 
-                  onClick={handleConfirmReject} 
-                  disabled={!selectedReason || processing}
-                  className={`flex-1 py-2 rounded-md text-sm text-white flex items-center justify-center ${selectedReason && !processing ? "bg-red-600" : "bg-gray-400"}`}
-                >
-                  {processing ? <Loader2 className="animate-spin w-4 h-4" /> : "Submit Rejection"}
-                </button>
-              </div>
+            <h2 className="text-2xl font-serif text-gray-800">Reject Order</h2>
+            <div className="w-full h-px bg-gray-300 mt-2 mb-4" />
+            <p className="text-sm text-gray-600 mb-6">Reason for rejecting order</p>
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+              {reasons.map((reason, index) => (
+                <label key={index} className="flex items-center gap-4 cursor-pointer group">
+                  <input
+                    type="radio"
+                    name="rejectReason"
+                    className="w-5 h-5 accent-blue-600"
+                    checked={selectedReason === reason}
+                    onChange={() => setSelectedReason(reason)}
+                  />
+                  <span className="text-sm text-gray-700 font-medium">{reason}</span>
+                </label>
+              ))}
+            </div>
+            <div className="mt-8 flex gap-3">
+              <button onClick={() => setIsModalOpen(false)} disabled={processing} className="flex-1 py-2 border rounded-md text-sm">Cancel</button>
+              <button
+                onClick={handleConfirmReject}
+                disabled={!selectedReason || processing}
+                className={`flex-1 py-2 rounded-md text-sm text-white flex items-center justify-center ${selectedReason && !processing ? "bg-red-600" : "bg-gray-400"}`}
+              >
+                {processing ? <Loader2 className="animate-spin w-4 h-4" /> : "Submit Rejection"}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -154,9 +154,8 @@ export default function OrderManagement() {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-3 py-1 border rounded-md text-xs sm:text-sm ${
-              activeTab === tab ? "bg-[#0972f6] text-white" : "bg-white text-black"
-            }`}
+            className={`px-3 py-1 border rounded-md text-xs sm:text-sm ${activeTab === tab ? "bg-[#0972f6] text-white" : "bg-white text-black"
+              }`}
           >
             {tab}
           </button>
@@ -191,18 +190,18 @@ export default function OrderManagement() {
                   <div className="sm:ml-auto flex flex-col gap-3 sm:items-end">
                     <span className="bg-green-500 text-white px-4 py-1 rounded-md font-semibold text-sm">₹{order.total_amount}</span>
                     <p className="text-xs text-gray-600">Method: {order.payment_method || "COD"}</p>
-                    
+
                     {/* Buttons for Pending/New */}
                     {(order.status === "pending" || order.order_status === "pending") && (
                       <div className="flex gap-2">
-                        <button 
+                        <button
                           disabled={processing}
-                          onClick={() => handleOpenRejectModal(order.order_id)} 
+                          onClick={() => handleOpenRejectModal(order.order_id)}
                           className="px-4 py-2 rounded-md bg-gray-200 text-sm"
                         >
                           Reject
                         </button>
-                        <button 
+                        <button
                           disabled={processing}
                           onClick={() => handleAccept(order.order_id)}
                           className="px-4 py-2 rounded-md bg-[#0047ab] text-white text-sm"
