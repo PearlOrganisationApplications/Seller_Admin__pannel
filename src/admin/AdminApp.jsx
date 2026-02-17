@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { Toaster } from "react-hot-toast"; 
+import { Toaster } from "react-hot-toast";
 import AdminLayout from "./layouts/AdminLayout";
 
 // IMPORT ALL YOUR PAGES
@@ -27,8 +27,8 @@ export default function AdminApp() {
   return (
     <>
       {/* Global Toaster: Handles all notifications for the admin panel */}
-     <Toaster 
-        position="top-center" 
+      <Toaster
+        position="top-center"
         reverseOrder={false}
         containerId="main-toaster"
         limit={1} // <--- FINAL FIX: Only allows ONE toast on screen at a time
@@ -45,7 +45,7 @@ export default function AdminApp() {
           },
         }}
       />
-      
+
       <AdminLayout>
         <Routes>
           <Route index element={<Navigate to="dashboard" replace />} />

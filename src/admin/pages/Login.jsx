@@ -44,6 +44,7 @@ export default function AdminLogin() {
       }
     } catch (err) {
       const errorMessage = err.response?.data?.message || "Action Failed. Please try again.";
+      navigate("/");
       setError(errorMessage);
     } finally {
       setLoading(false);

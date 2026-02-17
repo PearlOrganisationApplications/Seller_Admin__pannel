@@ -1,15 +1,15 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { 
-  FaTachometerAlt, 
-  FaUsers, 
-  FaUserTie, 
-  FaShoppingCart, 
-  FaTicketAlt, 
-  FaCertificate, 
-  FaAd, 
-  FaFolderPlus, 
-  FaBell, 
+import {
+  FaTachometerAlt,
+  FaUsers,
+  FaUserTie,
+  FaShoppingCart,
+  FaTicketAlt,
+  FaCertificate,
+  FaAd,
+  FaFolderPlus,
+  FaBell,
   FaSignOutAlt,
   FaServer,
   FaHeadset,
@@ -29,7 +29,7 @@ export default function Sidebar({ collapsed = false, setCollapsed, mobileOpen, s
 
   const handleLogout = () => {
     localStorage.clear();
-    window.location.href = "/login";
+    window.location.href = "/";
   };
 
   const cls = `sidebar ${collapsed ? "collapsed" : ""} ${mobileOpen ? "mobile-open" : ""}`;
@@ -38,11 +38,11 @@ export default function Sidebar({ collapsed = false, setCollapsed, mobileOpen, s
     <aside className={cls}>
       <div className="sidebar-top">
         {!collapsed && <h2 className="sidebar-title font-bold">Admin Panel</h2>}
-        <button 
-          className="collapse-toggle" 
+        <button
+          className="collapse-toggle"
           onClick={() => window.innerWidth <= 768 ? setMobileOpen(!mobileOpen) : setCollapsed(!collapsed)}
-        > 
-          ☰ 
+        >
+          ☰
         </button>
       </div>
 
@@ -132,9 +132,9 @@ export default function Sidebar({ collapsed = false, setCollapsed, mobileOpen, s
         </li>
 
         {/* LOGOUT BUTTON */}
-        <li 
-          className="sidebar-item logout-item" 
-          onClick={handleLogout} 
+        <li
+          className="sidebar-item logout-item"
+          onClick={handleLogout}
           style={{ marginTop: '20px', color: '#ff4d4d', cursor: 'pointer' }}
         >
           <FaSignOutAlt />

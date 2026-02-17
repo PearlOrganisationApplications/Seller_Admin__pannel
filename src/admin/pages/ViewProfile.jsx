@@ -7,14 +7,14 @@ export default function ViewProfile() {
   const [profile, setProfile] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(true);
-  
+
   const [editData, setEditData] = useState({
     name: "", email: "", phone: "", gender: "",
     city: "", state: "", address: "",
   });
 
-  const [selectedFile, setSelectedFile] = useState(null); 
-  const [previewUrl, setPreviewUrl] = useState(null);    
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   const fileInputRef = useRef();
   const navigate = useNavigate();
@@ -25,20 +25,20 @@ export default function ViewProfile() {
 
   const fetchProfile = async () => {
     const token = localStorage.getItem('token');
-    
+
     if (!token) {
       alert("No session found. Redirecting to login...");
-      navigate("/login");
+      navigate("/");
       return;
     }
 
     try {
       setLoading(true);
       const res = await ProfileAPI.getProfile();
-      
+
       // Handle the data structure returned by your backend
       const user = res.data.admin || res.data.data || res.data;
-      
+
       setProfile(user);
       setEditData({
         name: user.name || "",
@@ -52,7 +52,7 @@ export default function ViewProfile() {
       setLoading(false);
     } catch (err) {
       console.error("Profile Fetch Error:", err.response);
-      
+
       if (err.response?.status === 401) {
         // If the token is invalid/expired, we MUST log out
         alert("Your session has expired or is invalid. Please log in again.");
@@ -69,7 +69,7 @@ export default function ViewProfile() {
     const file = event.target.files[0];
     if (!file) return;
     setSelectedFile(file);
-    setPreviewUrl(URL.createObjectURL(file)); 
+    setPreviewUrl(URL.createObjectURL(file));
   };
 
   const handleSave = async () => {
@@ -87,7 +87,7 @@ export default function ViewProfile() {
       }
 
       const res = await ProfileAPI.updateProfileData(formData);
-      
+
       if (res.data.status || res.data.success) {
         alert("Profile updated successfully!");
         setEditMode(false);
@@ -109,15 +109,15 @@ export default function ViewProfile() {
   }
 
   // Define display image logic
-  const displayImage = previewUrl 
-    ? previewUrl 
+  const displayImage = previewUrl
+    ? previewUrl
     : (profile?.image ? `https://kalkideals.com/${profile.image}` : Defaulting);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6 flex flex-col items-center">
       <div className="w-full max-w-lg">
-        <button 
-          onClick={() => navigate("/admin/dashboard")} 
+        <button
+          onClick={() => navigate("/admin/dashboard")}
           className="mb-6 bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg border border-gray-700 transition-all"
         >
           ← Back to Dashboard
@@ -135,8 +135,8 @@ export default function ViewProfile() {
               onError={(e) => { e.target.src = Defaulting; }}
             />
             {editMode && (
-              <div 
-                onClick={() => fileInputRef.current.click()} 
+              <div
+                onClick={() => fileInputRef.current.click()}
                 className="absolute bottom-1 right-1 bg-blue-600 p-2 rounded-full cursor-pointer hover:bg-blue-500 shadow-md transition-all"
               >
                 ✎
@@ -169,22 +169,22 @@ export default function ViewProfile() {
           {/* Buttons */}
           <div className="mt-10">
             {!editMode ? (
-              <button 
-                onClick={() => setEditMode(true)} 
+              <button
+                onClick={() => setEditMode(true)}
                 className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-bold transition-all shadow-lg"
               >
                 Edit Profile
               </button>
             ) : (
               <div className="flex gap-4">
-                <button 
-                  onClick={handleSave} 
+                <button
+                  onClick={handleSave}
                   className="flex-1 py-3 bg-green-600 hover:bg-green-700 rounded-xl font-bold transition-all shadow-lg"
                 >
                   Save Changes
                 </button>
-                <button 
-                  onClick={() => { setEditMode(false); setPreviewUrl(null); setSelectedFile(null); }} 
+                <button
+                  onClick={() => { setEditMode(false); setPreviewUrl(null); setSelectedFile(null); }}
                   className="flex-1 py-3 bg-gray-600 hover:bg-gray-500 rounded-xl font-bold transition-all shadow-lg"
                 >
                   Cancel

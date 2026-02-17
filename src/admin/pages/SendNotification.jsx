@@ -10,10 +10,10 @@ export default function SendNotification() {
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [audience, setAudience] = useState("all");
-  const [type, setType] = useState("normal"); 
-  
-  const [previewImage, setPreviewImage] = useState(null); 
-  const [rawFile, setRawFile] = useState(null);         
+  const [type, setType] = useState("normal");
+
+  const [previewImage, setPreviewImage] = useState(null);
+  const [rawFile, setRawFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -57,12 +57,12 @@ export default function SendNotification() {
     }
 
     setLoading(true);
-    
+
     const formData = new FormData();
     formData.append("title", title.trim());
     formData.append("body", message.trim());
     formData.append("send_to", audience);
-    formData.append("type", type); 
+    formData.append("type", type);
 
     if (type === "image" && rawFile) {
       // Ensure the file is appended correctly
@@ -71,7 +71,7 @@ export default function SendNotification() {
 
     try {
       const result = await sendNotification(formData);
-      
+
       // Some backends return status: true, others success: true
       if (result.success || result.status === true || result.status === "true") {
         alert("Notification sent successfully!");
@@ -141,13 +141,13 @@ export default function SendNotification() {
                 <div onClick={() => fileInputRef.current.click()} className="group cursor-pointer border-2 border-dashed border-blue-200 rounded-2xl p-6 bg-blue-50 hover:bg-blue-100/50 flex flex-col items-center justify-center transition-all">
                   {previewImage ? (
                     <div className="text-center">
-                        <img src={previewImage} className="max-h-32 rounded-lg shadow-sm mb-2" alt="Selected" />
-                        <span className="text-xs text-blue-600 font-medium">Click to Change Image</span>
+                      <img src={previewImage} className="max-h-32 rounded-lg shadow-sm mb-2" alt="Selected" />
+                      <span className="text-xs text-blue-600 font-medium">Click to Change Image</span>
                     </div>
                   ) : (
                     <>
-                        <div className="w-12 h-12 bg-blue-200 rounded-full flex items-center justify-center text-blue-600 text-xl mb-2">+</div>
-                        <p className="text-sm text-blue-600 font-bold">Click to upload photo</p>
+                      <div className="w-12 h-12 bg-blue-200 rounded-full flex items-center justify-center text-blue-600 text-xl mb-2">+</div>
+                      <p className="text-sm text-blue-600 font-bold">Click to upload photo</p>
                     </>
                   )}
                   <input type="file" ref={fileInputRef} accept=".jpg,.jpeg,.png" onChange={handleImageUpload} className="hidden" />

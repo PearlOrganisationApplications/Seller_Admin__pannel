@@ -26,20 +26,20 @@ export default function SellerLayout() {
 
   return (
     <div className="flex bg-[#F1F2F4] min-h-screen w-full relative">
-      
+
       {/* Sidebar Component */}
       <SellerSidebar isOpen={sidebarOpen} close={() => setSidebarOpen(false)} />
 
       {/* Mobile Backdrop Overlay */}
       {sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[55] lg:hidden"
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-55 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Main Content Wrapper */}
-      <div 
+      <div
         className={`flex flex-col flex-1 transition-all duration-300 min-w-0 
         ${/* THIS LINE PREVENTS OVERLAP ON DESKTOP */ ""}
         ${sidebarOpen ? "lg:ml-72" : "ml-0"}`}
@@ -47,7 +47,7 @@ export default function SellerLayout() {
         {/* Navbar */}
         <header className="h-16 bg-white border-b flex items-center justify-between px-6 sticky top-0 z-40 w-full">
           <div className="flex items-center gap-4">
-            <button 
+            <button
               className="p-2 hover:bg-gray-100 rounded-lg"
               onClick={() => setSidebarOpen(!sidebarOpen)}
             >
@@ -57,7 +57,7 @@ export default function SellerLayout() {
           </div>
 
           <div className="flex items-center gap-4">
-            <div 
+            <div
               className="relative cursor-pointer p-2 hover:bg-gray-50 rounded-full"
               onClick={() => navigate("/seller/notifications")}
             >
@@ -76,7 +76,7 @@ export default function SellerLayout() {
 
         {/* Page Content */}
         <main className="p-4 md:p-8">
-          <Outlet /> 
+          <Outlet />
         </main>
       </div>
     </div>

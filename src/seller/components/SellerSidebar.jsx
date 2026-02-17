@@ -12,7 +12,7 @@ export default function SellerSidebar({ isOpen, close }) {
 
   const handleLogout = () => {
     localStorage.clear();
-    window.location.href = "/login";
+    window.location.href = "/";
   };
 
   const navTo = (path) => {

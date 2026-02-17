@@ -3,7 +3,7 @@ import api from './axios';
 // POST Send Notification
 export const sendNotification = async (formData) => {
   try {
-       const response = await api.post('/api/send-notification', formData, {
+    const response = await api.post('/api/send-notification', formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
