@@ -32,7 +32,7 @@ apiClient.interceptors.response.use(
             if (!window.location.pathname.includes('login')) {
                 console.warn("Unauthorized! Clearing session...");
                 localStorage.clear();
-                window.location.href = '/login';
+                window.location.href = '/';
             }
         }
         return Promise.reject(error);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import defaultImg from "../img/admin_profile.webp";
-import { BASE_URL } from "../api/axios"; 
+import { BASE_URL } from "../api/axios";
 import { getProfile } from "../api/viewProfileApi"; // <--- Import your profile GET API
 import { Bell } from "lucide-react";
 
@@ -51,8 +51,8 @@ export default function Navbar({ collapsed, setCollapsed, mobileOpen, setMobileO
   }, []);
 
   // Add a timestamp (?t=...) to bypass browser image cache
-  const profileSrc = profile 
-    ? `${BASE_URL}/${profile}?t=${Date.now()}` 
+  const profileSrc = profile
+    ? `${BASE_URL}/${profile}?t=${Date.now()}`
     : defaultImg;
 
   const onHamburger = () => {
@@ -81,9 +81,9 @@ export default function Navbar({ collapsed, setCollapsed, mobileOpen, setMobileO
       </div>
 
       <div className="nav-right flex items-center gap-5" ref={dropdownRef}>
-        
+
         {/* BELL ICON (Just navigation now) */}
-        <div 
+        <div
           className="relative cursor-pointer hover:bg-gray-100 p-2 rounded-full transition-all"
           onClick={() => navigate("/admin/notifications")}
           style={{ marginRight: '15px' }}
@@ -92,18 +92,18 @@ export default function Navbar({ collapsed, setCollapsed, mobileOpen, setMobileO
         </div>
 
         <div className="profile-preview flex items-center gap-3 cursor-pointer" onClick={() => setOpen(!open)}>
-          <img 
-            src={profileSrc} 
-            className="w-10 h-10 rounded-full object-cover border border-gray-600" 
-            alt="Profile" 
-            onError={(e) => { e.target.src = defaultImg; }} 
+          <img
+            src={profileSrc}
+            className="w-10 h-10 rounded-full object-cover border border-gray-600"
+            alt="Profile"
+            onError={(e) => { e.target.src = defaultImg; }}
           />
         </div>
 
         {open && (
           <div className="profile-dropdown shadow-xl" style={{ position: 'absolute', top: '60px', right: '20px', background: 'white', zIndex: 1000 }}>
             <Link to="/admin/view-profile" className="dropdown-item">View Profile</Link>
-            <div
+            {/* <div
               className="dropdown-item logout text-red-500 cursor-pointer"
               onClick={() => {
                 localStorage.clear();
@@ -111,7 +111,7 @@ export default function Navbar({ collapsed, setCollapsed, mobileOpen, setMobileO
               }}
             >
               Logout
-            </div>
+            </div> */}
           </div>
         )}
       </div>

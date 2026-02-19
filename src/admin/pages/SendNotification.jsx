@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { sendNotification } from "../api/notificationApi";
+import toast from "react-hot-toast";
 import "./BarChart/SendNotification.css";
 
 export default function SendNotification() {
@@ -26,17 +27,17 @@ export default function SendNotification() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // STRICT VALIDATION: Check extension
     const allowedExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
     if (!allowedExtensions.includes(file.type)) {
-      alert("Invalid Format! Please upload only JPG, JPEG, or PNG files.");
-      e.target.value = ""; // Clear input
+      // 2. Convert alert to toast.error
+      toast.error("Invalid Format! Please upload only JPG, JPEG, or PNG files.");
+      e.target.value = "";
       return;
     }
 
-    // Check File Size (e.g., max 2MB)
     if (file.size > 2 * 1024 * 1024) {
-      alert("File is too large! Maximum size is 2MB.");
+      // 3. Convert alert to toast.error
+      toast.error("File is too large! Maximum size is 2MB.");
       e.target.value = "";
       return;
     }
@@ -47,12 +48,14 @@ export default function SendNotification() {
 
   const handleSendNotification = async () => {
     if (!title.trim() || !message.trim()) {
-      alert("Please enter a title and message.");
+      // 4. Convert alert to toast.error
+      toast.error("Please enter a title and message.");
       return;
     }
 
     if (type === "image" && !rawFile) {
-      alert("Please upload an image for this notification type.");
+      // 5. Convert alert to toast.error
+      toast.error("Please upload an image for this notification type.");
       return;
     }
 
@@ -65,29 +68,29 @@ export default function SendNotification() {
     formData.append("type", type);
 
     if (type === "image" && rawFile) {
-      // Ensure the file is appended correctly
       formData.append("image", rawFile);
     }
 
     try {
       const result = await sendNotification(formData);
 
-      // Some backends return status: true, others success: true
       if (result.success || result.status === true || result.status === "true") {
-        alert("Notification sent successfully!");
+        // 6. Convert alert to toast.success
+        toast.success("Notification sent successfully!");
         setTitle("");
         setMessage("");
         setRawFile(null);
         setPreviewImage(null);
         setType("normal");
       } else {
-        alert(result.message || "Server rejected the request");
+        // 7. Convert alert to toast.error
+        toast.error(result.message || "Server rejected the request");
       }
     } catch (error) {
       console.error("Submit Error:", error);
-      // Capture the specific 422 error message from the server
       const serverError = error.response?.data?.message || error.response?.data?.error || "Connection Error";
-      alert("Failed: " + serverError);
+      // 8. Convert alert to toast.error
+      toast.error("Failed: " + serverError);
     } finally {
       setLoading(false);
     }
@@ -95,6 +98,7 @@ export default function SendNotification() {
 
   return (
     <div className="notification-container min-h-screen pb-10 bg-gray-50 text-gray-800">
+      {/* ... (Rest of your JSX code remains exactly the same) ... */}
       <div className="nav flex items-center justify-between px-6 mb-8 shadow-lg bg-[#4375af]">
         <h3 className="text-white text-xl font-bold">Marketing Center</h3>
         <button className="bg-white/20 hover:bg-white/30 text-white px-5 py-2 rounded-lg transition-all border border-white/30" onClick={() => navigate(-1)}>
@@ -161,7 +165,6 @@ export default function SendNotification() {
           </div>
         </div>
 
-        {/* PREVIEW SECTION */}
         <div className="flex flex-col">
           <h2 className="text-xl font-bold text-gray-400 mb-6 px-2">Live Preview</h2>
           <div className="preview-card bg-white shadow-2xl rounded-3xl p-6 border border-gray-100">

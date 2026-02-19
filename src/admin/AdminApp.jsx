@@ -22,6 +22,7 @@ import SellerProducts from "./pages/SellerProducts";
 import SellerOrders from "./pages/SellerOrders";
 import SellerPendingRequests from "./pages/SellerPendingRequests";
 import Tearms from "./pages/Terms";
+import Notifications from "./pages/Notifications";
 
 export default function AdminApp() {
   return (
@@ -68,6 +69,7 @@ export default function AdminApp() {
           <Route path="support" element={<Support />} />
           <Route path="about-us" element={<AboutUs />} />
           <Route path="terms-policies" element={<Tearms />} />
+          <Route path="notifications" element={<Notifications />} />
           <Route path="*" element={<div className="p-10 text-center">Admin Page Not Found</div>} />
         </Routes>
       </AdminLayout>
