@@ -9,9 +9,9 @@ export default function OrderManage() {
   const navigate = useNavigate();
 
   return (
-    
+
     <div className="manage-page">
-       <button className="back-btn" onClick={() => navigate(-1)}>
+      <button className="back-btn" onClick={() => navigate(-1)}>
         <FaArrowLeft /> Back
       </button>
 
@@ -38,7 +38,7 @@ export default function OrderManage() {
 
             {/* STATUS DROPDOWN */}
             <td>
-              <select 
+              <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 className="status-select"
@@ -81,7 +81,7 @@ export default function OrderManage() {
       {/* ACTIVITY LOG 2 */}
       <div className="log-box">
         <p>
-          Order Cancelled 10:11pm 12 Aug 2025 
+          Order Cancelled 10:11pm 12 Aug 2025
           <span className="cancel-reason">(Out of Stock)</span>
         </p>
         <button className="notify-btn">Send Notification</button>

@@ -20,12 +20,12 @@ export default function SellerProducts() {
     try {
       setLoading(true);
       const data = await getSellerProducts(id);
-      
+
       // 1. SORT: Newest Created Products on Top (Descending)
-      const sorted = (data.products || []).sort((a, b) => 
+      const sorted = (data.products || []).sort((a, b) =>
         new Date(b.created_at) - new Date(a.created_at)
       );
-      
+
       setProducts(sorted);
     } catch (err) {
       console.error("Fetch error:", err);
@@ -35,14 +35,14 @@ export default function SellerProducts() {
     }
   };
 
- const handleStatusToggle = async (product_uid, currentStatus) => {
+  const handleStatusToggle = async (product_uid, currentStatus) => {
     const normalizedStatus = currentStatus.toLowerCase();
     const newStatus = normalizedStatus === "active" ? "inactive" : "active";
-    
+
     try {
       setUpdatingUid(product_uid);
       const res = await updateProductStatus(product_uid, newStatus);
-      
+
       console.log("API Response:", res); // <-- ADD THIS to check if status is true
 
       if (res.status === true || res.success === true) {
@@ -51,7 +51,7 @@ export default function SellerProducts() {
             p.product_uid === product_uid ? { ...p, status: newStatus } : p
           )
         );
-        
+
         toast.success(`Product ${newStatus.toUpperCase()} successfully`);
       } else {
         toast.error(res.message || "Failed to update status");
@@ -65,16 +65,12 @@ export default function SellerProducts() {
 
   return (
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen font-sans">
-      {/* 
-          TOASTER REMOVED FROM HERE 
-          It is already handled by the global provider in AdminApp.js
-      */}
-      
+
       {/* Header Container */}
       <div className="max-w-7xl mx-auto flex items-center justify-between mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
         <div className="flex items-center gap-4">
-          <button 
-            onClick={() => navigate(-1)} 
+          <button
+            onClick={() => navigate(-1)}
             className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-600"
           >
             <ChevronLeft size={24} />
@@ -107,7 +103,7 @@ export default function SellerProducts() {
                 {products.length > 0 ? (
                   products.map((p) => {
                     const isActive = p.status?.toLowerCase() === "active";
-                    
+
                     return (
                       <tr key={p.id} className="hover:bg-gray-50/50 transition-colors">
                         <td className="px-6 py-4">
@@ -119,9 +115,8 @@ export default function SellerProducts() {
                           <div className="text-[10px] text-gray-400 font-bold uppercase">Stock: {p.stock}</div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                            isActive ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-                          }`}>
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${isActive ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                            }`}>
                             {p.status}
                           </span>
                         </td>
@@ -130,11 +125,10 @@ export default function SellerProducts() {
                             <button
                               disabled={updatingUid === p.product_uid}
                               onClick={() => handleStatusToggle(p.product_uid, p.status)}
-                              className={`w-32 py-2 rounded-lg text-xs font-bold transition-all border flex items-center justify-center ${
-                                isActive 
-                                ? 'bg-white border-red-200 text-red-500 hover:bg-red-50' 
-                                : 'bg-white border-green-200 text-green-500 hover:bg-green-50'
-                              } disabled:opacity-50`}
+                              className={`w-32 py-2 rounded-lg text-xs font-bold transition-all border flex items-center justify-center ${isActive
+                                  ? 'bg-white border-red-200 text-red-500 hover:bg-red-50'
+                                  : 'bg-white border-green-200 text-green-500 hover:bg-green-50'
+                                } disabled:opacity-50`}
                             >
                               {updatingUid === p.product_uid ? (
                                 <Loader2 className="animate-spin" size={14} />

@@ -15,7 +15,8 @@ import {
   FaHeadset,
   FaInfoCircle,
   FaImage,
-  FaGavel // Imported for Terms and Policies
+  FaGavel,
+  FaStar
 } from "react-icons/fa";
 
 export default function Sidebar({ collapsed = false, setCollapsed, mobileOpen, setMobileOpen }) {
@@ -107,6 +108,11 @@ export default function Sidebar({ collapsed = false, setCollapsed, mobileOpen, s
           {!collapsed && <Link to="/admin/banners">Banner Management</Link>}
         </li>
 
+        <li className="sidebar-item" onClick={onNavClick}>
+          <FaStar />
+          {!collapsed && <Link to="/admin/ratings">Rating Management</Link>}
+        </li>
+
         {/* SMTP SETTING */}
         <li className="sidebar-item" onClick={onNavClick}>
           <FaServer />
@@ -125,7 +131,7 @@ export default function Sidebar({ collapsed = false, setCollapsed, mobileOpen, s
           {!collapsed && <Link to="/admin/about-us">About Us</Link>}
         </li>
 
-        {/* TERMS & POLICIES (Newly Added) */}
+        {/* TERMS & POLICIES */}
         <li className="sidebar-item" onClick={onNavClick}>
           <FaGavel />
           {!collapsed && <Link to="/admin/terms-policies">Terms & Policies</Link>}

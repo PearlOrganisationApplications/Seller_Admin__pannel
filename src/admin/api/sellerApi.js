@@ -1,4 +1,4 @@
-import api from './axios'; 
+import api from './axios';
 
 export const getSellers = async () => {
     try {
@@ -7,7 +7,15 @@ export const getSellers = async () => {
     } catch (error) { throw error; }
 };
 
-
+export const toggleSellerStatus = async (id) => {
+    try {
+        // According to your image: PUT https://kalkideals.com/api/seller/{id}/toggle-status
+        const response = await api.put(`/api/seller/${id}/toggle-status`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
 
 // --- NEW APIS ---
 
@@ -15,7 +23,7 @@ export const getSellers = async () => {
 export const getSellerProducts = async (sellerId) => {
     try {
         // Changed "products" to "product"
-        const response = await api.get(`/api/admin/get/product/${sellerId}`); 
+        const response = await api.get(`/api/admin/get/product/${sellerId}`);
         return response.data;
     } catch (error) { throw error; }
 };
@@ -50,7 +58,7 @@ export const updateProductStatus = async (product_uid, status) => {
     const formData = new FormData();
     formData.append('product_uid', product_uid);
     formData.append('status', status);
-    
+
     const response = await api.post('/api/admin/get/seller/product/update', formData);
     return response.data;
 };

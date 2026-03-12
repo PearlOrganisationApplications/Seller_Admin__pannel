@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast"; // 1. Import toast
 import "./BarChart/Sellers.css";
-import { getSellers, deleteSellerById } from "../api/sellerApi"; // Path to your new api file
+import { getSellers, deleteSellerById, toggleSellerStatus } from "../api/sellerApi";
 
 export default function Sellers() {
   const [sellers, setSellers] = useState([]);
@@ -9,7 +10,6 @@ export default function Sellers() {
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
-  // Fetch Sellers using Axios Service
   const fetchSellers = async () => {
     setLoading(true);
     try {
@@ -23,12 +23,14 @@ export default function Sellers() {
           mobile: s.phone || "N/A",
           email: s.email || "N/A",
           address: s.address || "N/A",
+          statusValue: String(s.status),
           status: s.status === "1" ? "Active" : "Inactive",
         }));
         setSellers(formatted);
       }
     } catch (err) {
       console.error("Error fetching sellers:", err);
+      toast.error("Failed to load sellers list");
     } finally {
       setLoading(false);
     }
@@ -38,58 +40,78 @@ export default function Sellers() {
     fetchSellers();
   }, []);
 
-  // Filter Logic
+  // --- Toggle Status with Toast ---
+  const handleToggleStatus = async (id) => {
+    // Optional: Show a loading toast while the API works
+    const loadingToast = toast.loading("Updating status...");
+
+    try {
+      const data = await toggleSellerStatus(id);
+      if (data.status) {
+        setSellers((prevSellers) =>
+          prevSellers.map((s) => {
+            if (s.id === id) {
+              const newStatusValue = String(data.seller.status);
+              return {
+                ...s,
+                statusValue: newStatusValue,
+                status: newStatusValue === "1" ? "Active" : "Inactive",
+              };
+            }
+            return s;
+          })
+        );
+        // Replace alert with toast.success
+        toast.success(data.message || "Status updated successfully", { id: loadingToast });
+      } else {
+        toast.error(data.message || "Failed to update status", { id: loadingToast });
+      }
+    } catch (err) {
+      console.error("Toggle error:", err);
+      toast.error("An error occurred while updating status", { id: loadingToast });
+    }
+  };
+
+  // --- Delete Seller with Toast ---
+  const deleteSeller = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this seller?");
+    if (!confirmDelete) return;
+
+    const loadingToast = toast.loading("Deleting seller...");
+
+    try {
+      const data = await deleteSellerById(id);
+      if (data.status === true || data.message?.toLowerCase().includes("success")) {
+        // Replace alert with toast.success
+        toast.success("Seller deleted successfully", { id: loadingToast });
+        setSellers((prevSellers) => prevSellers.filter((s) => s.id !== id));
+      } else {
+        toast.error(data.message || "Failed to delete seller", { id: loadingToast });
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+      const errorMessage = err.response?.data?.message || "An error occurred during deletion";
+      toast.error(errorMessage, { id: loadingToast });
+    }
+  };
+
   const filteredSellers = sellers.filter((s) => {
     const text = search.toLowerCase();
     return (
       s.name.toLowerCase().includes(text) ||
-      s.type.toLowerCase().includes(text) ||
-      s.mobile.toLowerCase().includes(text) ||
       s.email.toLowerCase().includes(text) ||
       s.id.toString().includes(text)
     );
   });
 
-  // Delete Seller using Axios Service
-// Inside your Sellers component...
-
-const deleteSeller = async (id) => {
-  // 1. Ask for confirmation
-  const confirmDelete = window.confirm("Are you sure you want to delete this seller? This action cannot be undone.");
-  if (!confirmDelete) return;
-
-  try {
-    // 2. Call the API
-    const data = await deleteSellerById(id);
-
-    // 3. Check for success (usually based on a 'status' or 'message' field in your API)
-    if (data.status === true || data.message?.toLowerCase().includes("success")) {
-      alert("Seller deleted successfully");
-      
-      // 4. Update the UI locally so the row disappears without refreshing
-      setSellers((prevSellers) => prevSellers.filter((s) => s.id !== id));
-    } else {
-      alert(data.message || "Failed to delete seller.");
-    }
-  } catch (err) {
-    console.error("Delete error:", err);
-    
-    // Improved error handling
-    const errorMessage = err.response?.data?.message || "An error occurred while deleting the seller.";
-    alert(errorMessage);
-  }
-};
-
-    const viewListedProducts = (id) => navigate(`/admin/seller/products/${id}`);
+  const viewListedProducts = (id) => navigate(`/admin/seller/products/${id}`);
   const viewOrderManagement = (id) => navigate(`/admin/seller/orders/${id}`);
   const viewPendingRequests = (id) => navigate(`/admin/seller/pending-requests/${id}`);
 
   return (
     <div className="sellers-page-container">
       <div className="header-container">
-        <button className="back-btn" onClick={() => navigate(-1)}>
-          ← Back
-        </button>
+        <button className="back-btn" onClick={() => navigate(-1)}>← Back</button>
         <h2 className="page-title">Seller Management</h2>
       </div>
 
@@ -113,10 +135,8 @@ const deleteSeller = async (id) => {
                 <th>Name</th>
                 <th>Business Type</th>
                 <th>Mob. No.</th>
-                <th>Gender</th>
                 <th>Email</th>
-                <th>Address</th>
-                <th>Status</th>
+                <th>Status (Click to toggle)</th>
                 <th>Products</th>
                 <th>Orders</th>
                 <th>Requests</th>
@@ -132,11 +152,14 @@ const deleteSeller = async (id) => {
                     <td className="font-bold">{s.name}</td>
                     <td>{s.type}</td>
                     <td>{s.mobile}</td>
-                    <td>{s.gender}</td>
                     <td>{s.email}</td>
-                    <td>{s.address}</td>
                     <td>
-                      <span className={`status-pill ${s.status.toLowerCase()}`}>
+                      <span
+                        className={`status-pill ${s.status.toLowerCase()}`}
+                        onClick={() => handleToggleStatus(s.id)}
+                        style={{ cursor: 'pointer' }}
+                        title="Click to toggle status"
+                      >
                         {s.status}
                       </span>
                     </td>

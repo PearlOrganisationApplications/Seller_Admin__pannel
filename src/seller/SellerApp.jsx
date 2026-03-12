@@ -12,26 +12,46 @@ import ReviewRatingList from "./pages/ReviewRatingList";
 import ReviewRatingDetail from "./pages/ReviewRatingDetail";
 import SellerNotifications from "./pages/SellerNotifications";
 import OrderManagment from "./pages/OrderManagment";
+import PlatformRating from "./pages/PlatformRating";
+import { Toaster } from "react-hot-toast"; // 1. Import Toaster
+
 
 export default function SellerApp() {
   return (
-    <Routes>
-      <Route element={<SellerLayout />}>
-        <Route index element={<Navigate to="dashboard" replace />} />
-        <Route path="dashboard" element={<SellerDashboard />} />
-        <Route path="inventory" element={<InventoryPage />} />
-        <Route path="product-listing" element={<ProductListing />} />
-        <Route path="listed-products" element={<ListedProducts />} />
-        <Route path="order-management" element={<Order />} />
-        <Route path="all-details" element={<AllDetails />} />
-        <Route path="request-certified" element={<RequestCertified />} />
-        <Route path="certified-products" element={<CertifiedProducts />} />
-        <Route path="reviews" element={<ReviewRatingList />} />
-        <Route path="reviews/detail/:id" element={<ReviewRatingDetail />} />
-        <Route path="notifications" element={<SellerNotifications />} />
-        <Route path="managment" element={<OrderManagment />} />
-      </Route>
-      <Route path="*" element={<div>Page Not Found</div>} />
-    </Routes>
+    <>
+      {/* 2. Define the Toast container here */}
+      <Toaster
+        position="top-right"
+        reverseOrder={false}
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+        }}
+      />
+
+      <Routes>
+        <Route element={<SellerLayout />}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<SellerDashboard />} />
+          <Route path="inventory" element={<InventoryPage />} />
+          <Route path="product-listing" element={<ProductListing />} />
+          <Route path="listed-products" element={<ListedProducts />} />
+          <Route path="order-management" element={<Order />} />
+          <Route path="all-details" element={<AllDetails />} />
+          <Route path="request-certified" element={<RequestCertified />} />
+          <Route path="certified-products" element={<CertifiedProducts />} />
+          <Route path="reviews" element={<ReviewRatingList />} />
+          <Route path="reviews/detail/:id" element={<ReviewRatingDetail />} />
+          <Route path="notifications" element={<SellerNotifications />} />
+          <Route path="managment" element={<OrderManagment />} />
+          {/* Ensure your sidebar links to /platform-rating */}
+          <Route path="platform-rating" element={<PlatformRating />} />
+        </Route>
+        <Route path="*" element={<div>Page Not Found</div>} />
+      </Routes>
+    </>
   );
 }

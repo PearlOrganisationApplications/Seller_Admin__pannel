@@ -20,13 +20,13 @@ function PrivateRoute({ children, requiredType }) {
   const isAuthenticated = token && token !== "undefined" && token !== "null";
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   // If user_type is missing, send them to login to get a fresh session
   if (!userType) {
     localStorage.clear();
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   if (requiredType && userType !== requiredType) {
@@ -72,7 +72,7 @@ export default function App() {
         <Route path="/admin/*" element={<PrivateRoute requiredType="admin"><AdminApp /></PrivateRoute>} />
         <Route path="/seller/*" element={<PrivateRoute requiredType="seller"><SellerApp /></PrivateRoute>} />
 
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<Navigate to="/" replace />} />
         <Route path="*" element={<div className="p-20 text-center text-2xl font-bold">404 - Page Not Found</div>} />
       </Routes>
     </Router>

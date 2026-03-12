@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginSeller } from "../api/auth"; // Import the new API function
+import { loginSeller } from "../api/auth";
 import sellerLogo from "../assets/imgs/seller_Logo.png";
 
 export default function Login() {
@@ -11,8 +11,9 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleLogin = async () => {
-    // Basic Validation
+  const handleLogin = async (e) => {
+    if (e) e.preventDefault();
+
     if (!email || !password) {
       setError("Please enter both email and password");
       return;
@@ -30,23 +31,25 @@ export default function Login() {
 
       const data = await loginSeller(payload);
 
-      // Check for success based on your API structure (status: true)
-      // Inside handleLogin in Login.js
       if (data.status === true || data.success === true) {
-        const token = data.token || data.user?.token;
-        localStorage.setItem("token", token);
-        localStorage.setItem("user_type", "seller"); // Must be exactly "seller"
-        localStorage.setItem("user_info", JSON.stringify(data.user));
+        const token = data.token || data.access_token || (data.user && data.user.token);
 
-        // Instead of window.location.href, try using navigate for smoother transition
-        // but if you prefer the refresh to clear state, window.location is fine.
-        window.location.href = "/seller/dashboard";
+        if (token) {
+          localStorage.setItem("token", token);
+          localStorage.setItem("user_type", "seller");
+          localStorage.setItem("user_info", JSON.stringify(data.user || data.data));
+
+          window.location.href = "/seller/dashboard";
+        } else {
+          setError("Login successful but token not received.");
+        }
       } else {
         setError(data.message || "Invalid credentials");
       }
     } catch (err) {
-      console.error("Login Error:", err);
-      setError(err.message || "Something went wrong. Please try again.");
+      console.error("Login Error Details:", err.response || err);
+      const errMsg = err.response?.data?.message || "Server connection failed. Please check your internet or API.";
+      setError(errMsg);
     } finally {
       setLoading(false);
     }
@@ -69,9 +72,9 @@ export default function Login() {
             </h1>
             <h2 className="font-semibold text-lg mb-3 text-gray-800">Seller Account Login</h2>
 
-            <div className="flex flex-col gap-4">
+            <form onSubmit={handleLogin} className="flex flex-col gap-4">
               {error && (
-                <div className="bg-red-50 text-red-600 p-2 rounded text-sm border border-red-100">
+                <div className="bg-red-50 text-red-600 p-2 rounded text-sm border border-red-100 text-center">
                   {error}
                 </div>
               )}
@@ -79,6 +82,7 @@ export default function Login() {
               <input
                 type="email"
                 placeholder="Email Address"
+                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -87,13 +91,14 @@ export default function Login() {
               <input
                 type="password"
                 placeholder="Password"
+                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
 
               <button
-                onClick={handleLogin}
+                type="submit"
                 disabled={loading}
                 className={`bg-blue-600 text-white py-2 rounded-md font-semibold transition-all ${loading ? "opacity-70 cursor-not-allowed" : "hover:bg-blue-700 shadow-md"
                   }`}
@@ -107,7 +112,7 @@ export default function Login() {
                   "Login"
                 )}
               </button>
-            </div>
+            </form>
           </div>
         </div>
 

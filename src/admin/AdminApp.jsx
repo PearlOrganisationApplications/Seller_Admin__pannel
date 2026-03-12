@@ -23,6 +23,7 @@ import SellerOrders from "./pages/SellerOrders";
 import SellerPendingRequests from "./pages/SellerPendingRequests";
 import Tearms from "./pages/Terms";
 import Notifications from "./pages/Notifications";
+import Rating from "./pages/Rating";
 
 export default function AdminApp() {
   return (
@@ -64,12 +65,13 @@ export default function AdminApp() {
           <Route path="SendNotification" element={<SendNotification />} />
           <Route path="banners" element={<Banners />} />
           <Route path="order-tracking" element={<OrderTracking />} />
-          <Route path="view-profile" element={<ViewProfile />} />
+          <Route path="view-profile" element={<ViewProfile />} />npm run build
           <Route path="smtp-settings" element={<SmtpSettings />} />
           <Route path="support" element={<Support />} />
           <Route path="about-us" element={<AboutUs />} />
           <Route path="terms-policies" element={<Tearms />} />
           <Route path="notifications" element={<Notifications />} />
+          <Route path="ratings" element={<Rating />} />
           <Route path="*" element={<div className="p-10 text-center">Admin Page Not Found</div>} />
         </Routes>
       </AdminLayout>
