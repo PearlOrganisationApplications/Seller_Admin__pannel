@@ -99,16 +99,15 @@ export default function ReviewRatingList() {
       } else {
         setError("Failed to load ratings");
       }
-    } catch (err) {
-      setError("Network error. Please try again.");
-    } finally {
+    }  catch {
+  setError("Network error. Please try again.");
+} finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] max-w-md mx-auto relative pb-20">
-      <Header title="Review & Rating" />
+<div className="min-h-screen bg-[#FDFDFD] w-full relative pb-20">      <Header title="Review & Rating" />
       
       <div className="flex gap-3 px-4 py-4 overflow-x-auto scrollbar-hide">
         <button className="flex items-center justify-between gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold whitespace-nowrap text-gray-600 shadow-sm">

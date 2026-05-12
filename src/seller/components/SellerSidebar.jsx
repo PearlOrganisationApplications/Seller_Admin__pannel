@@ -24,7 +24,7 @@ export default function SellerSidebar({ isOpen, close }) {
 
   return (
     <div
-      className={`fixed top-0 left-0 h-screen w-72 bg-white shadow-2xl z-[60] 
+      className={`fixed top-0 left-0 h-screen w-72 bg-white shadow-2xl z-60 
       transform transition-transform duration-300 ease-in-out border-r
       flex flex-col ${/* Uses flexbox to manage internal layout */ ""}
       ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
@@ -38,7 +38,8 @@ export default function SellerSidebar({ isOpen, close }) {
       </button>
 
       {/* 1. Profile Header (Fixed height) */}
-      <div className="shrink-0 h-40 bg-gradient-to-br from-[#0074A8] to-[#138A63] p-6 flex items-center gap-4">
+      <div className="shrink-0 h-40 bg-gradient-to-r from-[#007394] to-[#009E73]
+p-6 flex items-center gap-4">
         <div className="h-16 w-16 rounded-full border-2 border-white/50 bg-white/20 flex items-center justify-center">
           <User className="text-white" size={32} />
         </div>

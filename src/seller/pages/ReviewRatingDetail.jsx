@@ -75,7 +75,7 @@ export default function ReviewRatingDetail() {
       } else {
         setError("Product reviews not found.");
       }
-    } catch (err) {
+    } catch  {
       setError("Failed to load product details.");
     } finally {
       setLoading(false);
@@ -92,7 +92,7 @@ export default function ReviewRatingDetail() {
         } else {
           alert(res.message || "Could not delete review.");
         }
-      } catch (err) {
+      } catch  {
         alert("Error deleting review. Make sure you have permission.");
       }
     }
@@ -113,8 +113,7 @@ export default function ReviewRatingDetail() {
   );
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] max-w-md mx-auto relative pb-20">
-      <Header title="Product Reviews" />
+<div className="min-h-screen bg-[#FAFAFA] w-full relative pb-20">      <Header title="Product Reviews" />
       
       {/* Product Summary */}
       <div className="px-4 py-6 bg-white border-b border-gray-100 mb-6">

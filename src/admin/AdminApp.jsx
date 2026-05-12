@@ -65,7 +65,7 @@ export default function AdminApp() {
           <Route path="SendNotification" element={<SendNotification />} />
           <Route path="banners" element={<Banners />} />
           <Route path="order-tracking" element={<OrderTracking />} />
-          <Route path="view-profile" element={<ViewProfile />} />npm run build
+          <Route path="view-profile" element={<ViewProfile />} />
           <Route path="smtp-settings" element={<SmtpSettings />} />
           <Route path="support" element={<Support />} />
           <Route path="about-us" element={<AboutUs />} />
