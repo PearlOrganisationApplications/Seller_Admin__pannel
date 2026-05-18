@@ -1,8 +1,17 @@
 "use client";
 import React from "react";
 import {
-  X, User, Info, LogOut, LayoutDashboard, ShoppingBag,
-  ClipboardList, Star, Headphones, Settings2, Image as ImageIcon
+  X,
+  User,
+  Info,
+  LogOut,
+  LayoutDashboard,
+  ShoppingBag,
+  ClipboardList,
+  Star,
+  Headphones,
+  Settings2,
+  Image as ImageIcon,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -23,11 +32,18 @@ export default function SellerSidebar({ isOpen, close }) {
   const isActive = (path) => location.pathname === path;
 
   return (
+    // <div
+    //   className={`fixed top-0 left-0 h-screen w-77 bg-gradient-to-b from-[#2563EB] via-[#7C3AED] to-[#D946EF] shadow-2xl z-60
+    //   transform transition-transform duration-300 ease-in-out border-r
+    //   flex flex-col ${/* Uses flexbox to manage internal layout */ ""}
+    //   ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
+    // >
+
     <div
-      className={`fixed top-0 left-0 h-screen w-72 bg-white shadow-2xl z-60 
-      transform transition-transform duration-300 ease-in-out border-r
-      flex flex-col ${/* Uses flexbox to manage internal layout */ ""}
-      ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
+      className={`fixed top-0 left-0 h-screen w-79 bg-gradient-to-b from-[#F5F3FF] via-[#EDE9F] to-[#F3E8FF] shadow-2xl z-60
+transform transition-transform duration-300 ease-in-out border-r border-purple-100
+flex flex-col
+${isOpen ? "translate-x-0" : "-translate-x-full"}`}
     >
       {/* Mobile Close Button */}
       <button
@@ -38,13 +54,14 @@ export default function SellerSidebar({ isOpen, close }) {
       </button>
 
       {/* 1. Profile Header (Fixed height) */}
-      <div className="shrink-0 h-40 bg-gradient-to-r from-[#007394] to-[#009E73]
-p-6 flex items-center gap-4">
+      <div className="shrink-0 h-40 bg-gradient-to-r from-purple-900 via-white-100 to-blue-200 p-6 flex items-center gap-4">
         <div className="h-16 w-16 rounded-full border-2 border-white/50 bg-white/20 flex items-center justify-center">
           <User className="text-white" size={32} />
         </div>
         <div className="overflow-hidden">
-          <p className="text-white font-bold text-lg leading-tight truncate">Seller Account</p>
+          <p className="text-white font-bold text-lg leading-tight truncate">
+            Seller Account
+          </p>
           <p className="text-white/70 text-xs">Verified Store</p>
         </div>
       </div>
@@ -90,9 +107,17 @@ p-6 flex items-center gap-4">
       </div>
 
       {/* 3. Footer Area (Stays at bottom, but NOT absolute) */}
-      <div className="shrink-0 px-4 pb-6 border-t pt-4 bg-white">
-        <NavItem icon={<Headphones size={20} />} label="Help & Contact" onClick={() => { }} />
-        <NavItem icon={<Info size={20} />} label="About Us" onClick={() => { }} />
+      <div className="shrink-0 px-4 pb-6 border-t pt-4 bg-gradient-to-r from-blue-50 via-white to-purple-100">
+        <NavItem
+          icon={<Headphones size={20} />}
+          label="Help & Contact"
+          onClick={() => navTo("/seller/help")}
+        />{" "}
+        <NavItem
+          icon={<Info size={20} />}
+          label="About Us"
+          onClick={() => navTo("/seller/about")}
+        />{" "}
         <button
           className="w-full flex gap-3 items-center mt-4 px-4 py-3 text-red-600 font-bold hover:bg-red-50 rounded-xl transition-colors"
           onClick={handleLogout}
@@ -102,12 +127,15 @@ p-6 flex items-center gap-4">
         </button>
       </div>
 
-      <style dangerouslySetInnerHTML={{
-        __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 10px; }
-      `}} />
+      `,
+        }}
+      />
     </div>
   );
 }
@@ -117,7 +145,7 @@ function NavItem({ icon, label, active, onClick }) {
     <div
       onClick={onClick}
       className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all
-      ${active ? "bg-blue-50 text-blue-600 shadow-sm" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"}`}
+      ${active ? "bg-blue-50 text-blue-600 shadow-sm" : "text-purple-900 hover:bg-gray-50 hover:text-gray-900"}`}
     >
       {icon}
       <span className="font-semibold text-sm">{label}</span>

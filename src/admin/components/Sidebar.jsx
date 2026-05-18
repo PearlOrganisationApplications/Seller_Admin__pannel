@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   FaTachometerAlt,
   FaUsers,
@@ -16,12 +16,15 @@ import {
   FaInfoCircle,
   FaImage,
   FaGavel,
-  FaStar
+  FaStar,
 } from "react-icons/fa";
 
-export default function Sidebar({ collapsed = false, setCollapsed, mobileOpen, setMobileOpen }) {
-  const navigate = useNavigate();
-
+export default function Sidebar({
+  collapsed = false,
+  setCollapsed,
+  mobileOpen,
+  setMobileOpen,
+}) {
   const onNavClick = () => {
     if (window.innerWidth <= 768 && setMobileOpen) {
       setMobileOpen(false);
@@ -41,7 +44,11 @@ export default function Sidebar({ collapsed = false, setCollapsed, mobileOpen, s
         {!collapsed && <h2 className="sidebar-title font-bold">Admin Panel</h2>}
         <button
           className="collapse-toggle"
-          onClick={() => window.innerWidth <= 768 ? setMobileOpen(!mobileOpen) : setCollapsed(!collapsed)}
+          onClick={() =>
+            window.innerWidth <= 768
+              ? setMobileOpen(!mobileOpen)
+              : setCollapsed(!collapsed)
+          }
         >
           ☰
         </button>
@@ -81,7 +88,9 @@ export default function Sidebar({ collapsed = false, setCollapsed, mobileOpen, s
         {/* CERTIFIED MANAGEMENT */}
         <li className="sidebar-item" onClick={onNavClick}>
           <FaCertificate />
-          {!collapsed && <Link to="/admin/kalki-certified">Certified Management</Link>}
+          {!collapsed && (
+            <Link to="/admin/kalki-certified">Certified Management</Link>
+          )}
         </li>
 
         {/* ADVERTISEMENT */}
@@ -99,7 +108,9 @@ export default function Sidebar({ collapsed = false, setCollapsed, mobileOpen, s
         {/* SEND NOTIFICATION */}
         <li className="sidebar-item" onClick={onNavClick}>
           <FaBell />
-          {!collapsed && <Link to="/admin/SendNotification">Send Notification</Link>}
+          {!collapsed && (
+            <Link to="/admin/SendNotification">Send Notification</Link>
+          )}
         </li>
 
         {/* BANNER MANAGEMENT */}
@@ -134,17 +145,23 @@ export default function Sidebar({ collapsed = false, setCollapsed, mobileOpen, s
         {/* TERMS & POLICIES */}
         <li className="sidebar-item" onClick={onNavClick}>
           <FaGavel />
-          {!collapsed && <Link to="/admin/terms-policies">Terms & Policies</Link>}
+          {!collapsed && (
+            <Link to="/admin/terms-policies">Terms & Policies</Link>
+          )}
         </li>
 
         {/* LOGOUT BUTTON */}
         <li
           className="sidebar-item logout-item"
           onClick={handleLogout}
-          style={{ marginTop: '20px', color: '#ff4d4d', cursor: 'pointer' }}
+          style={{ marginTop: "20px", color: "#ff4d4d", cursor: "pointer" }}
         >
           <FaSignOutAlt />
-          {!collapsed && <span style={{ marginLeft: '10px', fontWeight: 'bold' }}>Logout</span>}
+          {!collapsed && (
+            <span style={{ marginLeft: "10px", fontWeight: "bold" }}>
+              Logout
+            </span>
+          )}
         </li>
       </ul>
     </aside>

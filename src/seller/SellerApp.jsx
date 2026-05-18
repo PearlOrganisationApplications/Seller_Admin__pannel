@@ -14,7 +14,8 @@ import SellerNotifications from "./pages/SellerNotifications";
 import OrderManagment from "./pages/OrderManagment";
 import PlatformRating from "./pages/PlatformRating";
 import { Toaster } from "react-hot-toast"; // 1. Import Toaster
-
+import Help from "./pages/Help/help";
+import About from "./pages/About/abouts";
 
 export default function SellerApp() {
   return (
@@ -26,8 +27,8 @@ export default function SellerApp() {
         toastOptions={{
           duration: 3000,
           style: {
-            background: '#363636',
-            color: '#fff',
+            background: "#363636",
+            color: "#fff",
           },
         }}
       />
@@ -47,7 +48,9 @@ export default function SellerApp() {
           <Route path="reviews/detail/:id" element={<ReviewRatingDetail />} />
           <Route path="notifications" element={<SellerNotifications />} />
           <Route path="managment" element={<OrderManagment />} />
-          {/* Ensure your sidebar links to /platform-rating */}
+          <Route path="help" element={<Help />} />
+          <Route path="about" element={<About />} />
+
           <Route path="platform-rating" element={<PlatformRating />} />
         </Route>
         <Route path="*" element={<div>Page Not Found</div>} />
