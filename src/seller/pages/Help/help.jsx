@@ -72,7 +72,7 @@ export default function Help() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] p-4 md:p-8">
       {/* Header Section */}
-      <div className="max-w-5xl mx-auto mb-10 text-center">
+      <div className="max-w-5xl mx-auto mb-10 text-left">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           How can we help you?
         </h1>
@@ -80,7 +80,7 @@ export default function Help() {
           Search our knowledge base or contact our support team.
         </p>
 
-        <div className="relative max-w-2xl mx-auto">
+        <div className="relative max-w-2xl">
           <Search
             className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
             size={20}

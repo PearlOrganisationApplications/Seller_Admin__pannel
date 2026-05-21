@@ -6,77 +6,100 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { getNotifications } from "../api/notification";
 
 export default function SellerLayout() {
-  // Sidebar open by default on desktop, closed on mobile
+  // Sidebar open by default on desktop
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
   const [unreadCount, setUnreadCount] = useState(0);
+
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
         const res = await getNotifications();
+
         if (res.success) {
-          const filtered = res.data.filter(n => n.send_to === "seller" || n.send_to === "all");
+          const filtered = res.data.filter(
+            (n) => n.send_to === "seller" || n.send_to === "all",
+          );
+
           setUnreadCount(filtered.length);
         }
-      } catch (err) { console.error(err); }
+      } catch (err) {
+        console.error(err);
+      }
     };
+
     fetchNotifications();
   }, []);
 
   return (
-    <div className="flex bg-[#F1F2F4] min-h-screen w-full relative">
-
-      {/* Sidebar Component */}
+    <div className="flex min-h-screen w-full bg-gradient-to-br from-[#f6f4ff] via-[#eef2ff] to-[#f9fbff] relative overflow-hidden">
+      {/* Sidebar */}
       <SellerSidebar isOpen={sidebarOpen} close={() => setSidebarOpen(false)} />
 
-      {/* Mobile Backdrop Overlay */}
+      {/* Mobile Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-55 lg:hidden"
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Main Content Wrapper */}
+      {/* Main Wrapper */}
       <div
-        className={`flex flex-col flex-1 transition-all duration-300 min-w-0 
-        ${/* THIS LINE PREVENTS OVERLAP ON DESKTOP */ ""}
+        className={`flex flex-col flex-1 min-w-0 transition-all duration-300
         ${sidebarOpen ? "lg:ml-72" : "ml-0"}`}
       >
-        {/* Navbar */}
-        <header className="h-16 bg-white border-b flex items-center justify-between px-6 sticky top-0 z-40 w-full">
-          <div className="flex items-center gap-4">
-            <button
-              className="p-2 hover:bg-gray-100 rounded-lg"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-            >
-              <Menu className="text-gray-600" size={24} />
-            </button>
-            <p className="font-bold text-gray-800">Seller Panel</p>
-          </div>
+        {/* Modern Navbar */}
+        <header className="sticky top-0 z-30 px-4 md:px-6 pt-4">
+          <div className="h-16 w-full rounded-2xl bg-white/70 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.06)] flex items-center justify-between px-4 md:px-6">
+            {/* Left */}
+            <div className="flex items-center gap-4">
+              {/* Hamburger */}
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="h-11 w-11 rounded-xl bg-gradient-to-br from-[#ede9ff] to-[#dbeafe] hover:scale-105 transition-all duration-200 flex items-center justify-center shadow-sm"
+              >
+                <Menu className="text-[#5b4bdb]" size={22} />
+              </button>
 
-          <div className="flex items-center gap-4">
-            <div
-              className="relative cursor-pointer p-2 hover:bg-gray-50 rounded-full"
-              onClick={() => navigate("/seller/notifications")}
-            >
-              <Bell className="text-gray-500" size={22} />
-              {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full border-2 border-white">
-                  {unreadCount}
-                </span>
-              )}
+              {/* Title */}
+              <div>
+                <h1 className="text-[18px] md:text-[20px] font-bold bg-gradient-to-r from-[#5b4bdb] to-[#7c3aed] bg-clip-text text-transparent">
+                  Seller Panel
+                </h1>
+              </div>
             </div>
-            <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs">
-              S
+
+            {/* Right */}
+            <div className="flex items-center gap-4">
+              {/* Notification */}
+              <div
+                onClick={() => navigate("/seller/notifications")}
+                className="relative h-11 w-11 rounded-xl bg-gradient-to-br from-[#f5f3ff] to-[#eff6ff] hover:scale-105 transition-all duration-200 flex items-center justify-center cursor-pointer shadow-sm"
+              >
+                <Bell className="text-[#5b4bdb]" size={20} />
+
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white shadow">
+                    {unreadCount}
+                  </span>
+                )}
+              </div>
+
+              {/* Profile */}
+              <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-[#7c3aed] to-[#4f46e5] flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                S
+              </div>
             </div>
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="p-4 md:p-8">
-          <Outlet />
+        {/* Main Content */}
+        <main className="p-4 md:p-6 lg:p-8">
+          <div className="rounded-3xl min-h-[calc(100vh-120px)]">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

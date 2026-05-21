@@ -1,5 +1,13 @@
 import React from "react";
-import { Plus, ChevronLeft, Package, List, FileText, Award, CheckCircle } from "lucide-react";
+import {
+  Plus,
+  ChevronLeft,
+  Package,
+  List,
+  FileText,
+  Award,
+  CheckCircle,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function InventoryPage() {
@@ -7,8 +15,8 @@ export default function InventoryPage() {
 
   return (
     // Removed m-4 to prevent gaps; added max-width for better desktop viewing
-    <div className="w-full bg-white flex flex-col min-h-screen">
-
+    <div className="w-full bg-gradient-to-br from-blue-50 via-purple-50 to-white flex flex-col min-h-screen pl-8 pt-4">
+      {" "}
       {/* ================= HEADER ================= */}
       <div className="w-full mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -16,7 +24,9 @@ export default function InventoryPage() {
             <h1 className="text-2xl font-bold text-gray-800">
               Product & Inventory Management
             </h1>
-            <p className="text-sm text-gray-500 mt-1">Manage your listings, stock, and certifications</p>
+            <p className="text-sm text-gray-500 mt-1">
+              Manage your listings, stock, and certifications
+            </p>
           </div>
 
           <button
@@ -31,11 +41,9 @@ export default function InventoryPage() {
 
         <div className="w-full h-[1px] bg-gray-200 mt-6"></div>
       </div>
-
       {/* ================= BUTTON CONTAINER ================= */}
       {/* Increased gap and used a max-width container to keep things centered but tidy */}
       <div className="flex flex-col items-center gap-4 mt-4 max-w-2xl mx-auto w-full">
-
         {/* Add New Products */}
         <button
           onClick={() => navigate("/seller/product-listing")}
@@ -105,7 +113,6 @@ export default function InventoryPage() {
           </div>
           <ChevronLeft className="w-5 h-5 rotate-180 opacity-30 group-hover:opacity-100" />
         </button>
-
       </div>
     </div>
   );
