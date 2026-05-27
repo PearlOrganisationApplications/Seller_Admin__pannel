@@ -94,10 +94,20 @@ export default function PlatformRating() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">
-        Rate Our Admin Platform
-      </h2>
+      {/* ---------- HEADER ---------- */}
+      <div className="relative w-full bg-[#0B1E3A] px-4 pt-6 pb-8 rounded-b-[3rem] shadow-2xl overflow-hidden mb-8">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+        <div className="absolute bottom-0 left-0 w-40 h-40 bg-blue-500/20 rounded-full -ml-10 -mb-10 blur-xl"></div>
 
+        <div className="relative z-10 max-w-4xl mx-auto">
+          <h1 className="text-3xl font-extrabold text-white tracking-tight">
+            Rate Our Admin Platform
+          </h1>
+          <p className="text-blue-200 mt-1 text-sm font-medium">
+            Your feedback helps us improve the experience
+          </p>
+        </div>
+      </div>
       <div className="bg-white p-8 rounded-2xl shadow-sm border mb-10">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="flex flex-col items-center gap-2">

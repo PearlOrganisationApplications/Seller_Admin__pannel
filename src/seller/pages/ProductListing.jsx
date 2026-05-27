@@ -39,7 +39,7 @@ export default function ProductListing() {
     shipping_fee: "",
     show_delivery_charge: "yes",
     allow_returns: "within 3 days",
-    stock_available: "40",
+    stock_available: "",
     payments_available: "COD",
     delivery_method: "Through kalkideals",
   });
@@ -122,14 +122,27 @@ export default function ProductListing() {
     data.append("category_id", formData.category_id);
     data.append("name", formData.name);
     data.append("description", formData.description);
-    imageFiles.forEach((f) => data.append("images[]", f));
+    const uploadedImageUrls = [
+      "https://picsum.photos/500/500.jpg",
+      "https://picsum.photos/500/501.jpg",
+    ];
 
+    uploadedImageUrls.forEach((url, index) => {
+      data.append(`images[${index}]`, url);
+    });
     // Variants
-    data.append("variants[0][color_id]", formData.selectedColors[0] || "1");
-    data.append("variants[0][size_id]", formData.selectedSizes[0] || "1");
-    data.append("variants[0][price]", formData.estimated_selling_price);
-    data.append("variants[0][stock]", formData.stock_available);
-    data.append("variants[0][sku]", "KL_" + Date.now());
+    formData.selectedColors.forEach((color, index) => {
+      data.append(`variants[${index}][color_id]`, color);
+
+      data.append(
+        `variants[${index}][size_id]`,
+        formData.selectedSizes[index] || "1",
+      );
+
+      data.append(`variants[${index}][stock]`, formData.stock_available);
+
+      data.append(`variants[${index}][sku]`, `SKU_${Date.now()}_${index}`);
+    });
 
     // Append Dynamic Specifications
     Object.entries(formData.specs).forEach(([k, v]) => {
@@ -143,6 +156,12 @@ export default function ProductListing() {
     data.append(
       "show_delivery_charge",
       formData.show_delivery_charge.toLowerCase(),
+    );
+    data.append("allow_return", formData.allow_returns === "No" ? "no" : "yes");
+
+    data.append(
+      "return_window_days",
+      formData.allow_returns === "within 7 days" ? 7 : 0,
     );
 
     try {
@@ -159,12 +178,6 @@ export default function ProductListing() {
       setIsSubmitting(false);
     }
   };
-
-  const platformFee = Number(formData.estimated_selling_price || 0) * 0.1;
-  const inHandProfit =
-    Number(formData.estimated_selling_price || 0) -
-    Number(formData.cost_price || 0) -
-    platformFee;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-100 pb-20 font-sans">
@@ -442,21 +455,6 @@ export default function ProductListing() {
                     </div>
                   </div>
                 </div>
-
-                <div className="bg-gray-100 p-4 border-t space-y-2">
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>Platform Fee (10%):</span>{" "}
-                    <span className="font-bold">₹{platformFee.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm font-bold text-[#1E4CF6]">
-                    <span>Final Selling Price:</span>{" "}
-                    <span>₹{formData.estimated_selling_price || 0}</span>
-                  </div>
-                  <div className="flex justify-between text-sm font-bold text-green-600">
-                    <span>You in-hand Profit:</span>{" "}
-                    <span>₹{inHandProfit.toFixed(2)}</span>
-                  </div>
-                </div>
               </div>
 
               <div className="grid grid-cols-3 gap-4 mt-8 mb-8">
@@ -491,7 +489,7 @@ export default function ProductListing() {
                     }
                   >
                     <option>No</option>
-                    <option>within 3 days</option>
+                    <option>within 7 days</option>
                   </select>
                 </div>
                 <div>

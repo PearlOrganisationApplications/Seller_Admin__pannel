@@ -50,21 +50,21 @@ export default function About() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] p-4 md:p-8">
-      {/* Hero Section */}
-      <div className="max-w-5xl mx-auto mb-16 text-center">
-        <span className="text-[#1E4CF6] font-bold text-sm tracking-widest uppercase mb-4 block">
-          Our Journey
-        </span>
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-          Empowering the next generation <br /> of digital commerce.
-        </h1>
-        <p className="text-gray-500 text-lg max-w-3xl mx-auto leading-relaxed">
-          Founded in 2020, our mission is to simplify the way people sell
-          online. We provide the infrastructure so you can focus on what you do
-          best: creating amazing products.
-        </p>
-      </div>
+      <div className="relative w-full bg-[#0B1E3A] px-4 pt-4 pb-6 rounded-b-[3rem] shadow-2xl overflow-hidden mb-16">
+        {/* Decorative circles */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+        <div className="absolute bottom-0 left-0 w-40 h-40 bg-blue-500/20 rounded-full -ml-10 -mb-10 blur-xl"></div>
 
+        <div className="relative z-10 max-w-5xl mx-auto text-center sm:text-left">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight">
+            Our Journey
+          </h1>
+          <p className="text-blue-200 mt-4 text-xl font-medium max-w-2xl">
+            Empowering the next generation of digital commerce. Founded in 2020,
+            our mission is to simplify the way people sell online.
+          </p>
+        </div>
+      </div>
       <div className="max-w-5xl mx-auto space-y-16">
         {/* Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

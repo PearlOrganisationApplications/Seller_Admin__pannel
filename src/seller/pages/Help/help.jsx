@@ -71,27 +71,32 @@ export default function Help() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] p-4 md:p-8">
-      {/* Header Section */}
-      <div className="max-w-5xl mx-auto mb-10 text-left">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          How can we help you?
-        </h1>
-        <p className="text-gray-500 mb-8">
-          Search our knowledge base or contact our support team.
-        </p>
+      {/* ---------- HEADER ---------- */}
+      <div className="relative w-full bg-[#0B1E3A] px-4 pt-4 pb-6 rounded-b-[3rem] shadow-2xl overflow-hidden mb-10">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+        <div className="absolute bottom-0 left-0 w-40 h-40 bg-blue-500/20 rounded-full -ml-10 -mb-10 blur-xl"></div>
 
-        <div className="relative max-w-2xl">
-          <Search
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-            size={20}
-          />
-          <input
-            type="text"
-            placeholder="Search for articles, topics, or keywords..."
-            className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-100 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        <div className="relative z-10 max-w-2xl mx-auto text-center">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-2">
+            How can we help you?
+          </h1>
+          <p className="text-blue-200 mb-8 text-lg font-medium">
+            Search our knowledge base or contact our support team.
+          </p>
+
+          <div className="relative">
+            <Search
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              size={20}
+            />
+            <input
+              type="text"
+              placeholder="Search for articles, topics, or keywords..."
+              className="w-full pl-12 pr-4 py-4 rounded-2xl border-none shadow-lg focus:ring-2 focus:ring-blue-400 outline-none transition-all placeholder:text-blue-200/60"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
