@@ -24,7 +24,7 @@ export default function Navbar({ collapsed, setCollapsed, mobileOpen, setMobileO
       // 2. Sync localStorage so it stays updated for next time
       localStorage.setItem("adminName", user.name);
       localStorage.setItem("adminImage", user.image);
-    } catch (err) {
+    } catch  {
       // Fallback to localStorage if API fails (offline mode)
       setAdminName(localStorage.getItem("adminName") || "Admin");
       setProfile(localStorage.getItem("adminImage"));
@@ -50,7 +50,6 @@ export default function Navbar({ collapsed, setCollapsed, mobileOpen, setMobileO
     return () => document.removeEventListener("click", handler);
   }, []);
 
-  // Add a timestamp (?t=...) to bypass browser image cache
   const profileSrc = profile
     ? `${BASE_URL}/${profile}?t=${Date.now()}`
     : defaultImg;
@@ -103,15 +102,6 @@ export default function Navbar({ collapsed, setCollapsed, mobileOpen, setMobileO
         {open && (
           <div className="profile-dropdown shadow-xl" style={{ position: 'absolute', top: '60px', right: '20px', background: 'white', zIndex: 1000 }}>
             <Link to="/admin/view-profile" className="dropdown-item">View Profile</Link>
-            {/* <div
-              className="dropdown-item logout text-red-500 cursor-pointer"
-              onClick={() => {
-                localStorage.clear();
-                navigate("/login");
-              }}
-            >
-              Logout
-            </div> */}
           </div>
         )}
       </div>

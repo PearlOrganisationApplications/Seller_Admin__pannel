@@ -25,7 +25,7 @@ export default function CouponCode() {
       const data = await getCoupons();
       // Handling both nested and direct data arrays
       setCouponsList(data.coupons || data.data || []);
-    } catch (error) {
+    } catch  {
       toast.error("Failed to load coupons");
     } finally {
       setLoading(false);

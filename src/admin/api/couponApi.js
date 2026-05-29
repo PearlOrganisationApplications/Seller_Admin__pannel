@@ -1,41 +1,27 @@
-import api from './axios'; // Ensure this points to your axios config file
+import api from "./axios";
 
-/**
- * Fetch all coupons
- * GET {{baseURL}}/api/admin/coupons
- */
+// Fetch all coupons
 export const getCoupons = async () => {
-  try {
-    const response = await api.get('/api/admin/coupons');
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await api.get("/api/admin/coupons");
+
+  return response.data;
 };
 
-/**
- * Create a new coupon
- * POST {{baseURL}}/api/admin/createCoupon
- */
+// Create a new coupon
 export const addCoupon = async (payload) => {
-  try {
-    const response = await api.post('/api/admin/createCoupon', payload);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await api.post(
+    "/api/admin/createCoupon",
+    payload
+  );
+
+  return response.data;
 };
 
-/**
- * Delete a coupon
- * GET {{baseURL}}/api/admin/coupons/delete/{id}
- */
+// Delete a coupon
 export const deleteCouponApi = async (id) => {
-  try {
-    // Updated to match your specific endpoint
-    const response = await api.delete(`/api/admin/coupons/delete/${id}`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await api.delete(
+    `/api/admin/coupons/delete/${id}`
+  );
+
+  return response.data;
 };

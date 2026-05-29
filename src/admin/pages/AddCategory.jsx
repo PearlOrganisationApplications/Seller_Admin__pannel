@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./BarChart/AddCategory.css";
-// Import all API functions
 import * as CategoryAPI from "../api/addCategoryApi"; 
 
 export default function AddCategory() {
@@ -65,7 +64,7 @@ export default function AddCategory() {
         setShowInput((prev) => ({ ...prev, [type]: false }));
         fetchAll();
       }
-    } catch (error) {
+    } catch {
       alert("Failed to add item.");
     }
   };
@@ -79,7 +78,7 @@ export default function AddCategory() {
       if (type === "size")     await CategoryAPI.deleteSize(id);
       if (type === "spec")     await CategoryAPI.deleteSpecification(id);
       fetchAll();
-    } catch (error) {
+    } catch  {
       console.error("Delete failed");
     }
   };
@@ -176,11 +175,3 @@ export default function AddCategory() {
 }
 
 
-/**
-Remaining part
-dashbord ==> API Integration in dashbord
-order ==> API integration
-Notification section
-Coupon Management
-certified managment
- */

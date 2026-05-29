@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useMemo } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   FaTachometerAlt,
   FaUsers,
@@ -10,160 +10,138 @@ import {
   FaAd,
   FaFolderPlus,
   FaBell,
-  FaSignOutAlt,
+  FaImage,
+  FaStar,
   FaServer,
   FaHeadset,
   FaInfoCircle,
-  FaImage,
   FaGavel,
-  FaStar,
+  FaSignOutAlt,
 } from "react-icons/fa";
+import "./Sidebar.css";
 
-export default function Sidebar({
-  collapsed = false,
-  setCollapsed,
-  mobileOpen,
-  setMobileOpen,
-}) {
-  const onNavClick = () => {
-    if (window.innerWidth <= 768 && setMobileOpen) {
-      setMobileOpen(false);
-    }
-  };
+const Sidebar = React.memo(
+  ({ collapsed = false, setCollapsed, mobileOpen, setMobileOpen }) => {
+    const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.clear();
-    window.location.href = "/";
-  };
+    const menu = useMemo(
+      () => [
+        {
+          to: "/admin/dashboard",
+          icon: <FaTachometerAlt />,
+          label: "Dashboard",
+        },
+        { to: "/admin/users", icon: <FaUsers />, label: "Customer Management" },
+        {
+          to: "/admin/Seller",
+          icon: <FaUserTie />,
+          label: "Seller Management",
+        },
+        {
+          to: "/admin/orders",
+          icon: <FaShoppingCart />,
+          label: "Order Management",
+        },
+        {
+          to: "/admin/cupon-code",
+          icon: <FaTicketAlt />,
+          label: "Coupon Management",
+        },
+        {
+          to: "/admin/kalki-certified",
+          icon: <FaCertificate />,
+          label: "Certified Management",
+        },
+        { to: "/admin/Advertisement", icon: <FaAd />, label: "Advertisement" },
+        {
+          to: "/admin/AddCategory",
+          icon: <FaFolderPlus />,
+          label: "Add Category",
+        },
+        {
+          to: "/admin/SendNotification",
+          icon: <FaBell />,
+          label: "Send Notification",
+        },
+        { to: "/admin/banners", icon: <FaImage />, label: "Banner Management" },
+        { to: "/admin/ratings", icon: <FaStar />, label: "Rating Management" },
+        {
+          to: "/admin/smtp-settings",
+          icon: <FaServer />,
+          label: "SMTP Setting",
+        },
+        { to: "/admin/support", icon: <FaHeadset />, label: "Support" },
+        { to: "/admin/about-us", icon: <FaInfoCircle />, label: "About Us" },
+        {
+          to: "/admin/terms-policies",
+          icon: <FaGavel />,
+          label: "Terms & Policies",
+        },
+      ],
+      [],
+    );
 
-  const cls = `sidebar ${collapsed ? "collapsed" : ""} ${mobileOpen ? "mobile-open" : ""}`;
+    const onNavClick = () => {
+      if (window.innerWidth <= 768) setMobileOpen(false);
+    };
 
-  return (
-    <aside className={cls}>
-      <div className="sidebar-top">
-        {!collapsed && <h2 className="sidebar-title font-bold">Admin Panel</h2>}
-        <button
-          className="collapse-toggle"
-          onClick={() =>
-            window.innerWidth <= 768
-              ? setMobileOpen(!mobileOpen)
-              : setCollapsed(!collapsed)
-          }
-        >
-          ☰
-        </button>
-      </div>
+    const handleLogout = () => {
+      localStorage.clear();
+      navigate("/");
+    };
 
-      <ul>
-        {/* DASHBOARD */}
-        <li className="sidebar-item" onClick={onNavClick}>
-          <FaTachometerAlt />
-          {!collapsed && <Link to="/admin/dashboard">Dashboard</Link>}
-        </li>
+    return (
+      <aside
+        className={`sidebar ${collapsed ? "collapsed" : ""} ${
+          mobileOpen ? "mobile-open" : ""
+        }`}
+      >
+        <div className="sidebar-top">
+          {!collapsed && <h2 className="sidebar-title">Admin Panel</h2>}
+          <button
+            className="collapse-toggle"
+            onClick={() =>
+              window.innerWidth <= 768
+                ? setMobileOpen(!mobileOpen)
+                : setCollapsed(!collapsed)
+            }
+          >
+            ☰
+          </button>
+        </div>
 
-        {/* CUSTOMER MANAGEMENT */}
-        <li className="sidebar-item" onClick={onNavClick}>
-          <FaUsers />
-          {!collapsed && <Link to="/admin/users">Customer Management</Link>}
-        </li>
+        <div className="sidebar-menu-container">
+          <ul className="sidebar-menu">
+            {menu.map((item, i) => (
+              <li key={i} className="sidebar-item">
+                <NavLink
+                  to={item.to}
+                  className={({ isActive }) =>
+                    `sidebar-link ${isActive ? "active" : ""}`
+                  }
+                  onClick={onNavClick}
+                >
+                  <span className="sidebar-icon">{item.icon}</span>
+                  {!collapsed && (
+                    <span className="sidebar-label">{item.label}</span>
+                  )}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-        {/* SELLER MANAGEMENT */}
-        <li className="sidebar-item" onClick={onNavClick}>
-          <FaUserTie />
-          {!collapsed && <Link to="/admin/Seller">Seller Management</Link>}
-        </li>
-
-        {/* ORDER MANAGEMENT */}
-        <li className="sidebar-item" onClick={onNavClick}>
-          <FaShoppingCart />
-          {!collapsed && <Link to="/admin/orders">Order Management</Link>}
-        </li>
-
-        {/* COUPON MANAGEMENT */}
-        <li className="sidebar-item" onClick={onNavClick}>
-          <FaTicketAlt />
-          {!collapsed && <Link to="/admin/cupon-code">Coupon Management</Link>}
-        </li>
-
-        {/* CERTIFIED MANAGEMENT */}
-        <li className="sidebar-item" onClick={onNavClick}>
-          <FaCertificate />
-          {!collapsed && (
-            <Link to="/admin/kalki-certified">Certified Management</Link>
-          )}
-        </li>
-
-        {/* ADVERTISEMENT */}
-        <li className="sidebar-item" onClick={onNavClick}>
-          <FaAd />
-          {!collapsed && <Link to="/admin/Advertisement">Advertisement</Link>}
-        </li>
-
-        {/* ADD CATEGORY */}
-        <li className="sidebar-item" onClick={onNavClick}>
-          <FaFolderPlus />
-          {!collapsed && <Link to="/admin/AddCategory">Add Category</Link>}
-        </li>
-
-        {/* SEND NOTIFICATION */}
-        <li className="sidebar-item" onClick={onNavClick}>
-          <FaBell />
-          {!collapsed && (
-            <Link to="/admin/SendNotification">Send Notification</Link>
-          )}
-        </li>
-
-        {/* BANNER MANAGEMENT */}
-        <li className="sidebar-item" onClick={onNavClick}>
-          <FaImage />
-          {!collapsed && <Link to="/admin/banners">Banner Management</Link>}
-        </li>
-
-        <li className="sidebar-item" onClick={onNavClick}>
-          <FaStar />
-          {!collapsed && <Link to="/admin/ratings">Rating Management</Link>}
-        </li>
-
-        {/* SMTP SETTING */}
-        <li className="sidebar-item" onClick={onNavClick}>
-          <FaServer />
-          {!collapsed && <Link to="/admin/smtp-settings">SMTP Setting</Link>}
-        </li>
-
-        {/* SUPPORT */}
-        <li className="sidebar-item" onClick={onNavClick}>
-          <FaHeadset />
-          {!collapsed && <Link to="/admin/support">Support</Link>}
-        </li>
-
-        {/* ABOUT US */}
-        <li className="sidebar-item" onClick={onNavClick}>
-          <FaInfoCircle />
-          {!collapsed && <Link to="/admin/about-us">About Us</Link>}
-        </li>
-
-        {/* TERMS & POLICIES */}
-        <li className="sidebar-item" onClick={onNavClick}>
-          <FaGavel />
-          {!collapsed && (
-            <Link to="/admin/terms-policies">Terms & Policies</Link>
-          )}
-        </li>
-
-        {/* LOGOUT BUTTON */}
-        <li
-          className="sidebar-item logout-item"
-          onClick={handleLogout}
-          style={{ marginTop: "20px", color: "#ff4d4d", cursor: "pointer" }}
-        >
-          <FaSignOutAlt />
-          {!collapsed && (
-            <span style={{ marginLeft: "10px", fontWeight: "bold" }}>
-              Logout
+        <div className="sidebar-bottom">
+          <button className="logout-btn" onClick={handleLogout}>
+            <span className="sidebar-icon">
+              <FaSignOutAlt />
             </span>
-          )}
-        </li>
-      </ul>
-    </aside>
-  );
-}
+            {!collapsed && <span className="sidebar-label">Logout</span>}
+          </button>
+        </div>
+      </aside>
+    );
+  },
+);
+
+export default Sidebar;
