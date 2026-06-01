@@ -103,7 +103,8 @@ export default function SellerSidebar({ isOpen, close }) {
         animate={isOpen ? "open" : "closed"}
         variants={sidebarVariants}
         className="fixed top-0 left-0 h-screen w-[300px] z-50 flex flex-col
-        bg-[#090E1A] border-r border-white/10 shadow-[20px_0_50px_rgba(0,0,0,0.5)]"
+bg-[#2F394F]
+border-r border-white/10 shadow-[20px_0_50px_rgba(0,0,0,0.4)]"
       >
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-[-10%] left-[-10%] w-[300px] h-[300px] bg-blue-600/10 rounded-full blur-[100px]" />
@@ -162,13 +163,11 @@ export default function SellerSidebar({ isOpen, close }) {
             icon={<Headphones size={20} />}
             label="Support Center"
             onClick={() => navTo("/seller/help")}
-            minimal
           />
           <NavItem
             icon={<Info size={20} />}
             label="Platform Info"
             onClick={() => navTo("/seller/about")}
-            minimal
           />
 
           <motion.button
@@ -226,7 +225,7 @@ function NavItem({ icon, label, active, onClick, minimal = false }) {
           ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-[0_10px_20px_rgba(37,99,235,0.2)]"
           : minimal
             ? "text-slate-400 hover:text-white"
-            : "text-slate-400 hover:bg-white/5 hover:text-white border border-transparent hover:border-white/10"
+            : "text-slate-400 hover:bg-white hover:text-black border border-transparent hover:border-white"
       }`}
     >
       {active && (
@@ -243,7 +242,7 @@ function NavItem({ icon, label, active, onClick, minimal = false }) {
           {icon}
         </div>
         <span
-          className={`text-[15px] font-semibold tracking-wide ${active ? "text-white" : "text-inherit"}`}
+          className={`text-[17px] font-semibold tracking-wide ${active ? "text-white" : "text-inherit"}`}
         >
           {label}
         </span>

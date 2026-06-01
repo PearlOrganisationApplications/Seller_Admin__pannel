@@ -51,7 +51,7 @@ export default function Terms() {
         setShowModal(false);
         fetchContent(); // Refresh the list
       }
-    } catch (err) {
+    } catch  {
       alert("Failed to update content");
     } finally {
       setIsUpdating(false);

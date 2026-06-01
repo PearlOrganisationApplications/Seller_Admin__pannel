@@ -55,7 +55,7 @@ export default function Users() {
         alert("User deleted successfully");
         setUsers(users.filter((u) => u.id !== id));
       }
-    } catch (err) {
+    } catch  {
       alert("Failed to delete user.");
     }
   };
@@ -67,7 +67,7 @@ export default function Users() {
     try {
       const data = await getUserOrderHistory(userId);
       if (data.status) setHistoryData(data.delivered_orders);
-    } catch (err) {
+    } catch  {
       alert("Error loading order history");
     } finally {
       setHistoryLoading(false);
@@ -81,7 +81,7 @@ export default function Users() {
     try {
       const data = await getUserReturnHistory(userId);
       if (data.status) setHistoryData(data.return_history);
-    } catch (err) {
+    } catch  {
       alert("Error loading return history");
     } finally {
       setHistoryLoading(false);
