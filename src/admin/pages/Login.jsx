@@ -3,173 +3,392 @@ import { useNavigate } from "react-router-dom";
 import { loginAdmin, registerAdmin } from "../api/LoginApi";
 
 export default function AdminLogin() {
-  const [isRegister, setIsRegister] = useState(false); // Toggle between Login/Register
+  const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
   const navigate = useNavigate();
 
-  // Form States
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     phone: "",
-    gender: "male" // Default value
+    gender: "male",
   });
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+
     setLoading(true);
+    setError("");
 
     try {
       if (isRegister) {
-        // Handle Registration
         const data = await registerAdmin(formData);
-        if (data.status || data.success) {
-          alert("Registration Successful! Please login.");
-          setIsRegister(false); // Switch to login view
+
+        if (data.success || data.status) {
+          alert("Registration Successful! Please Login.");
+          setIsRegister(false);
         }
       } else {
-        // Handle Login
         const data = await loginAdmin(formData.email, formData.password);
+
         localStorage.setItem("token", data.access_token);
         localStorage.setItem("user_type", "admin");
         localStorage.setItem("admin_data", JSON.stringify(data.admin));
+
         navigate("/admin/dashboard");
       }
     } catch (err) {
-      const errorMessage = err.response?.data?.message || "Action Failed. Please try again.";
-      navigate("/");
-      setError(errorMessage);
+      setError(
+        err.response?.data?.message ||
+          "Something went wrong. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="admin-login-wrapper" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#f4f7fe', padding: '20px' }}>
-      <form onSubmit={handleSubmit} style={{ background: '#fff', padding: '40px', borderRadius: '20px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', width: '100%', maxWidth: '450px' }}>
-        <h2 style={{ textAlign: 'center', fontWeight: '900', marginBottom: '10px', color: '#333' }}>
-          {isRegister ? "Admin Register" : "Admin Login"}
-        </h2>
-        <p style={{ textAlign: 'center', fontSize: '14px', color: '#666', marginBottom: '20px' }}>
-          {isRegister ? "Create a new admin account" : "Enter your credentials to access"}
-        </p>
+    <>
+      <style>
+        {`
+          *{
+            box-sizing:border-box;
+            margin:0;
+            padding:0;
+            font-family:'Segoe UI',sans-serif;
+          }
 
-        {error && (
-          <div style={{ color: 'red', background: '#ffeeee', padding: '10px', borderRadius: '8px', marginBottom: '15px', fontSize: '13px', textAlign: 'center', fontWeight: 'bold' }}>
-            {error}
+          .login-page{
+            min-height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            padding:20px;
+            overflow:hidden;
+            background:linear-gradient(
+              135deg,
+              #0f172a,
+              #1e3a8a,
+              #2563eb
+            );
+            position:relative;
+          }
+
+          .login-page::before{
+            content:"";
+            position:absolute;
+            width:400px;
+            height:400px;
+            border-radius:50%;
+            background:rgba(255,255,255,0.15);
+            top:-120px;
+            left:-120px;
+            animation:float 6s ease-in-out infinite;
+          }
+
+          .login-page::after{
+            content:"";
+            position:absolute;
+            width:300px;
+            height:300px;
+            border-radius:50%;
+            background:rgba(255,255,255,0.08);
+            bottom:-100px;
+            right:-100px;
+            animation:float 8s ease-in-out infinite;
+          }
+
+          @keyframes float{
+            0%{
+              transform:translateY(0px);
+            }
+            50%{
+              transform:translateY(30px);
+            }
+            100%{
+              transform:translateY(0px);
+            }
+          }
+
+          .login-card{
+            width:100%;
+            max-width:500px;
+            padding:40px;
+            border-radius:24px;
+            background:rgba(255,255,255,0.12);
+            backdrop-filter:blur(20px);
+            border:1px solid rgba(255,255,255,0.2);
+            box-shadow:
+            0 20px 50px rgba(0,0,0,0.3);
+            animation:fadeIn .6s ease;
+            z-index:10;
+          }
+
+          @keyframes fadeIn{
+            from{
+              opacity:0;
+              transform:translateY(40px);
+            }
+            to{
+              opacity:1;
+              transform:translateY(0);
+            }
+          }
+
+          .logo{
+            text-align:center;
+            margin-bottom:25px;
+          }
+
+          .logo-circle{
+            width:80px;
+            height:80px;
+            border-radius:50%;
+            background:linear-gradient(
+              135deg,
+              #60a5fa,
+              #2563eb
+            );
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:white;
+            font-size:28px;
+            font-weight:700;
+            margin:auto;
+            box-shadow:0 10px 30px rgba(37,99,235,.4);
+          }
+
+          .title{
+            text-align:center;
+            color:white;
+            font-size:28px;
+            font-weight:700;
+            margin-top:15px;
+          }
+
+          .subtitle{
+            text-align:center;
+            color:#dbeafe;
+            margin-top:8px;
+            margin-bottom:30px;
+            font-size:14px;
+          }
+
+          .form-group{
+            margin-bottom:18px;
+          }
+
+          .form-group label{
+            display:block;
+            color:white;
+            margin-bottom:8px;
+            font-size:13px;
+            font-weight:600;
+          }
+
+          .form-control{
+            width:100%;
+            height:55px;
+            border:none;
+            border-radius:14px;
+            padding:0 18px;
+            outline:none;
+            background:rgba(255,255,255,0.15);
+            color:white;
+            font-size:15px;
+            transition:.3s;
+          }
+
+          .form-control::placeholder{
+            color:#d1d5db;
+          }
+
+          .form-control:focus{
+            background:rgba(255,255,255,0.22);
+            box-shadow:
+            0 0 0 3px rgba(96,165,250,.4);
+          }
+
+          .error-box{
+            background:rgba(255,0,0,.12);
+            border:1px solid rgba(255,0,0,.3);
+            color:#ffd7d7;
+            padding:12px;
+            border-radius:12px;
+            margin-bottom:18px;
+            text-align:center;
+          }
+
+          .submit-btn{
+            width:100%;
+            height:55px;
+            border:none;
+            border-radius:14px;
+            background:linear-gradient(
+              135deg,
+              #3b82f6,
+              #2563eb
+            );
+            color:white;
+            font-size:15px;
+            font-weight:700;
+            cursor:pointer;
+            transition:.35s;
+            margin-top:10px;
+          }
+
+          .submit-btn:hover{
+            transform:translateY(-3px);
+            box-shadow:
+            0 15px 30px rgba(37,99,235,.4);
+          }
+
+          .submit-btn:active{
+            transform:scale(.98);
+          }
+
+          .submit-btn:disabled{
+            opacity:.7;
+            cursor:not-allowed;
+          }
+
+          .switch-btn{
+            margin-top:20px;
+            width:100%;
+            background:none;
+            border:none;
+            color:#bfdbfe;
+            font-size:14px;
+            cursor:pointer;
+            font-weight:600;
+          }
+
+          .switch-btn:hover{
+            color:white;
+          }
+        `}
+      </style>
+
+      <div className="login-page">
+        <form className="login-card" onSubmit={handleSubmit}>
+          <div className="logo">
+            <div className="logo-circle">A</div>
+
+            <h2 className="title">
+              {isRegister ? "Admin Registration" : "Admin Login"}
+            </h2>
+
+            <p className="subtitle">
+              {isRegister
+                ? "Create your administrator account"
+                : "Securely access your admin dashboard"}
+            </p>
           </div>
-        )}
 
-        {/* Name Field (Register Only) */}
-        {isRegister && (
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#666' }}>Full Name</label>
+          {error && <div className="error-box">{error}</div>}
+
+          {isRegister && (
+            <div className="form-group">
+              <label>Full Name</label>
+              <input
+                className="form-control"
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Enter full name"
+                required
+              />
+            </div>
+          )}
+
+          <div className="form-group">
+            <label>Email Address</label>
             <input
-              name="name"
-              type="text"
-              value={formData.name}
+              className="form-control"
+              type="email"
+              name="email"
+              value={formData.email}
               onChange={handleChange}
-              placeholder="Admin Name"
+              placeholder="admin@example.com"
               required
-              style={{ width: '100%', padding: '12px', marginTop: '5px', border: '1px solid #ddd', borderRadius: '10px', outline: 'none' }}
             />
           </div>
-        )}
 
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#666' }}>Email Address</label>
-          <input
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="admin@example.com"
-            required
-            style={{ width: '100%', padding: '12px', marginTop: '5px', border: '1px solid #ddd', borderRadius: '10px', outline: 'none' }}
-          />
-        </div>
+          {isRegister && (
+            <div className="form-group">
+              <label>Phone Number</label>
+              <input
+                className="form-control"
+                type="text"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="Enter phone number"
+                required
+              />
+            </div>
+          )}
 
-        {/* Phone Field (Register Only) */}
-        {isRegister && (
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#666' }}>Phone Number</label>
+          {isRegister && (
+            <div className="form-group">
+              <label>Gender</label>
+              <select
+                className="form-control"
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+              >
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          )}
+
+          <div className="form-group">
+            <label>Password</label>
             <input
-              name="phone"
-              type="text"
-              value={formData.phone}
+              className="form-control"
+              type="password"
+              name="password"
+              value={formData.password}
               onChange={handleChange}
-              placeholder="1234567890"
+              placeholder="••••••••"
               required
-              style={{ width: '100%', padding: '12px', marginTop: '5px', border: '1px solid #ddd', borderRadius: '10px', outline: 'none' }}
             />
           </div>
-        )}
 
-        {/* Gender Field (Register Only) */}
-        {isRegister && (
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#666' }}>Gender</label>
-            <select
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-              style={{ width: '100%', padding: '12px', marginTop: '5px', border: '1px solid #ddd', borderRadius: '10px', outline: 'none' }}
-            >
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-        )}
+          <button className="submit-btn" type="submit" disabled={loading}>
+            {loading
+              ? "PLEASE WAIT..."
+              : isRegister
+                ? "REGISTER NOW"
+                : "LOGIN NOW"}
+          </button>
 
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#666' }}>Password</label>
-          <input
-            name="password"
-            type="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="••••••••"
-            required
-            style={{ width: '100%', padding: '12px', marginTop: '5px', border: '1px solid #ddd', borderRadius: '10px', outline: 'none' }}
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            width: '100%',
-            padding: '15px',
-            border: 'none',
-            background: loading ? '#ccc' : '#004AAD',
-            color: '#fff',
-            fontWeight: 'bold',
-            borderRadius: '10px',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            transition: '0.3s'
-          }}
-        >
-          {loading ? "PROCESSING..." : isRegister ? "REGISTER NOW" : "LOGIN NOW"}
-        </button>
-
-        <div style={{ marginTop: '20px', textAlign: 'center' }}>
           <button
             type="button"
+            className="switch-btn"
             onClick={() => setIsRegister(!isRegister)}
-            style={{ border: 'none', background: 'none', color: '#004AAD', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}
           >
-            {isRegister ? "Already have an account? Login" : "Don't have an account? Register"}
+            {isRegister
+              ? "Already have an account? Login"
+              : "Don't have an account? Register"}
           </button>
-        </div>
-      </form>
-    </div>
+        </form>
+      </div>
+    </>
   );
 }
