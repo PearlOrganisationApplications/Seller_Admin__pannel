@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const BASE_URL = "https://kalkideals.com/api";
+export const BASE_URL = "https://kalkideals.in/api";
 
 const apiClient = axios.create({
     baseURL: BASE_URL,
@@ -11,7 +11,6 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
     (config) => {
-        // ALWAYS get the latest token from storage right before the request
         const token = localStorage.getItem('token');
         if (token && token !== "undefined") {
             config.headers.Authorization = `Bearer ${token}`;

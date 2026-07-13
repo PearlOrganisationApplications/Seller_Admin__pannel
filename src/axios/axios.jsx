@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: "https://kalkideals.com/api",
+  baseURL: "https://kalkideals.in",
   headers: {
     "Content-Type": "application/json",
   },

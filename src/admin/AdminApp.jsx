@@ -37,12 +37,12 @@ export default function AdminApp() {
         toastOptions={{
           duration: 3000,
           style: {
-            borderRadius: '16px',
-            background: '#1e293b',
-            color: '#fff',
-            fontWeight: '600',
-            fontSize: '14px',
-            padding: '16px 24px',
+            borderRadius: "16px",
+            background: "#1e293b",
+            color: "#fff",
+            fontWeight: "600",
+            fontSize: "14px",
+            padding: "16px 24px",
             zIndex: 999999,
           },
         }}
@@ -56,7 +56,10 @@ export default function AdminApp() {
           <Route path="Seller" element={<Seller />} />
           <Route path="seller/products/:id" element={<SellerProducts />} />
           <Route path="seller/orders/:id" element={<SellerOrders />} />
-          <Route path="seller/pending-requests/:id" element={<SellerPendingRequests />} />
+          <Route
+            path="seller/pending-requests/:id"
+            element={<SellerPendingRequests />}
+          />
           <Route path="orders" element={<Orders />} />
           <Route path="cupon-code" element={<CouponCode />} />
           <Route path="kalki-certified" element={<KalkiCertified />} />
@@ -72,7 +75,12 @@ export default function AdminApp() {
           <Route path="terms-policies" element={<Tearms />} />
           <Route path="notifications" element={<Notifications />} />
           <Route path="ratings" element={<Rating />} />
-          <Route path="*" element={<div className="p-10 text-center">Admin Page Not Found</div>} />
+          <Route
+            path="*"
+            element={
+              <div className="p-10 text-center">Admin Page Not Found</div>
+            }
+          />
         </Routes>
       </AdminLayout>
     </>

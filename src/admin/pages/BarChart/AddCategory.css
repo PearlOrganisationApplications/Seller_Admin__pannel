@@ -28,6 +28,7 @@
 }
 .btn{
   margin-left: 10px;
+  margin-bottom: 10px;
 }
 
 .section {
@@ -141,58 +142,3 @@
   border: none;
   font-size: 18px;
 }
-/* ========================= DARK MODE SUPPORT =======================
-.dark-mode .add-category-container {
-  background: #121212 !important;
-  color: #e0e0e0 !important;
-}
-
-.dark-mode .section {
-  background: #1f1f1f !important;
-  border-color: #333 !important;
-}
-
-.dark-mode .option-item {
-  background: #2a2a2a !important;
-  border-color: #444 !important;
-  color: #e0e0e0 !important;
-}
-
-.dark-mode .input-box {
-  background: #2a2a2a !important;
-  color: #fff !important;
-  border-color: #555 !important;
-}
-
-.dark-mode .btn {
-  background: #444 !important;
-  color: #fff !important;
-}
-
-.dark-mode .btn:hover {
-  background: #666 !important;
-}
-
-.dark-mode .add-btn {
-  background: #333 !important;
-  color: #ddd !important;
-}
-
-.dark-mode .delete-hover-btn {
-  background: #aa2d2d !important;
-}
-
-.dark-mode .edit-btn {
-  background: #555 !important;
-}
-
-/* Modal
-.dark-mode .modal-box {
-  background: #222 !important;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-}
-
-.dark-mode .modal-overlay {
-  background: rgba(0, 0, 0, 0.7) !important;
-}
- */

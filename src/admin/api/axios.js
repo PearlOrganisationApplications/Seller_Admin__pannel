@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-export const BASE_URL = "https://kalkideals.com";
+export const BASE_URL = "https://kalkideals.in";
+
 
 const api = axios.create({
   baseURL: BASE_URL,

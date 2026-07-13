@@ -45,9 +45,12 @@ const Banners = () => {
     try {
       setLoading(true);
       const res = await getBannerList();
-      if (res.status) setBanners(res.data);
+      if (res.status) {
+        setBanners(Array.isArray(res.data?.data) ? res.data.data : []);
+      }
     } catch {
       setError("Failed to load banners.");
+      setBanners([]);
     } finally {
       setLoading(false);
     }
@@ -263,7 +266,7 @@ const Banners = () => {
         </div>
       </div>
 
-      {banners.map((banner) => (
+      {(Array.isArray(banners) ? banners : []).map((banner) => (
         <div
           key={banner.id}
           className="bg-white rounded-3xl flex shadow-sm border"

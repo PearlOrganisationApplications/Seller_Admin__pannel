@@ -17,6 +17,8 @@ import {
   CheckCircle,
   Clock,
   ArrowRight,
+  XCircle,
+  RotateCcw,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -96,30 +98,41 @@ export default function SellerDashboard() {
           </div>
         </div>
 
-        {/* STATS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           <StatCard
             title="Monthly Earnings"
             value={formatINR(dashboardData?.earnings?.current_month)}
             icon={<Wallet className="text-blue-600" />}
           />
-
           <StatCard
             title="Withdraw Balance"
             value={formatINR(dashboardData?.earnings?.withdraw_balance)}
             icon={<ShoppingBag className="text-purple-600" />}
           />
-
           <StatCard
             title="Total Orders"
             value={dashboardData?.orders?.total}
             icon={<Package className="text-orange-500" />}
           />
-
           <StatCard
             title="Pending Orders"
             value={dashboardData?.orders?.pending}
             icon={<Clock className="text-amber-500" />}
+          />
+          <StatCard
+            title="Completed Orders"
+            value={dashboardData?.orders?.completed}
+            icon={<CheckCircle className="text-green-600" />}
+          />
+          <StatCard
+            title="Cancelled Orders"
+            value={dashboardData?.orders?.cancelled}
+            icon={<XCircle className="text-red-500" />}
+          />
+          <StatCard
+            title="Returned Orders"
+            value={dashboardData?.orders?.returned}
+            icon={<RotateCcw className="text-purple-500" />}
           />
         </div>
 
@@ -217,22 +230,30 @@ export default function SellerDashboard() {
             </thead>
 
             <tbody>
-              {dashboardData?.return_orders?.data?.map((o, i) => (
-                <tr
-                  key={i}
-                  className="border-t hover:bg-blue-50 transition-all duration-200"
-                >
-                  <td className="p-4 font-semibold text-[#1E4CF6]">
-                    #{o.order_number}
-                  </td>
-                  <td className="p-4">{formatINR(o.amount)}</td>
-                  <td className="p-4 text-center">
-                    <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs">
-                      {o.status}
-                    </span>
+              {dashboardData?.return_orders?.data?.length > 0 ? (
+                dashboardData.return_orders.data.map((o, i) => (
+                  <tr
+                    key={i}
+                    className="border-t hover:bg-blue-50 transition-all duration-200"
+                  >
+                    <td className="p-4 font-semibold text-[#1E4CF6]">
+                      #{o.order_number}
+                    </td>
+                    <td className="p-4">{formatINR(o.amount)}</td>
+                    <td className="p-4 text-center">
+                      <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs">
+                        {o.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={3} className="p-8 text-center text-gray-400">
+                    No return orders found
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

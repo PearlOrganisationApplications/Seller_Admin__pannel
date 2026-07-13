@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getSmtpSettings, updateSmtpSettings } from "../api/smtpApi";
 import toast from "react-hot-toast";
-
+import { motion } from "framer-motion";
 export default function SmtpSettings() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -133,7 +133,8 @@ export default function SmtpSettings() {
         className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-purple-100/50 blur-[140px] pointer-events-none"
       />
 
-      <div className="w-full max-w-3xl z-10">
+      <div className="w-full z-10">
+        {" "}
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -158,7 +159,6 @@ export default function SmtpSettings() {
           </span>
           Go Back
         </motion.button>
-
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

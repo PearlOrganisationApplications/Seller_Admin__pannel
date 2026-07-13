@@ -20,7 +20,6 @@ import Help from "./seller/pages/Help/help";
 // AUTH HELPERS
 function PrivateRoute({ children, requiredType }) {
   const token = localStorage.getItem("token");
-  // IMPORTANT: Make sure this key matches what you set during Login!
   const userType = localStorage.getItem("user_type");
 
   const isAuthenticated = token && token !== "undefined" && token !== "null";

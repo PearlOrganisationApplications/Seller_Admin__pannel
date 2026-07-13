@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginAdmin, registerAdmin } from "../api/LoginApi";
-
+import { Eye, EyeOff } from "lucide-react";
 export default function AdminLogin() {
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
@@ -65,7 +66,7 @@ export default function AdminLogin() {
             box-sizing:border-box;
             margin:0;
             padding:0;
-            font-family:'Segoe UI',sans-serif;
+            font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
           }
 
           .login-page{
@@ -73,71 +74,70 @@ export default function AdminLogin() {
             display:flex;
             justify-content:center;
             align-items:center;
-            padding:20px;
+            padding:24px;
             overflow:hidden;
-            background:linear-gradient(
-              135deg,
-              #0f172a,
-              #1e3a8a,
-              #2563eb
-            );
+            background-color: #f8fafc;
+            background-image: radial-gradient(at 0% 0%, hsla(217, 100%, 97%, 1) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, hsla(215, 100%, 96%, 1) 0px, transparent 50%);
             position:relative;
           }
 
           .login-page::before{
             content:"";
             position:absolute;
-            width:400px;
-            height:400px;
+            width:500px;
+            height:500px;
             border-radius:50%;
-            background:rgba(255,255,255,0.15);
-            top:-120px;
-            left:-120px;
-            animation:float 6s ease-in-out infinite;
+            background:rgba(37,99,235,0.03);
+            top:-150px;
+            left:-150px;
+            animation:float 10s ease-in-out infinite;
+            pointer-events: none;
           }
 
           .login-page::after{
             content:"";
             position:absolute;
-            width:300px;
-            height:300px;
+            width:400px;
+            height:400px;
             border-radius:50%;
-            background:rgba(255,255,255,0.08);
-            bottom:-100px;
-            right:-100px;
-            animation:float 8s ease-in-out infinite;
+            background:rgba(59,130,246,0.03);
+            bottom:-120px;
+            right:-120px;
+            animation:float 12s ease-in-out infinite;
+            pointer-events: none;
           }
 
           @keyframes float{
             0%{
-              transform:translateY(0px);
+              transform:translateY(0px) rotate(0deg);
             }
             50%{
-              transform:translateY(30px);
+              transform:translateY(20px) rotate(5deg);
             }
             100%{
-              transform:translateY(0px);
+              transform:translateY(0px) rotate(0deg);
             }
           }
 
           .login-card{
             width:100%;
-            max-width:500px;
+            max-width:480px;
             padding:40px;
-            border-radius:24px;
-            background:rgba(255,255,255,0.12);
-            backdrop-filter:blur(20px);
-            border:1px solid rgba(255,255,255,0.2);
+            border-radius:16px;
+            background:#ffffff;
+            border:1px solid #e2e8f0;
             box-shadow:
-            0 20px 50px rgba(0,0,0,0.3);
-            animation:fadeIn .6s ease;
+            0 10px 25px -5px rgba(0,0,0,0.05),
+            0 8px 10px -6px rgba(0,0,0,0.05);
+            animation:fadeIn .5s ease-out;
             z-index:10;
           }
 
           @keyframes fadeIn{
             from{
               opacity:0;
-              transform:translateY(40px);
+              transform:translateY(20px);
             }
             to{
               opacity:1;
@@ -147,119 +147,124 @@ export default function AdminLogin() {
 
           .logo{
             text-align:center;
-            margin-bottom:25px;
+            margin-bottom:32px;
           }
 
           .logo-circle{
-            width:80px;
-            height:80px;
-            border-radius:50%;
+            width:64px;
+            height:64px;
+            border-radius:12px;
             background:linear-gradient(
               135deg,
-              #60a5fa,
-              #2563eb
+              #3b82f6,
+              #1d4ed8
             );
             display:flex;
             align-items:center;
             justify-content:center;
             color:white;
-            font-size:28px;
+            font-size:26px;
             font-weight:700;
-            margin:auto;
-            box-shadow:0 10px 30px rgba(37,99,235,.4);
+            margin: 0 auto 20px auto;
+            box-shadow:0 8px 16px rgba(37,99,235,.15);
           }
 
           .title{
             text-align:center;
-            color:white;
-            font-size:28px;
+            color:#0f172a;
+            font-size:24px;
             font-weight:700;
-            margin-top:15px;
+            letter-spacing:-0.5px;
           }
 
           .subtitle{
             text-align:center;
-            color:#dbeafe;
+            color:#64748b;
             margin-top:8px;
-            margin-bottom:30px;
             font-size:14px;
           }
 
           .form-group{
-            margin-bottom:18px;
+            margin-bottom:20px;
+            text-align: left;
           }
 
           .form-group label{
             display:block;
-            color:white;
-            margin-bottom:8px;
+            color:#334155;
+            margin-bottom:6px;
             font-size:13px;
             font-weight:600;
           }
 
           .form-control{
             width:100%;
-            height:55px;
-            border:none;
-            border-radius:14px;
-            padding:0 18px;
+            height:46px;
+            border:1px solid #cbd5e1;
+            border-radius:8px;
+            padding:0 16px;
             outline:none;
-            background:rgba(255,255,255,0.15);
-            color:white;
-            font-size:15px;
-            transition:.3s;
+            background:#ffffff;
+            color:#0f172a;
+            font-size:14px;
+            transition: all 0.2s ease-in-out;
           }
 
           .form-control::placeholder{
-            color:#d1d5db;
+            color:#94a3b8;
           }
 
           .form-control:focus{
-            background:rgba(255,255,255,0.22);
-            box-shadow:
-            0 0 0 3px rgba(96,165,250,.4);
+            border-color:#3b82f6;
+            box-shadow:0 0 0 3px rgba(59,130,246,0.15);
+          }
+
+          select.form-control {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 18px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
           }
 
           .error-box{
-            background:rgba(255,0,0,.12);
-            border:1px solid rgba(255,0,0,.3);
-            color:#ffd7d7;
-            padding:12px;
-            border-radius:12px;
-            margin-bottom:18px;
+            background:#fef2f2;
+            border:1px solid #fee2e2;
+            color:#991b1b;
+            padding:12px 16px;
+            border-radius:8px;
+            margin-bottom:20px;
+            font-size:13.5px;
             text-align:center;
           }
 
           .submit-btn{
             width:100%;
-            height:55px;
+            height:46px;
             border:none;
-            border-radius:14px;
-            background:linear-gradient(
-              135deg,
-              #3b82f6,
-              #2563eb
-            );
+            border-radius:8px;
+            background:#2563eb;
             color:white;
-            font-size:15px;
-            font-weight:700;
+            font-size:14px;
+            font-weight:600;
             cursor:pointer;
-            transition:.35s;
+            transition: all 0.2s ease-in-out;
             margin-top:10px;
           }
 
           .submit-btn:hover{
-            transform:translateY(-3px);
-            box-shadow:
-            0 15px 30px rgba(37,99,235,.4);
+            background:#1d4ed8;
           }
 
           .submit-btn:active{
-            transform:scale(.98);
+            transform:translateY(1px);
           }
 
           .submit-btn:disabled{
-            opacity:.7;
+            background:#93c5fd;
             cursor:not-allowed;
           }
 
@@ -268,14 +273,16 @@ export default function AdminLogin() {
             width:100%;
             background:none;
             border:none;
-            color:#bfdbfe;
+            color:#2563eb;
             font-size:14px;
             cursor:pointer;
             font-weight:600;
+            transition: color 0.2s ease;
           }
 
           .switch-btn:hover{
-            color:white;
+            color:#1d4ed8;
+            text-decoration: underline;
           }
         `}
       </style>
@@ -359,15 +366,33 @@ export default function AdminLogin() {
 
           <div className="form-group">
             <label>Password</label>
-            <input
-              className="form-control"
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-              required
-            />
+
+            <div style={{ position: "relative" }}>
+              <input
+                className="form-control"
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="••••••••"
+                required
+              />
+
+              <span
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: "15px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  cursor: "pointer",
+                  fontSize: "18px",
+                  color: "#64748b",
+                }}
+              >
+                {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}{" "}
+              </span>
+            </div>
           </div>
 
           <button className="submit-btn" type="submit" disabled={loading}>

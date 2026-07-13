@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./BarChart/AddCategory.css";
-import * as CategoryAPI from "../api/addCategoryApi"; 
+import * as CategoryAPI from "../api/addCategoryApi";
 
 export default function AddCategory() {
   const navigate = useNavigate();
@@ -12,11 +12,17 @@ export default function AddCategory() {
   const [specifications, setSpecifications] = useState([]);
 
   const [showInput, setShowInput] = useState({
-    category: false, color: false, size: false, spec: false,
+    category: false,
+    color: false,
+    size: false,
+    spec: false,
   });
 
   const [inputs, setInputs] = useState({
-    category: "", color: "", size: "", spec: "",
+    category: "",
+    color: "",
+    size: "",
+    spec: "",
   });
 
   const [editId, setEditId] = useState(null);
@@ -53,10 +59,13 @@ export default function AddCategory() {
 
     try {
       let res;
-      if (type === "category") res = await CategoryAPI.addCategory({ categories: [value] });
-      if (type === "color")    res = await CategoryAPI.addColor({ colors: [value] });
-      if (type === "size")     res = await CategoryAPI.addSize({ sizes: [value] });
-      if (type === "spec")     res = await CategoryAPI.addSpecification({ specifications: [value] });
+      if (type === "category")
+        res = await CategoryAPI.addCategory({ categories: [value] });
+      if (type === "color")
+        res = await CategoryAPI.addColor({ colors: [value] });
+      if (type === "size") res = await CategoryAPI.addSize({ sizes: [value] });
+      if (type === "spec")
+        res = await CategoryAPI.addSpecification({ specifications: [value] });
 
       if (res.data.status) {
         alert("Added Successfully!");
@@ -74,11 +83,11 @@ export default function AddCategory() {
     if (!window.confirm("Delete this item?")) return;
     try {
       if (type === "category") await CategoryAPI.deleteCategory(id);
-      if (type === "color")    await CategoryAPI.deleteColor(id);
-      if (type === "size")     await CategoryAPI.deleteSize(id);
-      if (type === "spec")     await CategoryAPI.deleteSpecification(id);
+      if (type === "color") await CategoryAPI.deleteColor(id);
+      if (type === "size") await CategoryAPI.deleteSize(id);
+      if (type === "spec") await CategoryAPI.deleteSpecification(id);
       fetchAll();
-    } catch  {
+    } catch {
       console.error("Delete failed");
     }
   };
@@ -90,10 +99,16 @@ export default function AddCategory() {
 
     try {
       let res;
-      if (editType === "category") res = await CategoryAPI.updateCategory(editId, { cetegory: value });
-      if (editType === "color")    res = await CategoryAPI.updateColor(editId, { color: value });
-      if (editType === "size")     res = await CategoryAPI.updateSize(editId, { size: value });
-      if (editType === "spec")     res = await CategoryAPI.updateSpecification(editId, { specification: value });
+      if (editType === "category")
+        res = await CategoryAPI.updateCategory(editId, { cetegory: value });
+      if (editType === "color")
+        res = await CategoryAPI.updateColor(editId, { color: value });
+      if (editType === "size")
+        res = await CategoryAPI.updateSize(editId, { size: value });
+      if (editType === "spec")
+        res = await CategoryAPI.updateSpecification(editId, {
+          specification: value,
+        });
 
       if (res.data.status) {
         alert("Updated Successfully!");
@@ -128,29 +143,63 @@ export default function AddCategory() {
         {items.map((item) => (
           <div className="option-item" key={item.id}>
             <span>{item[keyName]}</span>
-            <button className="edit-btn" onClick={() => openEditModal(type, item)}>✏️</button>
-            <button className="delete-hover-btn" onClick={() => handleDelete(type, item.id)}>❌</button>
+            <button
+              className="edit-btn"
+              onClick={() => openEditModal(type, item)}
+            >
+              ✏️
+            </button>
+            <button
+              className="delete-hover-btn"
+              onClick={() => handleDelete(type, item.id)}
+            >
+              ❌
+            </button>
           </div>
         ))}
       </div>
       {showInput[type] ? (
         <>
-          <input className="input-box" autoFocus value={inputs[type]} onChange={(e) => setInputs({ ...inputs, [type]: e.target.value })} />
-          <button className="btn" onClick={() => handleAdd(type)}>Submit</button>
-          <button className="btn cancel-btn" onClick={() => setShowInput((prev) => ({ ...prev, [type]: false }))}>Cancel</button>
+          <input
+            className="input-box"
+            autoFocus
+            value={inputs[type]}
+            onChange={(e) => setInputs({ ...inputs, [type]: e.target.value })}
+          />
+          <button className="btn" onClick={() => handleAdd(type)}>
+            Submit
+          </button>
+          <button
+            className="btn cancel-btn"
+            onClick={() => setShowInput((prev) => ({ ...prev, [type]: false }))}
+          >
+            Cancel
+          </button>
         </>
       ) : (
-        <button className="add-btn" onClick={() => setShowInput((prev) => ({ ...prev, [type]: true }))}>Add {title}</button>
+        <button
+          className="add-btn"
+          onClick={() => setShowInput((prev) => ({ ...prev, [type]: true }))}
+        >
+          Add {title}
+        </button>
       )}
     </div>
   );
 
   return (
-    <div className={`add-category-container ${localStorage.getItem("darkMode") === "true" ? "dark-mode" : ""}`}>
+    <div
+      className={`add-category-container ${localStorage.getItem("darkMode") === "true" ? "dark-mode" : ""}`}
+    >
       <h2 className="page-title">Manage Category</h2>
+      <button onClick={() => navigate(-1)} className="btn">
+        ← Back
+      </button>
       <div className="nav">
         <h3>Add Category</h3>
-        <button onClick={() => navigate("/admin/dashboard")} className="btn">Done</button>
+        <button onClick={() => navigate("/admin/dashboard")} className="btn">
+          Done
+        </button>
       </div>
 
       {renderSection("Category", "category", category, "cetegory")}
@@ -162,10 +211,23 @@ export default function AddCategory() {
         <div className="modal-overlay">
           <div className="modal-box">
             <h3>Update {editType.toUpperCase()}</h3>
-            <input className="input-box" value={inputs[editType]} onChange={(e) => setInputs({ ...inputs, [editType]: e.target.value })} />
+            <input
+              className="input-box"
+              value={inputs[editType]}
+              onChange={(e) =>
+                setInputs({ ...inputs, [editType]: e.target.value })
+              }
+            />
             <div className="modal-actions">
-              <button className="btn" onClick={handleUpdate}>Update</button>
-              <button className="btn cancel-btn" onClick={() => setShowModal(false)}>Cancel</button>
+              <button className="btn" onClick={handleUpdate}>
+                Update
+              </button>
+              <button
+                className="btn cancel-btn"
+                onClick={() => setShowModal(false)}
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
@@ -173,5 +235,3 @@ export default function AddCategory() {
     </div>
   );
 }
-
-
