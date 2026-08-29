@@ -65,7 +65,7 @@ export default function SellerLayout() {
 
               {/* Title */}
               <div>
-                <h1 className="text-[18px] md:text-[20px] font-bold bg-gradient-to-r from-[#5b4bdb] to-[#7c3aed] bg-clip-text text-transparent">
+                <h1 className="text-[18px] md:text-[20px] font-bold bg-gradient-to-r from-[#421d7e] to-[#200b44] bg-clip-text text-transparent">
                   Seller Panel
                 </h1>
               </div>

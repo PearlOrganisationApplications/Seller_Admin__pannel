@@ -38,8 +38,7 @@ export default function KalkiCertified() {
   };
 
   const getStatusDetails = (item) => {
-    // Priority 1: Check the string status returned by backend
-    // Priority 2: Check numeric kalki_certified flag
+   
     const statusStr = (item.status || "").toLowerCase();
     const numeric = item.kalki_certified;
 
@@ -118,9 +117,7 @@ export default function KalkiCertified() {
       {/* NO TOASTER HERE - It's handled globally in AdminApp.jsx */}
 
       <div className="header-section">
-        <button className="back-btn-new" onClick={() => navigate(-1)}>
-          <FaArrowLeft />
-        </button>
+      
         <div className="header-text">
           <h2>Kalkideals Certified</h2>
           <p>Manage and verify seller product certifications</p>

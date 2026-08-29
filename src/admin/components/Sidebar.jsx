@@ -19,6 +19,7 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import "./Sidebar.css";
+import logo from "../../seller/assets/Kalki_logo.png";
 
 const Sidebar = React.memo(
   ({ collapsed = false, setCollapsed, mobileOpen, setMobileOpen }) => {
@@ -31,7 +32,7 @@ const Sidebar = React.memo(
           icon: <FaTachometerAlt />,
           label: "Dashboard",
         },
-        { to: "/admin/users", icon: <FaUsers />, label: "Customer Management" },
+        { to: "/admin/users", icon: <FaUsers />, label: "Customer Manage" },
         {
           to: "/admin/Seller",
           icon: <FaUserTie />,
@@ -58,6 +59,11 @@ const Sidebar = React.memo(
           icon: <FaFolderPlus />,
           label: "Add Category",
         },
+        {
+  to: "/admin/SubCategory",
+  icon: <FaFolderPlus />,
+  label: "Sub Category",
+},
         {
           to: "/admin/SendNotification",
           icon: <FaBell />,
@@ -96,19 +102,27 @@ const Sidebar = React.memo(
           mobileOpen ? "mobile-open" : ""
         }`}
       >
-        <div className="sidebar-top">
-          {!collapsed && <h2 className="sidebar-title">Admin Panel</h2>}
-          <button
-            className="collapse-toggle"
-            onClick={() =>
-              window.innerWidth <= 768
-                ? setMobileOpen(!mobileOpen)
-                : setCollapsed(!collapsed)
-            }
-          >
-            ☰
-          </button>
-        </div>
+     <div className="sidebar-top" style={{ justifyContent: "center", position: "relative" }}>
+{!collapsed && (
+  <div>
+    <h2
+      className="sidebar-title"
+      style={{ display: "flex", alignItems: "center", gap: "8px" }}
+    >
+      <img src={logo} alt="Logo" className="sidebar-logo" />
+      Admin Panel
+    </h2>
+
+    <div
+      style={{
+        width: "100%",
+        height: "1px",
+background: "#d1d5db",         marginTop: "10px",
+      }}
+    />
+  </div>
+)}
+</div>
 
         <div className="sidebar-menu-container">
           <ul className="sidebar-menu">

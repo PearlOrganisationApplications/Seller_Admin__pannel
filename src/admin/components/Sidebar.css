@@ -29,7 +29,19 @@
     #dbeafe 45%,
     #ede9fe 100%
   );
+.sidebar-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
 
+.sidebar-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
   border-right: 1px solid rgba(255,255,255,0.4);
 
   backdrop-filter: blur(18px);

@@ -11,6 +11,7 @@ import CouponCode from "./pages/CouponCode";
 import KalkiCertified from "./pages/KalkiCertified";
 import Advertisement from "./pages/Advertisement";
 import AddCategory from "./pages/AddCategory";
+import SubCategory from "./pages/SubCategory";
 import SendNotification from "./pages/SendNotification";
 import OrderTracking from "./pages/OrderTracking";
 import ViewProfile from "./pages/ViewProfile";
@@ -65,6 +66,7 @@ export default function AdminApp() {
           <Route path="kalki-certified" element={<KalkiCertified />} />
           <Route path="Advertisement" element={<Advertisement />} />
           <Route path="AddCategory" element={<AddCategory />} />
+          <Route path="SubCategory" element={<SubCategory />} />
           <Route path="SendNotification" element={<SendNotification />} />
           <Route path="banners" element={<Banners />} />
           <Route path="order-tracking" element={<OrderTracking />} />

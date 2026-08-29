@@ -2,8 +2,12 @@ import api from "./axios";
 
 // Get Sellers
 export const getSellers = async () => {
-  const response = await api.get("/api/admin/sellers");
-  return response.data;
+  try {
+    const response = await api.get("/api/admin/sellers");
+    return response.data;
+  } catch (error) {
+    handleApiError(error);
+  }
 };
 
 // Toggle Seller Status

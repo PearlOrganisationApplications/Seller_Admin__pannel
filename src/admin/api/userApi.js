@@ -6,7 +6,7 @@ export const getCustomers = async () => {
 };
 
 export const deleteCustomerApi = async (id) => {
-  const response = await api.get(`/api/admin/delete/user/${id}`);
+  const response = await api.delete(`/api/admin/delete/user/${id}`);
   return response.data;
 };
 

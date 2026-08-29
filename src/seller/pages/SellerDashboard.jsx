@@ -59,38 +59,38 @@ export default function SellerDashboard() {
 
   if (loading) {
     return (
-      <div className="w-full h-screen flex items-center justify-center bg-[#F6F8FC]">
+      <div className="w-full h-screen flex items-center justify-center bg-gradient-to-b from-white via-purple-50 to-white">
         <div className="relative w-14 h-14">
-          <div className="absolute inset-0 rounded-full border-4 border-blue-100"></div>
-          <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#1E4CF6] border-r-[#1E4CF6] animate-spin shadow-[0_0_20px_#1E4CF6]"></div>
+          <div className="absolute inset-0 rounded-full border-4 border-purple-100"></div>
+          <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-purple-400 border-r-purple-400 animate-spin shadow-[0_0_20px_rgba(192,132,252,0.5)]"></div>
         </div>{" "}
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F6F8FC] p-6 md:p-10">
+    <div className="min-h-screen bg-gradient-to-b from-white via-purple-50 to-white p-6 md:p-10">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* HEADER */}
         {/* ================= ATTRATIVE HEADER ================= */}
-        <div className="relative w-full bg-[#0B1E3A] px-4 pt-6 pb-8 rounded-b-[3rem] shadow-2xl overflow-hidden mb-6">
+        <div className="relative w-full bg-gradient-to-br from-purple-100 via-purple-50 to-white px-4 pt-6 pb-8 rounded-b-[3rem] shadow-lg shadow-purple-100 overflow-hidden mb-6 border-b border-purple-100">
           {/* Decorative background circles */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
-          <div className="absolute bottom-0 left-0 w-40 h-40 bg-blue-500/20 rounded-full -ml-10 -mb-10 blur-xl"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-purple-200/30 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+          <div className="absolute bottom-0 left-0 w-40 h-40 bg-purple-300/20 rounded-full -ml-10 -mb-10 blur-xl"></div>
 
           <div className="relative z-10 max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
             <div>
-              <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+              <h1 className="text-3xl md:text-4xl font-extrabold text-purple-900 tracking-tight">
                 Seller Overview
               </h1>
-              <p className="text-blue-200 mt-2 text-lg font-medium">
+              <p className="text-purple-500 mt-2 text-lg font-medium">
                 Real-time business insights dashboard
               </p>
             </div>
 
             <button
               onClick={() => navigate("/seller/product-listing")}
-              className="flex items-center gap-2 bg-white hover:bg-blue-50 text-[#0B1E3A] px-6 py-3 rounded-full font-bold shadow-lg hover:shadow-xl transition-all duration-300"
+              className="flex items-center gap-2 bg-white hover:bg-purple-100 text-purple-700 px-6 py-3 rounded-full font-bold shadow-md hover:shadow-xl border border-purple-100 transition-all duration-300 hover:scale-105 active:scale-95"
             >
               <Plus size={20} />
               Add Product
@@ -102,17 +102,17 @@ export default function SellerDashboard() {
           <StatCard
             title="Monthly Earnings"
             value={formatINR(dashboardData?.earnings?.current_month)}
-            icon={<Wallet className="text-blue-600" />}
+            icon={<Wallet className="text-purple-500" />}
           />
           <StatCard
             title="Withdraw Balance"
             value={formatINR(dashboardData?.earnings?.withdraw_balance)}
-            icon={<ShoppingBag className="text-purple-600" />}
+            icon={<ShoppingBag className="text-purple-500" />}
           />
           <StatCard
             title="Total Orders"
             value={dashboardData?.orders?.total}
-            icon={<Package className="text-orange-500" />}
+            icon={<Package className="text-purple-500" />}
           />
           <StatCard
             title="Pending Orders"
@@ -140,28 +140,28 @@ export default function SellerDashboard() {
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-white rounded-2xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100"
+          className="bg-white rounded-2xl p-6 shadow-sm shadow-purple-100 border border-purple-100"
         >
-          <h3 className="font-bold text-gray-800 mb-5">Sales Performance</h3>
+          <h3 className="font-bold text-purple-900 mb-5">Sales Performance</h3>
 
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#1E4CF6" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#1E4CF6" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#a855f7" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#a855f7" stopOpacity={0} />
                   </linearGradient>
                 </defs>
 
-                <CartesianGrid stroke="#E5E7EB" strokeDasharray="4 4" />
+                <CartesianGrid stroke="#F3E8FF" strokeDasharray="4 4" />
                 <XAxis dataKey="month" />
                 <YAxis />
                 <Tooltip />
                 <Area
                   type="monotone"
                   dataKey="orders"
-                  stroke="#1E4CF6"
+                  stroke="#a855f7"
                   fill="url(#g1)"
                   strokeWidth={2.5}
                 />
@@ -173,8 +173,8 @@ export default function SellerDashboard() {
         {/* SIDE + INVENTORY */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* INVENTORY */}
-          <div className="bg-white rounded-2xl p-6 shadow-[0_10px_40px_rgba(0,0,0,0.06)] border border-gray-100">
-            <h3 className="font-bold mb-4">Product Inventory</h3>
+          <div className="bg-white rounded-2xl p-6 shadow-sm shadow-purple-100 border border-purple-100">
+            <h3 className="font-bold mb-4 text-purple-900">Product Inventory</h3>
 
             <div className="space-y-3">
               <MiniRow
@@ -197,7 +197,7 @@ export default function SellerDashboard() {
           {/* SUCCESS CARD */}
           <motion.div
             whileHover={{ scale: 1.02 }}
-            className="relative overflow-hidden bg-gradient-to-r from-[#1E4CF6] to-[#4F7CFF] text-white rounded-2xl p-6 shadow-xl"
+            className="relative overflow-hidden bg-gradient-to-r from-purple-400 to-purple-300 text-white rounded-2xl p-6 shadow-xl shadow-purple-200"
           >
             <CheckCircle className="absolute right-0 top-0 w-40 h-40 opacity-10" />
 
@@ -212,16 +212,16 @@ export default function SellerDashboard() {
         </div>
 
         {/* TABLE */}
-        <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 overflow-hidden">
-          <div className="flex justify-between p-5 border-b">
-            <h3 className="font-bold">Recent Return Orders</h3>
-            <button className="text-[#1E4CF6] flex items-center gap-1 hover:underline">
+        <div className="bg-white rounded-2xl shadow-sm shadow-purple-100 border border-purple-100 overflow-hidden">
+          <div className="flex justify-between p-5 border-b border-purple-50">
+            <h3 className="font-bold text-purple-900">Recent Return Orders</h3>
+            <button className="text-purple-500 flex items-center gap-1 hover:underline hover:text-purple-600 transition-colors">
               View All <ArrowRight size={14} />
             </button>
           </div>
 
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-gray-500">
+            <thead className="bg-purple-50 text-gray-500">
               <tr>
                 <th className="p-4 text-left">Order ID</th>
                 <th className="p-4 text-left">Amount</th>
@@ -234,9 +234,9 @@ export default function SellerDashboard() {
                 dashboardData.return_orders.data.map((o, i) => (
                   <tr
                     key={i}
-                    className="border-t hover:bg-blue-50 transition-all duration-200"
+                    className="border-t border-purple-50 hover:bg-purple-50/60 transition-all duration-200"
                   >
-                    <td className="p-4 font-semibold text-[#1E4CF6]">
+                    <td className="p-4 font-semibold text-purple-600">
                       #{o.order_number}
                     </td>
                     <td className="p-4">{formatINR(o.amount)}</td>
@@ -269,14 +269,14 @@ function StatCard({ title, value, icon }) {
   return (
     <motion.div
       whileHover={{ y: -5, scale: 1.02 }}
-      className="bg-white rounded-2xl p-5 shadow-[0_10px_30px_rgba(0,0,0,0.06)] border border-gray-100 flex justify-between items-center transition-all"
+      className="bg-white rounded-2xl p-5 shadow-sm shadow-purple-100 border border-purple-100 flex justify-between items-center transition-all"
     >
       <div>
         <p className="text-xs text-gray-400 uppercase">{title}</p>
-        <h2 className="text-xl font-bold text-gray-900 mt-1">{value}</h2>
+        <h2 className="text-xl font-bold text-purple-900 mt-1">{value}</h2>
       </div>
 
-      <div className="p-3 rounded-xl bg-blue-50 shadow-inner">{icon}</div>
+      <div className="p-3 rounded-xl bg-purple-50 shadow-inner">{icon}</div>
     </motion.div>
   );
 }
@@ -293,7 +293,7 @@ function MiniRow({ label, value, green, red }) {
           ? "bg-green-50 text-green-700"
           : red
             ? "bg-red-50 text-red-700"
-            : "bg-gray-50"
+            : "bg-purple-50"
       }`}
     >
       <span>{label}</span>

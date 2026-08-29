@@ -12,28 +12,27 @@ import { getSellerRatings } from "../api/ratingListApi";
 const Header = ({ title }) => {
   const navigate = useNavigate();
   return (
-    <div className="flex items-center gap-3 p-4 bg-white sticky top-0 z-10 border-b border-gray-50">
+    <div className="flex items-center gap-3 p-4 bg-white sticky top-0 z-10 border-b border-purple-100">
       <button
         onClick={() => navigate(-1)}
-        className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+        className="p-1 hover:bg-purple-50 rounded-full transition-colors"
       >
-        <ChevronLeft className="w-6 h-6" />
+        <ChevronLeft className="w-6 h-6 text-purple-700" />
       </button>
-      <h1 className="text-lg font-bold text-gray-800">{title}</h1>
+      <h1 className="text-lg font-bold text-purple-900">{title}</h1>
     </div>
   );
 };
 
 const FAB = () => (
-  <button className="fixed bottom-6 right-6 w-14 h-14 bg-white rounded-full shadow-2xl flex items-center justify-center border border-gray-100 active:scale-95 transition-transform">
-    <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+  <button className="fixed bottom-6 right-6 w-14 h-14 bg-white rounded-full shadow-2xl shadow-purple-200 flex items-center justify-center border border-purple-100 active:scale-95 hover:scale-105 transition-transform">
+    <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-300 rounded-full flex items-center justify-center">
       <div className="w-4 h-4 border-2 border-white rounded-sm rotate-45" />
     </div>
   </button>
 );
 
 const ProductCard = ({ ratingData, onClick }) => {
-  // Mapped to match your API response keys exactly
   const { product_name, image, price, average_rating, discount } = ratingData;
 
   const renderStars = (rating) => {
@@ -50,9 +49,9 @@ const ProductCard = ({ ratingData, onClick }) => {
   return (
     <div
       onClick={onClick}
-      className="flex gap-4 p-4 bg-white border border-gray-100 rounded-2xl mb-4 cursor-pointer hover:shadow-md transition-shadow"
+      className="flex gap-4 p-4 bg-white border border-purple-100 rounded-2xl mb-4 cursor-pointer hover:shadow-lg hover:shadow-purple-100 hover:border-purple-200 transition-all duration-300"
     >
-      <div className="w-24 h-24 bg-gray-50 rounded-xl flex items-center justify-center overflow-hidden border border-gray-50">
+      <div className="w-24 h-24 bg-purple-50 rounded-xl flex items-center justify-center overflow-hidden border border-purple-50">
         <img
           src={image || "https://via.placeholder.com/150"}
           alt={product_name}
@@ -73,7 +72,7 @@ const ProductCard = ({ ratingData, onClick }) => {
         </div>
 
         <div className="flex items-center gap-2 mt-2">
-          <div className="flex items-center bg-gray-50 px-2 py-1 rounded-lg gap-1">
+          <div className="flex items-center bg-purple-50 px-2 py-1 rounded-lg gap-1">
             <span className="text-xs font-black text-gray-800">
               {average_rating}.0
             </span>
@@ -100,7 +99,6 @@ export default function ReviewRatingList() {
       setLoading(true);
       const response = await getSellerRatings();
 
-      // FIXED: Changed 'response.status' to 'response.success' to match your API
       if (response.success) {
         setRatings(response.data);
       } else {
@@ -114,36 +112,34 @@ export default function ReviewRatingList() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] w-full relative pb-20">
-      {" "}
-      {/* ---------- HEADER ---------- */}
-      <div className="relative w-full bg-[#0B1E3A] px-4 pt-4 pb-6 rounded-b-[3rem] shadow-2xl overflow-hidden mb-8">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
-        <div className="absolute bottom-0 left-0 w-40 h-40 bg-blue-500/20 rounded-full -ml-10 -mb-10 blur-xl"></div>
+    <div className="min-h-screen bg-gradient-to-b from-white via-purple-50 to-white w-full relative pt-6">
+      <div className="relative mx-4 mt-4 mb-8 bg-gradient-to-br from-purple-100 via-purple-50 to-white rounded-3xl shadow-lg shadow-purple-100 overflow-hidden border border-purple-100">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-purple-200/30 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+        <div className="absolute bottom-0 left-0 w-40 h-40 bg-purple-300/20 rounded-full -ml-10 -mb-10 blur-xl"></div>
 
-        <div className="relative z-10 max-w-7xl mx-auto flex flex-col gap-6">
+        <div className="relative z-10 max-w-7xl flex flex-col gap-5 p-1 m-3">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate(-1)}
-              className="p-2 bg-white/10 border border-white/20 text-white rounded-full hover:bg-white/20 transition-all"
+              className="p-2 bg-white border border-purple-100 text-purple-700 rounded-full hover:bg-purple-100 hover:scale-110 active:scale-95 transition-all duration-300"
             >
               <ChevronLeft size={24} />
             </button>
             <div>
-              <h1 className="text-3xl font-extrabold text-white tracking-tight">
+              <h1 className="text-3xl font-extrabold text-purple-900 tracking-tight">
                 Review & Rating
               </h1>
-              <p className="text-blue-200 mt-1 text-sm font-medium">
+              <p className="text-purple-500 mt-1 text-sm font-medium">
                 Manage product feedback and ratings
               </p>
             </div>
           </div>
 
           <div className="flex gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/10 rounded-xl text-xs font-bold text-white backdrop-blur-md">
+            <button className="flex items-center gap-2 px-4 py-2 bg-white border border-purple-100 rounded-xl text-xs font-bold text-purple-700 shadow-sm hover:bg-purple-50 hover:scale-105 active:scale-95 transition-all duration-200">
               Category <ChevronDown size={14} />
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/10 rounded-xl text-xs font-bold text-white backdrop-blur-md">
+            <button className="flex items-center gap-2 px-4 py-2 bg-white border border-purple-100 rounded-xl text-xs font-bold text-purple-700 shadow-sm hover:bg-purple-50 hover:scale-105 active:scale-95 transition-all duration-200">
               Brand <ChevronDown size={14} />
             </button>
           </div>
@@ -152,7 +148,7 @@ export default function ReviewRatingList() {
       <div className="px-4">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <Loader2 className="animate-spin text-gray-300 mb-2" size={32} />
+            <Loader2 className="animate-spin text-purple-400 mb-2" size={32} />
             <p className="text-gray-400 text-sm font-medium">
               Loading reviews...
             </p>
@@ -165,7 +161,7 @@ export default function ReviewRatingList() {
         ) : ratings.length > 0 ? (
           ratings.map((item) => (
             <ProductCard
-              key={item.product_id} // Used product_id from API
+              key={item.product_id}
               ratingData={item}
               onClick={() =>
                 navigate(`/seller/reviews/detail/${item.product_id}`)

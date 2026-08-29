@@ -68,30 +68,7 @@ export default function Support() {
 
       <div className="w-full z-10">
         {" "}
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => navigate(-1)}
-          className="group mb-6 flex items-center gap-2 bg-white hover:bg-slate-50 text-indigo-600 px-5 py-2.5 rounded-2xl border border-slate-200/80 shadow-sm transition-all font-semibold text-sm backdrop-blur-sm"
-        >
-          <span className="transition-transform group-hover:-translate-x-1">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2.5}
-              stroke="currentColor"
-              className="w-4 h-4"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
-              />
-            </svg>
-          </span>
-          Go Back
-        </motion.button>
+     
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -167,9 +144,7 @@ export default function Support() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-slate-200/85 bg-slate-50/70">
-                    <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-widest pl-6">
-                      ID
-                    </th>
+                   
                     <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-widest">
                       Name
                     </th>
@@ -217,9 +192,7 @@ export default function Support() {
                         key={t.id}
                         className="hover:bg-indigo-50/15 transition-colors"
                       >
-                        <td className="p-4 pl-6 font-semibold text-slate-400 text-sm">
-                          #{t.id}
-                        </td>
+                       
                         <td className="p-4 font-bold text-slate-700 text-sm">
                           {t.name}
                         </td>

@@ -164,24 +164,64 @@ const Dashboard = () => {
           </h3>
 
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={cityData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="city" />
-              <YAxis />
-              <Tooltip />
-              <Bar
-                dataKey="orders_count"
-                fill="#2563EB"
-                radius={[8, 8, 0, 0]}
-              />
-            </BarChart>
+          <BarChart
+  data={cityData}
+  margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+>
+  <defs>
+    <linearGradient id="purpleGradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#A855F7" />
+      <stop offset="50%" stopColor="#7C3AED" />
+      <stop offset="100%" stopColor="#5B21B6" />
+    </linearGradient>
+  </defs>
+
+  <CartesianGrid
+    stroke="#E9D5FF"
+    strokeDasharray="4 4"
+    vertical={false}
+  />
+
+  <XAxis
+    dataKey="city"
+    axisLine={false}
+    tickLine={false}
+    tick={{ fill: "#6D28D9", fontSize: 13, fontWeight: 600 }}
+  />
+
+  <YAxis
+    axisLine={false}
+    tickLine={false}
+    tick={{ fill: "#6D28D9", fontSize: 12 }}
+  />
+
+  <Tooltip
+    cursor={{ fill: "rgba(168,85,247,0.12)" }}
+    contentStyle={{
+      background: "#fff",
+      border: "2px solid #A855F7",
+      borderRadius: "16px",
+      boxShadow: "0 15px 35px rgba(124,58,237,.25)"
+    }}
+  />
+
+  <Bar
+    dataKey="orders_count"
+    fill="url(#purpleGradient)"
+    radius={[18, 18, 0, 0]}
+    barSize={42}
+    animationBegin={0}
+    animationDuration={2200}
+    animationEasing="ease-out"
+  />
+</BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl shadow-md border border-gray-100 overflow-hidden">
-        <div className="px-6 py-5 border-b bg-gradient-to-r from-slate-50 to-white">
-          <h3 className="text-lg font-semibold text-gray-800">
+  <div className="relative rounded-3xl overflow-hidden bg-white/40 backdrop-blur-xl border border-white/50 shadow-xl">
+        <div className="px-6 py-5 border-b border-white/40 bg-gradient-to-r from-white/60 to-white/20 backdrop-blur-md">
+          <h3 className="text-lg font-semibold text-gray-800 tracking-wide">
             Orders By Pincode
           </h3>
         </div>
@@ -189,7 +229,7 @@ const Dashboard = () => {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-slate-50 text-gray-700">
+              <tr className="bg-white/30 backdrop-blur-md text-gray-700">
                 <th className="px-6 py-4 text-left font-semibold">Pincode</th>
                 <th className="px-6 py-4 text-left font-semibold">Orders</th>
                 <th className="px-6 py-4 text-left font-semibold">Revenue</th>
@@ -201,14 +241,14 @@ const Dashboard = () => {
                 data.orders_by_pincode.map((item, i) => (
                   <tr
                     key={i}
-                    className="border-b hover:bg-slate-50 transition-all"
+                    className="border-b border-white/30 hover:bg-white/50 hover:backdrop-blur-lg hover:shadow-md hover:scale-[1.01] transition-all duration-300 ease-out"
                   >
-                    <td className="px-6 py-4 font-medium text-gray-700">
+                    <td className="px-6 py-4 font-medium text-gray-800">
                       {item.pincode}
                     </td>
 
                     <td className="px-6 py-4">
-                      <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                      <span className="bg-blue-500/20 text-blue-700 border border-blue-300/40 px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
                         {item.orders_count}
                       </span>
                     </td>

@@ -14,9 +14,7 @@ export default function SellerNotifications() {
       try {
         const res = await getNotifications();
         if (res.success && Array.isArray(res.data)) {
-          // Logic: Show notifications if:
-          // 1. send_to is 'seller' or 'all'
-          // 2. OR it's a direct order notification (no send_to field present)
+         
           const filtered = res.data.filter(
             (n) => !n.send_to || n.send_to === "seller" || n.send_to === "all"
           );
@@ -42,9 +40,9 @@ export default function SellerNotifications() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] p-4 md:p-8">
+    <div className="min-h-screen bg-[#F8F9FA] p-4 md:p-8 ">
       {/* Header */}
-      <div className="max-w-4xl mx-auto flex items-center gap-4 mb-8">
+      <div className="max-w-full mx-auto flex items-center gap-4 mb-8">
         <button
           onClick={() => navigate(-1)}
           className="p-2 hover:bg-white bg-white/50 rounded-full transition-all shadow-sm border border-gray-200 group"
@@ -62,7 +60,7 @@ export default function SellerNotifications() {
           <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-600"></div>
         </div>
       ) : notifications.length === 0 ? (
-        <div className="max-w-4xl mx-auto text-center py-20 bg-white rounded-3xl border border-gray-100 shadow-sm">
+        <div className="max-w-full mx-auto text-center py-20 bg-white rounded-3xl border border-gray-100 shadow-sm">
           <div className="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
             <BellRing className="h-10 w-10 text-gray-300" />
           </div>
@@ -70,7 +68,7 @@ export default function SellerNotifications() {
           <p className="text-gray-400 max-w-xs mx-auto">We'll let you know when something important happens.</p>
         </div>
       ) : (
-        <div className="max-w-4xl mx-auto space-y-4">
+        <div className="max-w-full mx-auto space-y-4">
           {notifications.map((item) => (
             <div
               key={item.id}

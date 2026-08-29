@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import { ChevronLeft, Upload, X, Plus, Loader2, Save } from "lucide-react";
+import { ChevronLeft, Upload, X, Plus, Loader2, Save, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   addProduct,
@@ -38,7 +38,7 @@ export default function ProductListing() {
     estimated_selling_price: "",
     shipping_fee: "",
     show_delivery_charge: "yes",
-    allow_returns: "within 3 days",
+    allow_returns: "No",
     stock_available: "",
     payments_available: "COD",
     delivery_method: "Through kalkideals",
@@ -122,35 +122,22 @@ export default function ProductListing() {
     data.append("category_id", formData.category_id);
     data.append("name", formData.name);
     data.append("description", formData.description);
-    const uploadedImageUrls = [
-      "https://picsum.photos/500/500.jpg",
-      "https://picsum.photos/500/501.jpg",
-    ];
-
-    uploadedImageUrls.forEach((url, index) => {
-      data.append(`images[${index}]`, url);
+    imageFiles.forEach((file) => {
+      data.append("images[]", file);
     });
-    // Variants
-    formData.selectedColors.forEach((color, index) => {
-      data.append(`variants[${index}][color_id]`, color);
+    const variantsPayload = formData.selectedColors.map((color, index) => ({
+      color_id: color,
+      size_id: formData.selectedSizes[index] || "1",
+      stock: formData.stock_available,
+      sku: `SKU_${Date.now()}_${index}`,
+    }));
+    data.append("variants", JSON.stringify(variantsPayload));
 
-      data.append(
-        `variants[${index}][size_id]`,
-        formData.selectedSizes[index] || "1",
-      );
-
-      data.append(`variants[${index}][stock]`, formData.stock_available);
-
-      data.append(`variants[${index}][sku]`, `SKU_${Date.now()}_${index}`);
-    });
-
-    // Append Dynamic Specifications
-    Object.entries(formData.specs).forEach(([k, v]) => {
-      data.append(`specifications[${k}]`, v);
-    });
+    data.append("specifications", JSON.stringify(formData.specs));
 
     data.append("cost_price", formData.cost_price);
     data.append("mrp", formData.mrp);
+    data.append("stock", formData.stock_available);
     data.append("estimated_selling_price", formData.estimated_selling_price);
     data.append("shipping_fee", formData.shipping_fee);
     data.append(
@@ -180,121 +167,127 @@ export default function ProductListing() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-100 pb-20 font-sans">
-      {" "}
+    <div className="min-h-screen relative bg-gradient-to-b from-white via-purple-50 to-white font-sans overflow-x-hidden pb-24">
+      {/* AMBIENT BACKGROUND GLOWS */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -top-40 -left-40 w-[500px] h-[500px] bg-purple-200/40 rounded-full blur-[120px] animate-pulse-slow" />
+        <div className="absolute top-1/3 -right-40 w-[600px] h-[600px] bg-purple-300/25 rounded-full blur-[140px] animate-pulse-slower" />
+        <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-purple-100/50 rounded-full blur-[120px] animate-pulse-slow" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-white/60" />
+      </div>
+
       {/* HEADER */}
-      <div className="bg-white border-b px-6 py-4 flex items-center justify-between sticky top-0 z-50">
+      <div className="sticky top-0 z-50 backdrop-blur-xl bg-white/70 border-b border-purple-100 px-6 py-4 flex items-center justify-between shadow-md shadow-purple-100/50">
         <div className="flex items-center gap-4">
-          <button onClick={() => (step === 1 ? navigate(-1) : setStep(1))}>
-            <ChevronLeft size={24} />
+          <button
+            onClick={() => (step === 1 ? navigate(-1) : setStep(1))}
+            className="p-2 rounded-full bg-white hover:bg-purple-50 border border-purple-100 text-purple-700 transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm"
+          >
+            <ChevronLeft size={22} />
           </button>
-          <h1 className="text-xl font-bold">Product Listing</h1>
+          <h1 className="text-xl font-bold text-purple-900 tracking-tight flex items-center gap-2">
+            Product Listing
+            <Sparkles size={16} className="text-purple-400" />
+          </h1>
         </div>
         <div className="flex gap-2">
           <span
-            className={`w-2 h-2 rounded-full ${step === 1 ? "bg-blue-500" : "bg-gray-200"}`}
+            className={`h-2 rounded-full transition-all duration-500 ${step === 1 ? "w-8 bg-gradient-to-r from-purple-400 to-purple-300 shadow-[0_0_10px_rgba(192,132,252,0.5)]" : "w-2 bg-purple-100"}`}
           ></span>
           <span
-            className={`w-2 h-2 rounded-full ${step === 2 ? "bg-blue-500" : "bg-gray-200"}`}
+            className={`h-2 rounded-full transition-all duration-500 ${step === 2 ? "w-8 bg-gradient-to-r from-purple-400 to-purple-300 shadow-[0_0_10px_rgba(192,132,252,0.5)]" : "w-2 bg-purple-100"}`}
           ></span>
         </div>
       </div>
-      <div className="max-w-4xl mx-auto p-4 sm:p-6">
+
+      <div className="max-w-4xl mx-auto p-4 sm:p-6 relative z-10">
         {step === 1 ? (
           <div className="space-y-8">
             {/* 1. BASIC DETAILS */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border">
-              <h2 className="text-xl font-bold mb-6 border-b pb-2">
-                Basic Details
-              </h2>
+            <GlassCard title="Basic Details">
               <div className="grid gap-4 max-w-md">
-                <label className="text-xs font-bold text-gray-400 uppercase">
-                  Category
-                </label>
+                <FieldLabel>Category</FieldLabel>
                 <select
-                  className="p-3 bg-gray-50 border rounded-lg"
+                  className="glass-input"
                   value={formData.category_id}
                   onChange={(e) =>
                     setFormData({ ...formData, category_id: e.target.value })
                   }
                 >
                   {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.cetegory}
+                    <option key={c.id} value={c.id} className="bg-white text-gray-800">
+                      {c.category}
                     </option>
                   ))}
                 </select>
-                <label className="text-xs font-bold text-gray-400 uppercase">
-                  Product Name
-                </label>
+
+                <FieldLabel>Product Name</FieldLabel>
                 <input
-                  className="p-3 bg-gray-50 border rounded-lg"
+                  className="glass-input"
+                  placeholder="e.g. Premium Cotton T-Shirt"
                   value={formData.name}
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
                 />
-                <label className="text-xs font-bold text-gray-400 uppercase">
-                  Description
-                </label>
+
+                <FieldLabel>Description</FieldLabel>
                 <textarea
-                  className="p-3 bg-gray-50 border rounded-lg h-24"
+                  className="glass-input h-24 resize-none"
+                  placeholder="Describe your product..."
                   value={formData.description}
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
                   }
                 />
               </div>
-            </div>
+            </GlassCard>
 
             {/* 2. COLORS */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border">
-              <p className="text-sm font-bold text-gray-600 mb-4">
-                Choose Colors
-              </p>
-              <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
-                {colors.map((c) => (
-                  <button
-                    key={c.id}
-                    onClick={() => toggleItem("selectedColors", c.id)}
-                    className={`p-2 border rounded-lg text-[10px] font-bold ${formData.selectedColors.includes(c.id.toString()) ? "bg-blue-600 text-white" : "bg-white text-gray-400"}`}
-                  >
-                    {c.color}
-                  </button>
-                ))}
+            <GlassCard title="Choose Colors">
+              <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
+                {colors.map((c) => {
+                  const active = formData.selectedColors.includes(c.id.toString());
+                  return (
+                    <button
+                      key={c.id}
+                      onClick={() => toggleItem("selectedColors", c.id)}
+                      className={`chip ${active ? "chip-active" : ""}`}
+                    >
+                      {c.color}
+                    </button>
+                  );
+                })}
               </div>
-            </div>
+            </GlassCard>
 
             {/* 3. SIZES */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border">
-              <p className="text-sm font-bold text-gray-600 mb-4">
-                Choose Sizes
-              </p>
-              <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
-                {sizes.map((s) => (
-                  <button
-                    key={s.id}
-                    onClick={() => toggleItem("selectedSizes", s.id)}
-                    className={`p-2 border rounded-lg text-[10px] font-bold ${formData.selectedSizes.includes(s.id.toString()) ? "bg-blue-600 text-white" : "bg-white text-gray-400"}`}
-                  >
-                    {s.size}
-                  </button>
-                ))}
+            <GlassCard title="Choose Sizes">
+              <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
+                {sizes.map((s) => {
+                  const active = formData.selectedSizes.includes(s.id.toString());
+                  return (
+                    <button
+                      key={s.id}
+                      onClick={() => toggleItem("selectedSizes", s.id)}
+                      className={`chip ${active ? "chip-active" : ""}`}
+                    >
+                      {s.size}
+                    </button>
+                  );
+                })}
               </div>
-            </div>
+            </GlassCard>
 
             {/* 4. DYNAMIC SPECIFICATIONS */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border">
-              <h2 className="text-lg font-bold mb-4">Specifications</h2>
+            <GlassCard title="Specifications">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {specLabels.length > 0 ? (
                   specLabels.map((s) => (
                     <div key={s.id}>
-                      <label className="text-[10px] font-bold text-gray-400 uppercase">
-                        {s.specification}
-                      </label>
+                      <FieldLabel small>{s.specification}</FieldLabel>
                       <input
-                        className="w-full p-2 bg-gray-50 border rounded-lg text-xs"
+                        className="glass-input text-xs py-2"
                         placeholder={`Enter ${s.specification}`}
                         value={formData.specs[s.specification] || ""}
                         onChange={(e) =>
@@ -310,23 +303,26 @@ export default function ProductListing() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-purple-300 animate-pulse">
                     Loading specifications...
                   </p>
                 )}
               </div>
-            </div>
+            </GlassCard>
 
             {/* 5. IMAGES */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border">
-              <h3 className="text-sm font-bold text-gray-700 mb-4">
-                Product Images
-              </h3>
+            <GlassCard title="Product Images">
               <div
                 onClick={() => fileInputRef.current.click()}
-                className="w-full h-32 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer bg-gray-50 mb-4 hover:bg-gray-100 transition"
+                className="w-full h-32 border-2 border-dashed border-purple-200 rounded-xl flex flex-col items-center justify-center cursor-pointer bg-purple-50/50 mb-4 hover:bg-purple-50 hover:border-purple-400 transition-all duration-300 group"
               >
-                <Plus size={30} className="text-gray-400" />
+                <Plus
+                  size={30}
+                  className="text-purple-300 group-hover:text-purple-500 group-hover:scale-125 group-hover:rotate-90 transition-all duration-300"
+                />
+                <span className="text-[11px] text-purple-300 mt-2 group-hover:text-purple-500 transition">
+                  Click to upload images
+                </span>
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -335,11 +331,11 @@ export default function ProductListing() {
                   onChange={handleImage}
                 />
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-3">
                 {imagePreviews.map((p, i) => (
                   <div
                     key={i}
-                    className="w-20 h-20 rounded-lg overflow-hidden border relative shadow-sm"
+                    className="w-20 h-20 rounded-lg overflow-hidden border border-purple-100 relative shadow-md group hover:scale-105 hover:-translate-y-1 transition-all duration-300"
                   >
                     <img
                       src={p}
@@ -353,35 +349,35 @@ export default function ProductListing() {
                           imagePreviews.filter((_, idx) => idx !== i),
                         );
                       }}
-                      className="absolute top-0 right-0 bg-red-500 text-white p-0.5 rounded-bl-lg"
+                      className="absolute top-0 right-0 bg-red-500/90 hover:bg-red-500 text-white p-0.5 rounded-bl-lg transition-colors"
                     >
                       <X size={12} />
                     </button>
                   </div>
                 ))}
               </div>
-            </div>
+            </GlassCard>
 
             <button
               onClick={() => setStep(2)}
-              className="w-full py-4 bg-[#38B6FF] text-white rounded-lg font-bold text-xl hover:bg-blue-500 transition shadow-lg"
+              className="btn-primary w-full py-4 text-xl"
             >
               Continue to Pricing
             </button>
           </div>
         ) : (
           /* STEP 2: FULL PRICING SECTION */
-          <div className="space-y-8 animate-in fade-in">
-            <div className="bg-white p-6 rounded-xl shadow-sm border">
-              <h2 className="text-2xl font-bold mb-6 italic text-gray-800">
+          <div className="space-y-8 animate-in fade-in duration-500">
+            <GlassCard>
+              <h2 className="text-2xl font-bold mb-6 italic text-purple-900 tracking-tight">
                 Price Section
               </h2>
 
-              <div className="border rounded-lg overflow-hidden mb-6">
-                <div className="bg-gray-200 p-2 font-bold text-xs">
-                  Step 1: Basic Price inputs
+              <div className="rounded-xl overflow-hidden mb-6 border border-purple-100">
+                <div className="bg-gradient-to-r from-purple-100 to-purple-50 p-2.5 font-bold text-[11px] uppercase tracking-wider text-purple-700">
+                  Step 1: Basic Price Inputs
                 </div>
-                <div className="bg-white divide-y">
+                <div className="divide-y divide-purple-50">
                   <PriceRow
                     label="Cost Price"
                     value={formData.cost_price}
@@ -406,10 +402,10 @@ export default function ProductListing() {
                   />
                 </div>
 
-                <div className="bg-gray-200 p-2 font-bold text-xs border-t">
+                <div className="bg-gradient-to-r from-purple-100 to-purple-50 p-2.5 font-bold text-[11px] uppercase tracking-wider text-purple-700 border-t border-purple-100">
                   Step 2: Shipping Fee
                 </div>
-                <div className="bg-white divide-y">
+                <div className="divide-y divide-purple-50">
                   <PriceRow
                     label="Shipping Fee"
                     value={formData.shipping_fee}
@@ -418,14 +414,15 @@ export default function ProductListing() {
                       setFormData({ ...formData, shipping_fee: v })
                     }
                   />
-                  <div className="flex text-xs bg-gray-50">
-                    <div className="w-1/3 p-4 border-r font-bold">
+                  <div className="flex text-xs bg-purple-50/40">
+                    <div className="w-1/3 p-4 border-r border-purple-100 font-bold text-gray-700">
                       Delivery Charges to Customer?
                     </div>
-                    <div className="w-1/3 p-4 border-r flex flex-col gap-2 items-center justify-center">
-                      <label className="flex items-center gap-2 font-medium">
+                    <div className="w-1/3 p-4 border-r border-purple-100 flex flex-col gap-2 items-center justify-center">
+                      <label className="flex items-center gap-2 font-medium text-gray-600 cursor-pointer hover:text-purple-600 transition">
                         <input
                           type="radio"
+                          className="accent-purple-500"
                           checked={formData.show_delivery_charge === "yes"}
                           onChange={() =>
                             setFormData({
@@ -436,9 +433,10 @@ export default function ProductListing() {
                         />{" "}
                         Yes
                       </label>
-                      <label className="flex items-center gap-2 font-medium">
+                      <label className="flex items-center gap-2 font-medium text-gray-600 cursor-pointer hover:text-purple-600 transition">
                         <input
                           type="radio"
+                          className="accent-purple-500"
                           checked={formData.show_delivery_charge === "no"}
                           onChange={() =>
                             setFormData({
@@ -450,7 +448,7 @@ export default function ProductListing() {
                         No
                       </label>
                     </div>
-                    <div className="w-1/3 p-4 italic text-gray-400 text-[10px]">
+                    <div className="w-1/3 p-4 italic text-gray-400 text-[10px] flex items-center">
                       If "Yes" fee is shown to customer
                     </div>
                   </div>
@@ -459,11 +457,9 @@ export default function ProductListing() {
 
               <div className="grid grid-cols-3 gap-4 mt-8 mb-8">
                 <div>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase">
-                    Stock
-                  </label>
+                  <FieldLabel small>Stock</FieldLabel>
                   <input
-                    className="w-full p-2 border rounded bg-gray-50"
+                    className="glass-input py-2"
                     type="number"
                     value={formData.stock_available}
                     onChange={(e) =>
@@ -475,11 +471,9 @@ export default function ProductListing() {
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase">
-                    Returns
-                  </label>
+                  <FieldLabel small>Returns</FieldLabel>
                   <select
-                    className="w-full p-2 border rounded bg-gray-50"
+                    className="glass-input py-2"
                     value={formData.allow_returns}
                     onChange={(e) =>
                       setFormData({
@@ -488,16 +482,14 @@ export default function ProductListing() {
                       })
                     }
                   >
-                    <option>No</option>
-                    <option>within 7 days</option>
+                    <option className="bg-white">No</option>
+                    <option className="bg-white">within 7 days</option>
                   </select>
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase">
-                    Delivery
-                  </label>
-                  <select className="w-full p-2 border rounded bg-gray-50">
-                    <option>Through kalkideals</option>
+                  <FieldLabel small>Delivery</FieldLabel>
+                  <select className="glass-input py-2">
+                    <option className="bg-white">Through kalkideals</option>
                   </select>
                 </div>
               </div>
@@ -505,7 +497,7 @@ export default function ProductListing() {
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="w-full py-4 bg-[#38B6FF] text-white rounded-lg font-bold text-xl shadow-lg hover:bg-blue-500 transition"
+                className="btn-primary w-full py-4 text-xl"
               >
                 {isSubmitting ? (
                   <Loader2 className="animate-spin mx-auto" />
@@ -513,25 +505,118 @@ export default function ProductListing() {
                   "Submit Product"
                 )}
               </button>
-            </div>
+            </GlassCard>
           </div>
         )}
       </div>
+
+      {/* GLOBAL STYLES */}
+      <style>{`
+        @keyframes pulse-slow {
+          0%, 100% { opacity: 0.5; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.08); }
+        }
+        @keyframes pulse-slower {
+          0%, 100% { opacity: 0.4; transform: scale(1); }
+          50% { opacity: 0.7; transform: scale(1.12); }
+        }
+        .animate-pulse-slow { animation: pulse-slow 8s ease-in-out infinite; }
+        .animate-pulse-slower { animation: pulse-slower 11s ease-in-out infinite; }
+
+        .glass-input {
+          width: 100%;
+          padding: 0.75rem 1rem;
+          background: rgba(255, 255, 255, 0.9);
+          border: 1px solid rgba(196, 181, 253, 0.5);
+          border-radius: 0.75rem;
+          color: #4c1d95;
+          outline: none;
+          transition: all 0.25s ease;
+        }
+        .glass-input::placeholder { color: rgba(147, 51, 234, 0.3); }
+        .glass-input:focus {
+          background: #ffffff;
+          border-color: rgba(168, 85, 247, 0.7);
+          box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
+        }
+
+        .chip {
+          padding: 0.6rem 0.5rem;
+          border-radius: 0.75rem;
+          font-size: 11px;
+          font-weight: 700;
+          background: #ffffff;
+          border: 1px solid rgba(196, 181, 253, 0.5);
+          color: rgba(126, 34, 206, 0.6);
+          transition: all 0.25s ease;
+        }
+        .chip:hover {
+          background: rgba(245, 243, 255, 1);
+          border-color: rgba(168,85,247,0.5);
+          color: #7e22ce;
+          transform: translateY(-2px);
+        }
+        .chip-active {
+          background: linear-gradient(135deg, #c084fc, #a855f7);
+          border-color: rgba(216,180,254,0.8);
+          color: white;
+          box-shadow: 0 4px 20px rgba(168,85,247,0.35);
+          transform: translateY(-2px);
+        }
+
+        .btn-primary {
+          position: relative;
+          font-weight: 800;
+          color: white;
+          border-radius: 1rem;
+          background: linear-gradient(135deg, #c084fc 0%, #a855f7 55%, #7e22ce 100%);
+          border: 1px solid rgba(216,180,254,0.6);
+          box-shadow: 0 10px 30px rgba(168,85,247,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          overflow: hidden;
+        }
+        .btn-primary:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 16px 40px rgba(168,85,247,0.45), inset 0 1px 0 rgba(255,255,255,0.35);
+          background: linear-gradient(135deg, #d8b4fe 0%, #c084fc 55%, #9333ea 100%);
+        }
+        .btn-primary:active { transform: translateY(-1px) scale(0.99); }
+        .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+      `}</style>
     </div>
   );
 }
 
+const GlassCard = ({ title, children }) => (
+  <div className="relative rounded-2xl border border-purple-100 bg-white/80 backdrop-blur-2xl shadow-[0_8px_32px_rgba(168,85,247,0.08)] p-6 transition-all duration-300 hover:border-purple-300 hover:shadow-[0_8px_40px_rgba(168,85,247,0.15)]">
+    {title && (
+      <h2 className="text-lg font-bold mb-6 pb-3 border-b border-purple-100 text-purple-900 tracking-tight">
+        {title}
+      </h2>
+    )}
+    {children}
+  </div>
+);
+
+const FieldLabel = ({ children, small }) => (
+  <label
+    className={`font-bold text-purple-500 uppercase tracking-wider ${small ? "text-[10px]" : "text-xs"}`}
+  >
+    {children}
+  </label>
+);
+
 const PriceRow = ({ label, value, desc, onChange }) => (
   <div className="flex text-xs">
-    <div className="w-1/3 p-4 border-r font-bold bg-gray-50/50 text-gray-600">
+    <div className="w-1/3 p-4 border-r border-purple-100 font-bold bg-purple-50/40 text-gray-700">
       {label}
     </div>
-    <div className="w-1/3 p-4 border-r flex items-center justify-center">
-      <div className="flex items-center border rounded-full px-3 py-1 w-full bg-white ring-1 ring-gray-100 shadow-inner">
-        <span className="text-gray-400 mr-1">₹</span>
+    <div className="w-1/3 p-4 border-r border-purple-100 flex items-center justify-center">
+      <div className="flex items-center border border-purple-200 rounded-full px-3 py-1.5 w-full bg-white focus-within:border-purple-400 focus-within:shadow-sm transition-all duration-200">
+        <span className="text-purple-400 mr-1 font-bold">₹</span>
         <input
           type="number"
-          className="w-full outline-none"
+          className="w-full outline-none bg-transparent text-gray-800 placeholder:text-gray-300"
           value={value}
           onChange={(e) => onChange(e.target.value)}
         />

@@ -2,9 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import * as ProfileAPI from "../api/viewProfileApi";
 import Defaulting from "../img/admin_profile.webp";
-import { AnimatePresence } from "framer-motion";
-
-// Helper for inline vector icons to match each field beautifully
+import { motion, AnimatePresence } from "framer-motion";
 const getFieldIcon = (key) => {
   const iconClass =
     "w-5 h-5 text-indigo-500/80 transition-colors group-focus-within:text-indigo-600";
@@ -328,7 +326,7 @@ export default function ViewProfile() {
         className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-purple-100/50 blur-[140px] pointer-events-none"
       />
 
-      <div className="w-full max-w-2xl z-10">
+      <div className="w-full z-10">
         {/* Back Button with hover arrow nudge */}
         <motion.button
           whileHover={{ scale: 1.02 }}

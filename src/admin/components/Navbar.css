@@ -46,7 +46,6 @@
   color: #111827;
 }
 
-/* hide admin-title on very small screens (<=303px) */
 @media (max-width: 303px) {
   .admin-title {
     display: none !important;

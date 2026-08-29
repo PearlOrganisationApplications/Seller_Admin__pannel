@@ -21,8 +21,8 @@ import {
 
 const initialForm = {
   title: "",
-  imageFiles: null,
-  position: "1",
+  baner_type: "offer",
+  imageFiles: [],
   status: "1",
 };
 
@@ -35,7 +35,8 @@ const Banners = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [, setError] = useState(null);
   const [formData, setFormData] = useState(initialForm);
-
+const [showDeleteModal, setShowDeleteModal] = useState(false);
+const [deleteId, setDeleteId] = useState(null);
   const isDarkMode = useMemo(
     () => localStorage.getItem("darkMode") === "true",
     [],
@@ -45,9 +46,9 @@ const Banners = () => {
     try {
       setLoading(true);
       const res = await getBannerList();
-      if (res.status) {
-        setBanners(Array.isArray(res.data?.data) ? res.data.data : []);
-      }
+     if (res.status) {
+  setBanners(Array.isArray(res.bannerData?.data) ? res.bannerData.data : []);
+}
     } catch {
       setError("Failed to load banners.");
       setBanners([]);
@@ -67,21 +68,21 @@ const Banners = () => {
     setIsModalOpen(true);
   }, []);
 
-  const handleEditClick = useCallback((banner) => {
-    setIsEditMode(true);
-    setSelectedId(banner.id);
-    setError(null);
-    setFormData({
-      title: banner.title,
-      imageFiles: null,
-      position: String(banner.position),
-      status: String(banner.status),
-    });
-    setIsModalOpen(true);
-  }, []);
+ const handleEditClick = useCallback((banner) => {
+  setIsEditMode(true);
+  setSelectedId(banner.id);
+  setError(null);
+  setFormData({
+    title: banner.title,
+    position: String(banner.position),
+    status: banner.status == 1 ? "true" : "false", // ✅ fix
+    imageFiles: null,
+  });
+  setIsModalOpen(true);
+}, []);
 
   const handleToggleStatus = useCallback((banner) => {
-    const newStatus = banner.status == 1 ? "0" : "1";
+    const newStatus = banner.status == 1 ? false : true;
 
     toast.promise(
       updateBannerStatus(banner.id, {
@@ -130,74 +131,16 @@ const Banners = () => {
     }
   }, []);
 
-  const handleDeleteClick = useCallback(
-    (id) => {
-      toast(
-        (t) => (
-          <div style={{ padding: "4px", minWidth: "240px" }}>
-            <p
-              style={{
-                color: "#FFFFFF",
-                fontWeight: "800",
-                fontSize: "16px",
-                marginBottom: "16px",
-                textAlign: "center",
-              }}
-            >
-              DELETE PERMANENTLY?
-            </p>
-            <div
-              style={{ display: "flex", gap: "10px", justifyContent: "center" }}
-            >
-              <button
-                onClick={() => toast.dismiss(t.id)}
-                style={{
-                  background: "#475569",
-                  color: "#FFFFFF",
-                  border: "none",
-                  padding: "8px 16px",
-                  borderRadius: "8px",
-                  fontSize: "12px",
-                  fontWeight: "bold",
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  toast.dismiss(t.id);
-                  executeDelete(id);
-                }}
-                style={{
-                  background: "#EF4444",
-                  color: "#FFFFFF",
-                  border: "none",
-                  padding: "8px 20px",
-                  borderRadius: "8px",
-                  fontSize: "12px",
-                  fontWeight: "900",
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ),
-        {
-          id: "delete-confirm",
-          duration: Infinity,
-          position: "top-center",
-        },
-      );
-    },
-    [executeDelete],
-  );
+const handleDeleteClick = (id) => {
+  setDeleteId(id);
+  setShowDeleteModal(true);
+};
 
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
 
-      if (!formData.imageFiles && !isEditMode) {
+      if (formData.imageFiles.length === 0 && !isEditMode) {
         setError("Please select images.");
         return;
       }
@@ -250,12 +193,7 @@ const Banners = () => {
         </div>
 
         <div className="flex gap-3">
-          <button
-            onClick={() => window.history.back()}
-            className="flex items-center gap-2 bg-gray-100 px-5 py-3 rounded-2xl font-bold"
-          >
-            <ArrowLeft size={18} /> Back
-          </button>
+        
 
           <button
             onClick={handleOpenAddModal}
@@ -266,69 +204,242 @@ const Banners = () => {
         </div>
       </div>
 
-      {(Array.isArray(banners) ? banners : []).map((banner) => (
-        <div
-          key={banner.id}
-          className="bg-white rounded-3xl flex shadow-sm border"
-        >
-          <img
-            src={banner.image?.[0] || "https://via.placeholder.com/300"}
-            className="w-1/3 object-cover"
-            alt=""
-          />
+      {Array.isArray(banners) && (
+   <div className="bg-white rounded-2xl shadow overflow-hidden">
+  <table className="w-full">
+    <thead className="bg-gray-100">
+      <tr>
+        <th className="p-4 text-left">Image</th>
+        <th className="p-4 text-left">Title</th>
+        <th className="p-4 text-center">Position</th>
+        <th className="p-4 text-center">Status</th>
+        <th className="p-4 text-center">Action</th>
+      </tr>
+    </thead>
 
-          <div className="p-6 w-full">
-            <h3 className="font-black uppercase">{banner.title}</h3>
+    <tbody>
+      {banners.map((banner) => (
+        <tr key={banner.id} className="border-t">
+          <td className="p-4">
+            <img
+              src={banner.image?.[0]}
+              alt=""
+              className="w-24 h-16 rounded-lg object-cover"
+            />
+          </td>
 
-            <button
-              onClick={() => handleToggleStatus(banner)}
-              className="mt-3 text-xs font-bold"
+          <td className="p-4 font-semibold">
+            {banner.title}
+          </td>
+
+          <td className="p-4 text-center">
+            {banner.position}
+          </td>
+
+          <td className="p-4 text-center">
+            <span
+              className={`px-3 py-1 rounded-full text-xs text-white ${
+                banner.status ? "bg-green-600" : "bg-red-500"
+              }`}
             >
-              {banner.status == 1 ? "ACTIVE" : "HIDDEN"}
-            </button>
+              {banner.status ? "Active" : "Inactive"}
+            </span>
+          </td>
 
-            <div className="flex gap-3 mt-6">
-              <button onClick={() => handleEditClick(banner)}>Edit</button>
-              <button onClick={() => handleDeleteClick(banner.id)}>
-                Delete
+          <td className="p-4">
+            <div className="flex justify-center gap-2">
+              <button
+                onClick={() => handleEditClick(banner)}
+                className="bg-blue-600 text-white px-3 py-2 rounded-lg"
+              >
+                <Edit3 size={16} />
+              </button>
+
+              <button
+                onClick={() => handleDeleteClick(banner.id)}
+                className="bg-red-600 text-white px-3 py-2 rounded-lg"
+              >
+                <Trash2 size={16} />
               </button>
             </div>
-          </div>
-        </div>
+          </td>
+        </tr>
       ))}
+    </tbody>
+  </table>
+</div>
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40">
-          <form
-            onSubmit={handleSubmit}
-            className="bg-white p-8 rounded-3xl w-full max-w-md"
-          >
-            <input
-              value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-              placeholder="Title"
-              className="w-full p-3 border rounded-xl"
-            />
+         <form
+  onSubmit={handleSubmit}
+  className="relative bg-white/90 backdrop-blur-2xl border border-white/40 shadow-2xl rounded-[28px] w-full max-w-xl overflow-hidden animate-[fadeIn_.3s_ease]"
+>
+           {/* Header */}
+<div className="bg-gradient-to-r from-blue-600 to-violet-600 px-8 py-6 text-white flex justify-between items-center">
+  <div>
+    <h2 className="text-2xl font-bold">
+      {isEditMode ? "Edit Banner" : "Add Banner"}
+    </h2>
+    <p className="text-sm text-blue-100">
+      Upload promotional banner
+    </p>
+  </div>
 
-            <input
-              type="file"
-              multiple
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  imageFiles: e.target.files,
-                })
-              }
-            />
+  <button
+    type="button"
+    onClick={() => setIsModalOpen(false)}
+    className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition"
+  >
+    <X size={20} />
+  </button>
+</div>
 
-            <button disabled={isSubmitting} className="w-full mt-4">
-              {isSubmitting ? "Loading..." : "Save"}
-            </button>
+<div className="p-8 space-y-5">
+
+  <div>
+    <label className="block mb-2 font-semibold">Banner Title</label>
+
+    <input
+      value={formData.title}
+      onChange={(e) =>
+        setFormData({ ...formData, title: e.target.value })
+      }
+      placeholder="Enter Banner Title"
+      className="w-full p-4 rounded-2xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition"
+    />
+  </div>
+
+<div>
+  <label className="block mb-2 font-semibold">
+    Banner Type
+  </label>
+
+  <select
+    value={formData.baner_type}
+    onChange={(e) =>
+      setFormData({
+        ...formData,
+        baner_type: e.target.value,
+      })
+    }
+    className="w-full p-4 rounded-2xl border border-slate-200"
+  >
+    <option value="offer">Offer</option>
+    <option value="slider">Slider</option>
+    <option value="home">Home</option>
+  </select>
+</div>
+
+<div>
+  <label className="block mb-2 font-semibold">
+    Status
+  </label>
+
+  <select
+    value={String(formData.status)}
+    onChange={(e) =>
+      setFormData({
+        ...formData,
+        status: e.target.value === "true",
+      })
+    }
+    className="w-full p-4 rounded-2xl border border-slate-200"
+  >
+    <option value="true">Active</option>
+    <option value="false">Inactive</option>
+  </select>
+</div>
+  <div>
+    <label className="block mb-2 font-semibold">Upload Banner</label>
+
+    <label className="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer transition">
+
+      <Upload size={40} className="text-blue-600 mb-3" />
+
+      <p className="font-semibold">
+        Click to Upload
+      </p>
+
+      <span className="text-sm text-slate-500">
+        PNG, JPG, WEBP
+      </span>
+
+     <input
+  type="file"
+  multiple
+  accept="image/*"
+  hidden
+  onChange={(e) =>
+    setFormData({
+      ...formData,
+      imageFiles: [...e.target.files],
+    })
+  }
+/>{formData.imageFiles?.length > 0 && (
+  <p className="mt-2 text-sm text-green-600">
+    {formData.imageFiles.length} image(s) selected
+  </p>
+)}
+    </label>
+  </div>
+
+  <div className="flex justify-end gap-3 pt-3">
+
+    <button
+      type="button"
+      onClick={() => setIsModalOpen(false)}
+      className="px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 font-semibold"
+    >
+      Cancel
+    </button>
+
+    <button
+      disabled={isSubmitting}
+      className="px-8 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white font-bold shadow-lg hover:scale-105 transition"
+    >
+      {isSubmitting ? "Saving..." : "Save Banner"}
+    </button>
+
+  </div>
+
+</div>
           </form>
         </div>
       )}
+      {showDeleteModal && (
+  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="bg-white rounded-2xl p-6 w-[380px] shadow-2xl">
+      <h2 className="text-xl font-bold text-center">
+        Delete Banner?
+      </h2>
+
+      <p className="text-gray-500 text-center mt-2">
+        Are you sure you want to delete this banner?
+      </p>
+
+      <div className="flex justify-center gap-3 mt-6">
+        <button
+          onClick={() => setShowDeleteModal(false)}
+          className="px-5 py-2 bg-gray-300 rounded-lg"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={() => {
+            executeDelete(deleteId);
+            setShowDeleteModal(false);
+          }}
+          className="px-5 py-2 bg-red-600 text-white rounded-lg"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };
