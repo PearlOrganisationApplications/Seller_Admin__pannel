@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ChevronLeft, Loader2 } from "lucide-react";
+import { ChevronLeft, Loader2 ,ShoppingBag  } from "lucide-react";
 import { getSellerProducts, updateProductStatus } from "../api/sellerApi";
 import toast from "react-hot-toast"; // Import only toast, NOT Toaster
 
@@ -67,20 +67,21 @@ export default function SellerProducts() {
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen font-sans">
 
       {/* Header Container */}
-      <div className="max-w-7xl mx-auto flex items-center justify-between mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-600"
-          >
-            <ChevronLeft size={24} />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold text-gray-800">Seller Products</h1>
-            <p className="text-xs text-gray-500 font-medium">Viewing listed items for Seller ID: {id}</p>
-          </div>
-        </div>
-      </div>
+<div className="max-w-7xl mx-auto mb-6 flex items-center gap-4 px-5 py-4 bg-[#f5f7fb] rounded-xl">
+  <div className="w-11 h-11 flex items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-violet-500 shadow-lg shadow-purple-200">
+    <ShoppingBag size={21} className="text-white" />
+  </div>
+
+  <div>
+    <h1 className="text-2xl font-bold text-gray-900">
+      Seller Products
+    </h1>
+
+    <p className="text-sm text-gray-500 font-medium mt-0.5">
+      Viewing listed items for Seller
+    </p>
+  </div>
+</div>
 
       {loading ? (
         <div className="flex justify-center items-center h-64">

@@ -32,18 +32,27 @@ const [selectedItem, setSelectedItem] = useState(null);
     return () => clearTimeout(timer);
   }, [toast]);
 
-  const fetchSubCategories = async () => {
-    setIsLoadingTable(true);
-    try {
-      const response = await getSubCategories(1); // Pass categoryId
-      setSubCategories(response.data.data);
-    } catch (error) {
-      console.log("Error fetching subcategories:", error);
-      setToast({ type: "error", message: "Could not load subcategories." });
-    } finally {
-      setIsLoadingTable(false);
+const fetchSubCategories = async () => {
+  setIsLoadingTable(true);
+
+  try {
+    const response = await getSubCategories();
+
+    if (response?.success && Array.isArray(response?.data)) {
+      setSubCategories(response.data);
+    } else {
+      setSubCategories([]);
     }
-  };
+  } catch (error) {
+    console.log("Error fetching subcategory:", error);
+    setToast({
+      type: "error",
+      message: "Could not load subcategory.",
+    });
+  } finally {
+    setIsLoadingTable(false);
+  }
+};
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -150,7 +159,7 @@ const [selectedItem, setSelectedItem] = useState(null);
           <thead>
             <tr>
               <th>Sub Category Name</th>
-              <th>Subcategory</th>
+              <th>Slug</th>
               <th>Image</th>
               <th>Description</th>
               <th>Total Products</th>
@@ -172,11 +181,11 @@ const [selectedItem, setSelectedItem] = useState(null);
             ) : subCategories && subCategories.length > 0 ? (
               subCategories.map((item, index) => (
                 <tr
-                  key={item.subcategory_id}
+                  key={item.id}
                   className="table-row-animate"
                   style={{ animationDelay: `${index * 0.05}s` }}
                 >
-                  <td>{item.subcategory_name}</td>
+                 <td>{item.subcategory}</td>
                   <td>{item.slug}</td>
                   <td>
                     {item.image ? (
@@ -186,7 +195,7 @@ const [selectedItem, setSelectedItem] = useState(null);
                     )}
                   </td>
                   <td>{item.description}</td>
-                  <td>{item.total_products}</td>
+                <td>{item.products?.length || 0}</td>
                   <td>
                     <span
                       className={`status ${
@@ -207,7 +216,7 @@ const [selectedItem, setSelectedItem] = useState(null);
   Edit
 </button>                
     <button className="delete-btn"
-  className="delete-btn"
+
   onClick={() => {
     setSelectedItem(item);
     setShowDeleteModal(true);

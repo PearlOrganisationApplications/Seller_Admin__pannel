@@ -12,8 +12,15 @@ const handleApiError = (error) => {
     throw message; 
 };
 
-export const getCategories = () =>
-  api.get("/api/categories").catch(handleApiError);
+// Get Categories
+export const getCategories = async () => {
+  try {
+    const response = await api.get("/api/admin/categories");
+    return response.data;
+  } catch (error) {
+    handleApiError(error);
+  }
+};
 
 export const getColors = () => 
     api.get("/api/admin/colors").catch(handleApiError);
@@ -25,6 +32,7 @@ export const getSpecifications = () =>
     api.get("/api/admin/specifications").catch(handleApiError);
 
 
+// Add Category
 export const addCategory = async (data) => {
 
   try {
@@ -34,15 +42,16 @@ export const addCategory = async (data) => {
       headers: {
 
         "Content-Type": "multipart/form-data",
+
       },
     });
 
     return response.data;
 
-  }
-  catch (error) {
-    
+  } catch (error) {
+
     handleApiError(error);
+
   }
 };
 
@@ -56,9 +65,15 @@ export const addSpecification = (data) =>
     api.post("/api/admin/add-specification", data).catch(handleApiError);
 
 
-// --- DELETE ---
-export const deleteCategory = (id) => 
-    api.delete(`/api/admin/delete-category/${id}`).catch(handleApiError);
+// Delete Category
+export const deleteCategory = async (id) => {
+  try {
+    const response = await api.delete(`/api/admin/catgeory/delete/${id}`);
+    return response.data;
+  } catch (error) {
+    handleApiError(error);
+  }
+};
 
 export const deleteColor = (id) => 
     api.delete(`/api/admin/delete-color/${id}`).catch(handleApiError);
@@ -70,9 +85,29 @@ export const deleteSpecification = (id) =>
     api.delete(`/api/admin/delete-specification/${id}`).catch(handleApiError);
 
 
-// --- UPDATE ---
-export const updateCategory = (id, data) => 
-    api.post(`/api/admin/update-category/${id}`, data).catch(handleApiError);
+// Update Category
+export const updateCategory = async (id, data) => 
+  { 
+  try 
+  {
+    const response = await api.post(
+
+      `/api/admin/category/${id}/update`,
+      data,
+
+      {
+        headers: {
+
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    handleApiError(error);
+  }
+};
 
 export const updateColor = (id, data) => 
     api.post(`/api/admin/update-color/${id}`, data).catch(handleApiError);
@@ -84,11 +119,28 @@ export const updateSize = (id, data) =>
 export const updateSpecification = (id, data) => 
     api.post(`/api/admin/update-specification/${id}`, data).catch(handleApiError);
 
-export const getSubCategories = (categoryId) =>
 
-  api.get(`/api/categories/${categoryId}/subcategories`)
+// Get Subcategories by Category ID
+export const getSubCategoriesByCategory = async (categoryId) =>
+   {
+  try {
+    const response = await api.get(`/api/admin/subcategory/${categoryId}`);
+    return response.data;
+  } catch (error) {
+    handleApiError(error);
+  }
+};
+export const getSubCategories = async () => 
+  {
 
-    .catch(handleApiError);
+  try 
+  {
+    const response = await api.get("/api/admin/subcategories");
+    return response.data;
+  } catch (error) {
+    handleApiError(error);
+  }
+};
 
   export const addSubCategory = async (data) => {
 

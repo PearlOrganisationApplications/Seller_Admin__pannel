@@ -64,6 +64,12 @@ const Sidebar = React.memo(
   icon: <FaFolderPlus />,
   label: "Sub Category",
 },
+
+{
+  to: "/admin/products",
+  icon: <FaShoppingCart />,
+  label: "Product Management",
+},
         {
           to: "/admin/SendNotification",
           icon: <FaBell />,

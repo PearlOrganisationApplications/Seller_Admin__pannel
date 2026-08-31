@@ -3,19 +3,8 @@ import { useNavigate } from "react-router-dom";
 import "././BarChart/AddCategory.css";
 import * as CategoryAPI from "../api/addCategoryApi";
 
-function nameToHue(str) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return Math.abs(hash) % 360;
-}
-
 const SECTION_META = {
   category: { label: "Category", accent: "cat", icon: "◧" },
-  color: { label: "Color", accent: "color", icon: "◑" },
-  size: { label: "Size", accent: "size", icon: "◫" },
-  spec: { label: "Specification", accent: "spec", icon: "◈" },
 };
 
 function firstErrorMessage(data) {
@@ -46,32 +35,18 @@ export default function AddCategory() {
   const [categorySubmitting, setCategorySubmitting] = useState(false);
   const [categoryError, setCategoryError] = useState("");
 
-  const [color, setColors] = useState([]);
   const [category, setCategory] = useState([]);
-  const [sizes, setSizes] = useState([]);
-  const [specifications, setSpecifications] = useState([]);
-
-  const [showInput, setShowInput] = useState({
-    category: false,
-    color: false,
-    size: false,
-    spec: false,
-  });
-
-  const [inputs, setInputs] = useState({
-    category: "",
-    color: "",
-    size: "",
-    spec: "",
-  });
 
   const [editId, setEditId] = useState(null);
-  const [editType, setEditType] = useState("");
+  const [editType, setEditType] = useState("category");
   const [showModal, setShowModal] = useState(false);
+  const [inputs, setInputs] = useState({ category: "" });
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
-
+const [editForm, setEditForm] = useState(EMPTY_CATEGORY_FORM);
+const [editSubmitting, setEditSubmitting] = useState(false);
+const [editError, setEditError] = useState("");
   const showToast = (message, type = "success") => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
@@ -79,19 +54,8 @@ export default function AddCategory() {
 
   const fetchAll = async () => {
     try {
-      const [catRes, colRes, sizRes, specRes] = await Promise.all([
-        CategoryAPI.getCategories(),
-        CategoryAPI.getColors(),
-        CategoryAPI.getSizes(),
-        CategoryAPI.getSpecifications(),
-      ]);
-
-      setCategory(
-        (catRes.data.data || []).map((c) => ({ ...c, id: c.category_id }))
-      );
-      setColors(colRes.data.colors || []);
-      setSizes(sizRes.data.sizes || []);
-      setSpecifications(specRes.data.specifications || []);
+      const catRes = await CategoryAPI.getCategories();
+     setCategory(catRes.data.data || []);
     } catch (error) {
       console.error("Fetch error:", error);
     } finally {
@@ -103,41 +67,16 @@ export default function AddCategory() {
     fetchAll();
   }, []);
 
-  const handleAdd = async (type) => {
-    const value = inputs[type].trim();
-    if (!value) return showToast("Enter a valid value.", "error");
-
-    try {
-      let res;
-      if (type === "color") res = await CategoryAPI.addColor({ colors: [value] });
-      if (type === "size") res = await CategoryAPI.addSize({ sizes: [value] });
-      if (type === "spec")
-        res = await CategoryAPI.addSpecification({ specifications: [value] });
-
-      if (res?.data?.status) {
-        setInputs((prev) => ({ ...prev, [type]: "" }));
-        setShowInput((prev) => ({ ...prev, [type]: false }));
-        showToast("Item added successfully.", "success");
-        fetchAll();
-      }
-    } catch {
-      showToast("Failed to add item.", "error");
-    }
-  };
-
-  const handleDelete = (type, id, e, label) => {
+  const handleDelete = (id, e, label) => {
     e.stopPropagation();
-    setDeleteConfirm({ type, id, label });
+    setDeleteConfirm({ type: "category", id, label });
   };
 
   const confirmDelete = async () => {
     if (!deleteConfirm) return;
-    const { type, id } = deleteConfirm;
+    const { id } = deleteConfirm;
     try {
-      if (type === "category") await CategoryAPI.deleteCategory(id);
-      if (type === "color") await CategoryAPI.deleteColor(id);
-      if (type === "size") await CategoryAPI.deleteSize(id);
-      if (type === "spec") await CategoryAPI.deleteSpecification(id);
+      await CategoryAPI.deleteCategory(id);
       showToast("Item deleted successfully.", "success");
       fetchAll();
     } catch {
@@ -147,35 +86,43 @@ export default function AddCategory() {
     }
   };
 
-  const handleUpdate = async () => {
-    let value = inputs[editType].trim();
-    if (!value) return showToast("Enter a valid value.", "error");
+const handleUpdate = async () => {
+  setEditError("");
+  if (!editForm.category.trim()) {
+    setEditError("Category name is required.");
+    return;
+  }
 
-    try {
-      let res;
-      if (editType === "category")
-        res = await CategoryAPI.updateCategory(editId, { category: value });
-      if (editType === "color")
-        res = await CategoryAPI.updateColor(editId, { color: value });
-      if (editType === "size")
-        res = await CategoryAPI.updateSize(editId, { size: value });
-      if (editType === "spec")
-        res = await CategoryAPI.updateSpecification(editId, {
-          specification: value,
-        });
+  const formData = new FormData();
+  formData.append("category", editForm.category.trim());
+  formData.append("description", editForm.description.trim());
+  formData.append("is_featured", editForm.is_featured ? "1" : "0");
+  formData.append("status", editForm.status ? "1" : "0");
+  if (editForm.image) formData.append("image", editForm.image);
+  if (editForm.banner) formData.append("banner", editForm.banner);
 
-      if (res?.data?.status) {
-        setShowModal(false);
-        setEditId(null);
-        setInputs({ category: "", color: "", size: "", spec: "" });
-        showToast("Updated successfully.", "success");
-        fetchAll();
-      }
-    } catch (error) {
-      showToast("Update failed. Please try again.", "error");
+  try {
+    setEditSubmitting(true);
+    const res = await CategoryAPI.updateCategory(editId, formData);
+
+    if (res?.status) {
+      setShowModal(false);
+      setEditId(null);
+      setEditForm(EMPTY_CATEGORY_FORM);
+      showToast(res.message || "Updated successfully.", "success");
+      fetchAll();
+    } else {
+      setEditError(firstErrorMessage(res) || "Failed to update category.");
+      showToast(firstErrorMessage(res) || "Failed to update category.", "error");
     }
-  };
-
+  } catch (err) {
+    const msg = firstErrorMessage(err?.response?.data) || "Update failed. Please try again.";
+    setEditError(msg);
+    showToast(msg, "error");
+  } finally {
+    setEditSubmitting(false);
+  }
+};
   const handleCreateCategory = async () => {
     setCategoryError("");
 
@@ -188,7 +135,7 @@ export default function AddCategory() {
     formData.append("category", categoryForm.category.trim());
     formData.append("description", categoryForm.description.trim());
     formData.append("is_featured", categoryForm.is_featured ? "1" : "0");
-    formData.append("status", categoryForm.status ? "active" : "inactive");
+  formData.append("status", categoryForm.status ? "1" : "0");
     if (categoryForm.image) formData.append("image", categoryForm.image);
     if (categoryForm.banner) formData.append("banner", categoryForm.banner);
 
@@ -201,10 +148,10 @@ export default function AddCategory() {
 
         setCategory((prev) => [
           {
-            id: created.category_id,
-            category_id: created.category_id,
+           id: created.id,
+  category: created.category_name || created.category,
             category_name: created.category_name,
-            slug: created.slug,
+          
             image: created.image,
             banner: created.banner,
             description: created.description,
@@ -242,109 +189,92 @@ export default function AddCategory() {
     setCategoryForm(EMPTY_CATEGORY_FORM);
     setCategoryError("");
   };
+const openEditModal = (item) => {
+  setEditId(item.id);
+  setEditType("category");
+  setEditForm({
+    category: item.category || "",
+    description: item.description || "",
+    is_featured: !!item.is_featured,
+    status: !!item.status,
+    image: null,
+    banner: null,
+    existingImage: item.image || "",
+    existingBanner: item.banner || "",
+  });
+  setEditError("");
+  setShowModal(true);
+};
 
-  const openEditModal = (type, item) => {
-    setEditId(item.id);
-    setEditType(type);
-    setInputs((prev) => ({
-      ...prev,
-      category: type === "category" ? item.category_name || "" : prev.category,
-      color: type === "color" ? item.color || "" : prev.color,
-      size: type === "size" ? item.size || "" : prev.size,
-      spec: type === "spec" ? item.specification || "" : prev.spec,
-    }));
-    setShowModal(true);
-  };
-
-  const renderSection = (type, items, keyName) => {
-    const meta = SECTION_META[type];
+  const renderCategorySection = () => {
     return (
-      <section className="tax-card" key={type}>
-        <header className="tax-card-head">
-          <div className="tax-card-title-group">
-            <span className="tax-card-icon">{meta.icon}</span>
-            <h3 className="tax-card-title">{meta.label}</h3>
-          </div>
-          <span className="tax-card-count">{items.length}</span>
-        </header>
-
-        <div className="tax-tags-wrapper">
-          {items.map((item) => (
-            <button
-              type="button"
-              className="tax-tag-btn"
-              key={item.id}
-              onClick={() => openEditModal(type, item)}
-              title="Click to edit"
-            >
-              {type === "color" && (
-                <span
-                  className="tax-color-swatch"
-                  style={{
-                    background: `hsl(${nameToHue(item[keyName] || "")}, 65%, 55%)`,
-                  }}
-                />
-              )}
-              <span>{item[keyName]}</span>
-              <span
-                className="tax-tag-remove"
-                role="button"
-                aria-label={`Delete ${item[keyName]}`}
-                onClick={(e) => handleDelete(type, item.id, e, item[keyName])}
-              >
-                ×
-              </span>
-            </button>
-          ))}
-
-          {type === "category" ? (
-            <button
-              type="button"
-              className="tax-tag-btn tax-tag-add-btn"
-              onClick={() => setShowAddCategoryModal(true)}
-            >
-              + Add {meta.label.toLowerCase()}
-            </button>
-          ) : showInput[type] ? (
-            <div className="tax-tag-inline-edit">
-              <input
-                className="tax-inline-input"
-                autoFocus
-                placeholder={`New ${meta.label.toLowerCase()}`}
-                value={inputs[type]}
-                onChange={(e) =>
-                  setInputs({ ...inputs, [type]: e.target.value })
-                }
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleAdd(type);
-                  if (e.key === "Escape")
-                    setShowInput((prev) => ({ ...prev, [type]: false }));
-                }}
-              />
-              <button
-                type="button"
-                className="tax-inline-btn tax-inline-btn-confirm"
-                onClick={() => handleAdd(type)}
-              >
-                ✓
-              </button>
-              <button
-                type="button"
-                className="tax-inline-btn tax-inline-btn-cancel"
-                onClick={() => setShowInput((prev) => ({ ...prev, [type]: false }))}
-              >
-                ×
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              className="tax-tag-btn tax-tag-add-btn"
-              onClick={() => setShowInput((prev) => ({ ...prev, [type]: true }))}
-            >
-              + Add {meta.label.toLowerCase()}
-            </button>
-          )}
+      <section className="tax-card">
+        <div className="tax-table-wrapper">
+          <table className="tax-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Category</th>
+              
+                <th>Description</th>
+                <th>Banner</th>
+                {/* <th>Featured</th> */}
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {category.map((item) => (
+                <tr key={item.id}>
+                  <td>
+                    <img
+                      src={item.image || "/dummy_image.jfif"}
+                      alt={item.category}
+                      className="tax-table-thumb"
+                    />
+                  </td>
+                  <td className="tax-table-category-name">{item.category}</td>
+                 
+              <td className="tax-table-desc" title={item.description || ""}>
+  {item.description
+    ? item.description.split(" ").slice(0, 6).join(" ") + (item.description.split(" ").length > 6 ? "..." : "")
+    : "—"}
+</td>
+                  <td>
+                    <img
+                      src={item.banner || "/dummy_image.jfif"}
+                      alt={`${item.category} banner`}
+                      className="tax-table-thumb"
+                    />
+                  </td>
+                  {/* <td>
+                    {item.is_featured && (
+                      <span className="tax-featured-badge">★ Featured</span>
+                    )}
+                  </td> */}
+                  <td>
+                    <span className={`tax-status-badge ${item.status ? "active" : "inactive"}`}>
+                      {item.status ? "Active" : "Inactive"}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="tax-table-actions">
+                      <button type="button" className="tax-table-edit-btn" onClick={() => openEditModal(item)}>
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        className="tax-table-delete-btn"
+                        onClick={(e) => handleDelete(item.id, e, item.category)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
     );
@@ -353,29 +283,32 @@ export default function AddCategory() {
   return (
     <div className="tax-page">
       <header className="tax-header">
-      
         <div className="tax-header-center">
           <h2>Manage Category</h2>
-          <p className="tax-subtitle">
-            Add, edit, or remove categories, colors, sizes, and specifications.
-          </p>
+          <p className="tax-subtitle">Add, edit, or remove categories.</p>
         </div>
-        <button onClick={() => navigate("/admin/dashboard")} className="tax-done-btn">
-          Done
-        </button>
+        <div className="tax-header-actions">
+          <button
+            type="button"
+            className="tax-header-add-btn"
+            onClick={() => setShowAddCategoryModal(true)}
+          >
+            + Add Category
+          </button>
+          {/* <button onClick={() => navigate("/admin/dashboard")} className="tax-done-btn">
+            Done
+          </button> */}
+        </div>
       </header>
 
       {loading ? (
         <div className="tax-loading-state">
           <div className="btn-spinner" style={{ borderTopColor: "#7c3aed", width: 28, height: 28 }} />
-          <span>Loading taxonomy items…</span>
+          <span>Loading category items…</span>
         </div>
       ) : (
         <div className="tax-grid-layout">
-          {renderSection("category", category, "category_name")}
-          {renderSection("color", color, "color")}
-          {renderSection("size", sizes, "size")}
-          {renderSection("spec", specifications, "specification")}
+          {renderCategorySection()}
         </div>
       )}
 
@@ -552,42 +485,129 @@ export default function AddCategory() {
         </div>
       )}
 
-      {showModal && (
-        <div className="tax-modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="tax-glass-modal tax-modal-sm" onClick={(e) => e.stopPropagation()}>
-            <div className="tax-modal-header">
-              <div>
-                <h3>Edit {SECTION_META[editType]?.label}</h3>
-                <p>Update taxonomy value</p>
-              </div>
-              <button className="tax-modal-close-btn" onClick={() => setShowModal(false)}>
-                ×
-              </button>
-            </div>
-            <div className="tax-modal-body">
-              <div className="form-group">
-                <label>{SECTION_META[editType]?.label} Name</label>
-                <input
-                  type="text"
-                  autoFocus
-                  value={inputs[editType]}
-                  onChange={(e) => setInputs({ ...inputs, [editType]: e.target.value })}
-                  onKeyDown={(e) => e.key === "Enter" && handleUpdate()}
-                />
-              </div>
+     {showModal && (
+  <div className="tax-modal-overlay" onClick={() => !editSubmitting && setShowModal(false)}>
+    <div className="tax-glass-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="tax-modal-header">
+        <div>
+          <h3>Edit Category</h3>
+          <p>Update category value</p>
+        </div>
+        <button className="tax-modal-close-btn" onClick={() => setShowModal(false)} disabled={editSubmitting}>
+          ×
+        </button>
+      </div>
+      <div className="tax-modal-body">
+        {editError && <div className="form-error">{editError}</div>}
 
-              <div className="modal-actions">
-                <button className="cancel-btn" onClick={() => setShowModal(false)}>
-                  Cancel
-                </button>
-                <button className="save-btn" onClick={handleUpdate}>
-                  Save Changes
-                </button>
-              </div>
+        <div className="form-row">
+          <div className="form-group">
+            <label>Category Name *</label>
+            <input
+              type="text"
+              autoFocus
+              value={editForm.category}
+              onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+            />
+          </div>
+          <div className="form-group">
+            <label>Status</label>
+            <select
+              value={editForm.status ? "true" : "false"}
+              onChange={(e) => setEditForm({ ...editForm, status: e.target.value === "true" })}
+            >
+              <option value="true">Active</option>
+              <option value="false">Inactive</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label>Description</label>
+          <textarea
+            value={editForm.description}
+            onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Featured Category</label>
+          <select
+            value={editForm.is_featured ? "true" : "false"}
+            onChange={(e) => setEditForm({ ...editForm, is_featured: e.target.value === "true" })}
+          >
+            <option value="false">No</option>
+            <option value="true">Yes</option>
+          </select>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label>Category Image</label>
+            <div className="file-upload-wrapper">
+              <label className="file-upload-label">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setEditForm({ ...editForm, image: e.target.files[0] || null })}
+                />
+                {editForm.image ? (
+                  <img src={URL.createObjectURL(editForm.image)} alt="Preview" className="file-preview-img" />
+                ) : editForm.existingImage ? (
+                  <img src={editForm.existingImage} alt="Current" className="file-preview-img" />
+                ) : (
+                  <>
+                    <span className="upload-icon">🖼️</span>
+                    <span>Choose Image</span>
+                  </>
+                )}
+              </label>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Banner Image</label>
+            <div className="file-upload-wrapper">
+              <label className="file-upload-label">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setEditForm({ ...editForm, banner: e.target.files[0] || null })}
+                />
+                {editForm.banner ? (
+                  <img src={URL.createObjectURL(editForm.banner)} alt="Preview" className="file-preview-img" />
+                ) : editForm.existingBanner ? (
+                  <img src={editForm.existingBanner} alt="Current" className="file-preview-img" />
+                ) : (
+                  <>
+                    <span className="upload-icon">🖼️</span>
+                    <span>Choose Banner</span>
+                  </>
+                )}
+              </label>
             </div>
           </div>
         </div>
-      )}
+
+        <div className="modal-actions">
+          <button className="cancel-btn" onClick={() => setShowModal(false)} disabled={editSubmitting}>
+            Cancel
+          </button>
+          <button className="save-btn" onClick={handleUpdate} disabled={editSubmitting}>
+            {editSubmitting ? (
+              <>
+                <div className="btn-spinner" />
+                Saving…
+              </>
+            ) : (
+              "Save Changes"
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
       {deleteConfirm && (
         <div className="tax-modal-overlay" onClick={() => setDeleteConfirm(null)}>

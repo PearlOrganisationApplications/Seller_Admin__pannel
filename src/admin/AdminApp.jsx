@@ -25,7 +25,7 @@ import SellerPendingRequests from "./pages/SellerPendingRequests";
 import Tearms from "./pages/Terms";
 import Notifications from "./pages/Notifications";
 import Rating from "./pages/Rating";
-
+import Products from "./pages/Product";
 export default function AdminApp() {
   return (
     <>
@@ -77,6 +77,7 @@ export default function AdminApp() {
           <Route path="terms-policies" element={<Tearms />} />
           <Route path="notifications" element={<Notifications />} />
           <Route path="ratings" element={<Rating />} />
+          <Route path="/products" element={<Products />} />
           <Route
             path="*"
             element={

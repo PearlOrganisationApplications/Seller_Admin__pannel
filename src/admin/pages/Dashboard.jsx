@@ -229,7 +229,7 @@ const Dashboard = () => {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-white/30 backdrop-blur-md text-gray-700">
+              <tr className="bg-white/10  text-red-700">
                 <th className="px-6 py-4 text-left font-semibold">Pincode</th>
                 <th className="px-6 py-4 text-left font-semibold">Orders</th>
                 <th className="px-6 py-4 text-left font-semibold">Revenue</th>

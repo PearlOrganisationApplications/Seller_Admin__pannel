@@ -35,8 +35,7 @@ function PrivateRoute({ children, requiredType }) {
   }
 
   if (requiredType && userType !== requiredType) {
-    // If admin tries to access seller path, send to admin.
-    // If seller tries to access admin path, send to seller.
+   
     const redirectPath =
       userType === "admin" ? "/admin/dashboard" : "/seller/dashboard";
     return <Navigate to={redirectPath} replace />;
