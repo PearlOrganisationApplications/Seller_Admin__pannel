@@ -1,5 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import AdminLayout from "./layouts/AdminLayout";
 
 // IMPORT ALL YOUR PAGES
@@ -25,7 +27,8 @@ import SellerPendingRequests from "./pages/SellerPendingRequests";
 import Tearms from "./pages/Terms";
 import Notifications from "./pages/Notifications";
 import Rating from "./pages/Rating";
-import Products from "./pages/Product";
+import Products from "./pages/Product/Product";
+import Variants from "./pages/Product/Variants";
 export default function AdminApp() {
   return (
     <>
@@ -48,7 +51,14 @@ export default function AdminApp() {
           },
         }}
       />
-
+<ToastContainer
+  position="top-right"
+  autoClose={3000}
+  hideProgressBar={false}
+  newestOnTop
+  closeOnClick
+  pauseOnHover
+/>
       <AdminLayout>
         <Routes>
           <Route index element={<Navigate to="dashboard" replace />} />
@@ -78,6 +88,7 @@ export default function AdminApp() {
           <Route path="notifications" element={<Notifications />} />
           <Route path="ratings" element={<Rating />} />
           <Route path="/products" element={<Products />} />
+          <Route path="/product-variants" element={<Variants />} />
           <Route
             path="*"
             element={
@@ -87,5 +98,6 @@ export default function AdminApp() {
         </Routes>
       </AdminLayout>
     </>
+    
   );
 }

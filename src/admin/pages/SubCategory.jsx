@@ -96,8 +96,7 @@ const fetchSubCategories = async () => {
       return;
     }
 
-    // Keys here must exactly match what the backend expects
-    // (snake_case category_id, no separate "name" field).
+   
     const payload = new FormData();
     payload.append("category_id", formData.categoryId);
     payload.append("subcategory", formData.subcategory);

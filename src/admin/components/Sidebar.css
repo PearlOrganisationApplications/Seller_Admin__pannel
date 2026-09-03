@@ -220,7 +220,72 @@
   font-weight: 600;
   white-space: nowrap;
 }
+/* ===========================
+   PRODUCT SUBMENU
+=========================== */
 
+.sidebar-submenu {
+  list-style: none;
+  padding: 4px 0 6px 42px;
+  margin: 0;
+}
+
+.sidebar-submenu li {
+  margin: 3px 0;
+}
+
+.sidebar-sublink {
+  display: block;
+  padding: 10px 12px;
+  text-decoration: none;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+/* Small line/dot before submenu item */
+.sidebar-sublink::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--blue);
+  transform: translateY(-50%);
+}
+
+/* Hover */
+.sidebar-sublink:hover {
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--blue);
+  transform: translateX(4px);
+}
+
+/* Active submenu */
+.sidebar-sublink.active {
+  background: linear-gradient(
+    135deg,
+    var(--light-blue),
+    var(--light-purple)
+  );
+  color: var(--blue);
+  font-weight: 600;
+}
+
+/* Product parent */
+.sidebar-item > .sidebar-link {
+  cursor: pointer;
+}
+
+/* Collapsed sidebar - hide submenu */
+.sidebar.collapsed .sidebar-submenu {
+  display: none;
+}
 /* Collapse Button */
 .collapse-toggle {
   width: 38px;

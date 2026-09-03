@@ -1,0 +1,471 @@
+
+
+.variant-popup-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 9999;
+  padding: 20px;
+
+  animation: variantOverlayFade 0.2s ease;
+}
+
+
+/* ================================
+   POPUP CONTAINER
+================================ */
+
+.variant-popup {
+  width: 100%;
+  max-width: 720px;
+  max-height: 90vh;
+
+  background: #ffffff;
+  border-radius: 18px;
+
+  overflow-y: auto;
+
+  box-shadow:
+    0 20px 50px rgba(15, 23, 42, 0.18),
+    0 8px 20px rgba(15, 23, 42, 0.08);
+
+  animation: variantPopupScale 0.25s ease;
+
+  position: relative;
+}
+
+
+/* ================================
+   POPUP SCROLLBAR
+================================ */
+
+.variant-popup::-webkit-scrollbar {
+  width: 6px;
+}
+
+.variant-popup::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.variant-popup::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.variant-popup::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+
+/* ================================
+   HEADER
+================================ */
+
+.variant-popup-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  padding: 22px 24px;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  position: sticky;
+  top: 0;
+
+  background: #ffffff;
+
+  z-index: 5;
+}
+
+
+.variant-popup-header h2 {
+  margin: 0;
+
+  font-size: 21px;
+  font-weight: 700;
+
+  color: #111827;
+  line-height: 1.3;
+}
+
+
+.variant-popup-header p {
+  margin: 5px 0 0;
+
+  font-size: 13px;
+  color: #6b7280;
+}
+
+
+/* ================================
+   CLOSE ICON BUTTON
+================================ */
+
+.variant-popup-close {
+  width: 36px;
+  height: 36px;
+
+  border: none;
+  border-radius: 9px;
+
+  background: #f3f4f6;
+  color: #4b5563;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.variant-popup-close:hover {
+  background: #fee2e2;
+  color: #dc2626;
+
+  transform: rotate(90deg);
+}
+
+
+/* ================================
+   PRODUCT SECTION
+================================ */
+
+.variant-popup-product {
+  margin: 22px 24px;
+
+  padding: 18px;
+
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  background: #f8fafc;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+}
+
+
+.variant-popup-product img {
+  width: 82px;
+  height: 82px;
+
+  object-fit: cover;
+
+  border-radius: 12px;
+
+  border: 1px solid #e5e7eb;
+
+  background: #ffffff;
+}
+
+
+.variant-popup-product h3 {
+  margin: 0 0 6px;
+
+  font-size: 17px;
+  font-weight: 700;
+
+  color: #111827;
+}
+
+
+.variant-popup-product span {
+  display: block;
+
+  font-size: 13px;
+  color: #6b7280;
+}
+
+
+/* ================================
+   DETAILS GRID
+================================ */
+
+.variant-details-grid {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 14px;
+
+  padding: 0 24px 22px;
+}
+
+
+/* ================================
+   DETAIL ITEM
+================================ */
+
+.variant-detail-item {
+  padding: 15px 16px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+
+  background: #ffffff;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.variant-detail-item:hover {
+  border-color: #cbd5e1;
+
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+}
+
+
+.variant-detail-item span {
+  font-size: 12px;
+
+  font-weight: 500;
+
+  color: #6b7280;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.4px;
+}
+
+
+.variant-detail-item strong {
+  font-size: 15px;
+
+  font-weight: 600;
+
+  color: #111827;
+
+  word-break: break-word;
+}
+
+
+/* ================================
+   FOOTER
+================================ */
+
+.variant-popup-footer {
+  display: flex;
+  justify-content: flex-end;
+
+  padding: 16px 24px;
+
+  border-top: 1px solid #e5e7eb;
+
+  background: #ffffff;
+
+  position: sticky;
+  bottom: 0;
+
+  z-index: 5;
+}
+
+
+/* ================================
+   CLOSE BUTTON
+================================ */
+
+.variant-popup-close-btn {
+  min-width: 90px;
+
+  padding: 10px 18px;
+
+  border: none;
+  border-radius: 9px;
+
+  background: #111827;
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.variant-popup-close-btn:hover {
+  background: #1f2937;
+
+  transform: translateY(-1px);
+}
+
+
+.variant-popup-close-btn:active {
+  transform: translateY(0);
+}
+
+
+/* ================================
+   ANIMATIONS
+================================ */
+
+@keyframes variantOverlayFade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+
+@keyframes variantPopupScale {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+
+/* ================================
+   TABLET
+================================ */
+
+@media (max-width: 768px) {
+  .variant-popup-overlay {
+    padding: 14px;
+  }
+
+  .variant-popup {
+    max-width: 100%;
+    max-height: 92vh;
+
+    border-radius: 15px;
+  }
+
+  .variant-popup-header {
+    padding: 18px 18px;
+  }
+
+  .variant-popup-product {
+    margin: 18px;
+    padding: 15px;
+  }
+
+  .variant-details-grid {
+    padding: 0 18px 18px;
+
+    gap: 10px;
+  }
+
+  .variant-popup-footer {
+    padding: 14px 18px;
+  }
+}
+
+
+/* ================================
+   MOBILE
+================================ */
+
+@media (max-width: 560px) {
+  .variant-popup-overlay {
+    padding: 10px;
+    align-items: center;
+  }
+
+  .variant-popup {
+    max-height: 94vh;
+
+    border-radius: 14px;
+  }
+
+  .variant-popup-header {
+    padding: 16px;
+  }
+
+  .variant-popup-header h2 {
+    font-size: 18px;
+  }
+
+  .variant-popup-header p {
+    font-size: 12px;
+  }
+
+  .variant-popup-close {
+    width: 32px;
+    height: 32px;
+  }
+
+  .variant-popup-product {
+    margin: 15px;
+    padding: 13px;
+
+    gap: 12px;
+  }
+
+  .variant-popup-product img {
+    width: 65px;
+    height: 65px;
+  }
+
+  .variant-popup-product h3 {
+    font-size: 15px;
+  }
+
+  .variant-popup-product span {
+    font-size: 11px;
+  }
+
+  .variant-details-grid {
+    grid-template-columns: 1fr;
+
+    padding: 0 15px 15px;
+
+    gap: 9px;
+  }
+
+  .variant-detail-item {
+    padding: 13px 14px;
+  }
+
+  .variant-detail-item span {
+    font-size: 11px;
+  }
+
+  .variant-detail-item strong {
+    font-size: 14px;
+  }
+
+  .variant-popup-footer {
+    padding: 13px 15px;
+  }
+
+  .variant-popup-close-btn {
+    width: 100%;
+  }
+}
+

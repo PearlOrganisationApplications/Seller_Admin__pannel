@@ -1,0 +1,494 @@
+/* =================================
+   OVERLAY
+================================= */
+
+.add-variant-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+
+  background: rgba(15, 23, 42, 0.55);
+
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  z-index: 9999;
+
+  animation: addVariantOverlay 0.2s ease;
+}
+
+
+/* =================================
+   POPUP
+================================= */
+
+.add-variant-popup {
+  width: 100%;
+  max-width: 720px;
+  max-height: 90vh;
+
+  background: #ffffff;
+
+  border-radius: 18px;
+
+  overflow-y: auto;
+
+  box-shadow:
+    0 25px 60px rgba(15, 23, 42, 0.2);
+
+  animation: addVariantPopup 0.25s ease;
+}
+
+
+/* =================================
+   SCROLLBAR
+================================= */
+
+.add-variant-popup::-webkit-scrollbar {
+  width: 6px;
+}
+
+.add-variant-popup::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.add-variant-popup::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+
+/* =================================
+   HEADER
+================================= */
+
+.add-variant-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  padding: 22px 24px;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  position: sticky;
+  top: 0;
+
+  background: #ffffff;
+
+  z-index: 10;
+}
+
+.add-variant-header h2 {
+  margin: 0;
+
+  font-size: 21px;
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.add-variant-header p {
+  margin: 5px 0 0;
+
+  font-size: 13px;
+
+  color: #6b7280;
+}
+
+
+/* =================================
+   CLOSE BUTTON
+================================= */
+
+.add-variant-close {
+  width: 36px;
+  height: 36px;
+
+  border: none;
+
+  border-radius: 9px;
+
+  background: #f3f4f6;
+
+  color: #4b5563;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.add-variant-close:hover {
+  background: #fee2e2;
+  color: #dc2626;
+
+  transform: rotate(90deg);
+}
+
+
+/* =================================
+   FORM
+================================= */
+
+.add-variant-form {
+  padding: 24px;
+
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 18px;
+}
+
+
+/* =================================
+   FORM GROUP
+================================= */
+
+.form-group {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-size: 13px;
+
+  font-weight: 600;
+
+  color: #374151;
+}
+
+.form-group label span {
+  color: #ef4444;
+}
+
+
+/* =================================
+   INPUT + SELECT
+================================= */
+
+.form-group input,
+.form-group select {
+  width: 100%;
+
+  height: 44px;
+
+  padding: 0 13px;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #111827;
+
+  font-size: 13px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.form-group input::placeholder {
+  color: #9ca3af;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #6366f1;
+
+  box-shadow:
+    0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+
+/* =================================
+   IMAGE UPLOAD
+================================= */
+
+.image-upload-box {
+  min-height: 150px;
+
+  border: 1.5px dashed #cbd5e1;
+
+  border-radius: 12px;
+
+  background: #f8fafc;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+}
+
+.upload-label {
+  width: 100%;
+  min-height: 150px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  color: #64748b;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.upload-label:hover {
+  background: #f1f5f9;
+
+  color: #4f46e5;
+}
+
+.upload-label span {
+  font-size: 14px;
+
+  font-weight: 600;
+}
+
+.upload-label small {
+  font-size: 11px;
+
+  color: #94a3b8;
+}
+
+
+/* =================================
+   IMAGE PREVIEW
+================================= */
+
+.image-preview-wrapper {
+  position: relative;
+
+  padding: 12px;
+}
+
+.variant-image-preview {
+  width: 130px;
+  height: 130px;
+
+  object-fit: cover;
+
+  border-radius: 10px;
+
+  border: 1px solid #e5e7eb;
+}
+
+.remove-preview-btn {
+  position: absolute;
+
+  top: 5px;
+  right: 5px;
+
+  width: 28px;
+  height: 28px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: #ef4444;
+
+  color: #ffffff;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}
+
+
+/* =================================
+   FOOTER
+================================= */
+
+.add-variant-footer {
+  display: flex;
+
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  padding: 16px 24px;
+
+  border-top: 1px solid #e5e7eb;
+
+  background: #ffffff;
+
+  position: sticky;
+  bottom: 0;
+
+  z-index: 10;
+}
+
+
+/* =================================
+   BUTTONS
+================================= */
+
+.cancel-variant-btn,
+.save-variant-btn {
+  height: 40px;
+
+  padding: 0 18px;
+
+  border-radius: 8px;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.cancel-variant-btn {
+  border: 1px solid #d1d5db;
+
+  background: #ffffff;
+
+  color: #374151;
+}
+
+.cancel-variant-btn:hover {
+  background: #f3f4f6;
+}
+
+.save-variant-btn {
+  border: none;
+
+  background: #4f46e5;
+
+  color: #ffffff;
+}
+
+.save-variant-btn:hover {
+  background: #4338ca;
+}
+
+.save-variant-btn:disabled,
+.cancel-variant-btn:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+}
+
+
+/* =================================
+   ANIMATION
+================================= */
+
+@keyframes addVariantOverlay {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes addVariantPopup {
+  from {
+    opacity: 0;
+
+    transform: scale(0.96) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: scale(1) translateY(0);
+  }
+}
+
+
+/* =================================
+   TABLET
+================================= */
+
+@media (max-width: 700px) {
+  .add-variant-form {
+    grid-template-columns: 1fr;
+  }
+
+  .form-group.full-width {
+    grid-column: auto;
+  }
+}
+
+
+/* =================================
+   MOBILE
+================================= */
+
+@media (max-width: 480px) {
+  .add-variant-overlay {
+    padding: 10px;
+  }
+
+  .add-variant-popup {
+    max-height: 94vh;
+
+    border-radius: 14px;
+  }
+
+  .add-variant-header {
+    padding: 17px;
+  }
+
+  .add-variant-header h2 {
+    font-size: 18px;
+  }
+
+  .add-variant-form {
+    padding: 17px;
+
+    gap: 14px;
+  }
+
+  .add-variant-footer {
+    padding: 14px 17px;
+
+    flex-direction: column-reverse;
+  }
+
+  .cancel-variant-btn,
+  .save-variant-btn {
+    width: 100%;
+  }
+}

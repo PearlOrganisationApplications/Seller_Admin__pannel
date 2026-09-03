@@ -1,7 +1,6 @@
 
-
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { getCategories, getSubCategoriesByCategory } from "../api/addCategoryApi";
+import { getCategories, getSubCategoriesByCategory } from "../../api/addCategoryApi";
 import {
   FaSearch,
   FaEye,
@@ -16,13 +15,12 @@ import {
   FaTimesCircle,
   FaStar,
   FaFire,
-  FaPlus,
+  FaPlus,FaEdit ,
 } from "react-icons/fa";
-
-import "./BarChart/Product.css";
+import EditProductPopup from "./EditProductPopup";
+import "./Product.css";
 import { toast } from "react-toastify";
-import { getProducts ,addProduct } from "../api/product";
-
+import { getProducts, addProduct ,deleteProduct ,updateProduct} from "../../api/product";
 
 
 function CustomDropdown({ value, options, onChange, placeholder = "All" }) {
@@ -55,9 +53,8 @@ function CustomDropdown({ value, options, onChange, placeholder = "All" }) {
           {options.map((opt) => (
             <li
               key={opt.value}
-              className={`custom-dropdown-item ${
-                opt.value === value ? "active" : ""
-              }`}
+              className={`custom-dropdown-item ${opt.value === value ? "active" : ""
+                }`}
               onClick={() => {
                 onChange(opt.value);
                 setOpen(false);
@@ -87,110 +84,118 @@ export default function Products() {
   const [lastPage, setLastPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
   const [perPage, setPerPage] = useState(20);
-const [showAddProduct, setShowAddProduct] = useState(false);
-const [categoryList, setCategoryList] = useState([]);
-const [subcategories, setSubcategories] = useState([]);
-const [productForm, setProductForm] = useState({
-category_id: "",
-subcategory_id: "",
-  name: "",
-  brand: "",
-  description: "",
-  cost_price: "",
-  mrp:"" ,
-  estimated_selling_price:"",
-  price: "",
-  shipping_fee: "",
-  stock: "",
-  status: "",
-  is_featured: "",
-  is_bestseller: "",
-  is_new: "",
-  is_trending: "",
-  allow_return: "",
-  return_window_days: "",
-  image: null,
-});
+  const [showAddProduct, setShowAddProduct] = useState(false);
 
-const fetchCategories = async () => {
-  try {
-    const response = await getCategories();
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const [deleteProductId, setDeleteProductId] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
-    console.log("Category API Response:", response);
+  const [showEditProduct, setShowEditProduct] = useState(false);
+const [editProductId, setEditProductId] = useState(null);
+const [editLoading, setEditLoading] = useState(false);
+  const [categoryList, setCategoryList] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
+  const [productForm, setProductForm] = useState({
+    category_id: "",
+    subcategory_id: "",
+    name: "",
+    brand: "",
+    description: "",
+    cost_price: "",
+    mrp: "",
+    estimated_selling_price: "",
+    price: "",
+    shipping_fee: "",
+    stock: "",
+    status: "",
+    is_featured: "",
+    is_bestseller: "",
+    is_new: "",
+    is_trending: "",
+    allow_return: "",
+    return_window_days: "",
+    image: null,
+  });
 
-    if (response?.status) {
-      const data = Array.isArray(response?.data)
-        ? response.data
-        : response?.data?.data || [];
+  const fetchCategories = async () => {
+    try {
+      const response = await getCategories();
 
-      setCategoryList(data);
+      console.log("Category API Response:", response);
+
+      if (response?.status) {
+        const data = Array.isArray(response?.data)
+          ? response.data
+          : response?.data?.data || [];
+
+        setCategoryList(data);
+      }
+    } catch (error) {
+      console.error("Category API Error:", error);
+      setCategoryList([]);
     }
-  } catch (error) {
-    console.error("Category API Error:", error);
-    setCategoryList([]);
-  }
-};
+  };
 
-const fetchSubcategories = async (categoryId) => {
-  if (!categoryId) {
-    setSubcategories([]);
-    return;
-  }
+  const fetchSubcategories = async (categoryId) => {
+    if (!categoryId) {
+      setSubcategories([]);
+      return;
+    }
 
-  try {
-    const response = await getSubCategoriesByCategory(categoryId);
+    try {
+      const response = await getSubCategoriesByCategory(categoryId);
 
-    console.log("Subcategory API Response:", response);
+      console.log("Subcategory API Response:", response);
 
-   if (response?.status && Array.isArray(response?.data)) {
-  setSubcategories(response.data);
-} else {
-  setSubcategories([]);
-}
-  } catch (error) {
-    console.error("Subcategory API Error:", error);
-    setSubcategories([]);
-  }
-};
- const fetchProducts = async (page = 1) => {
-  try {
-    setLoading(true);
-    setError("");
+      if (response?.status && Array.isArray(response?.data)) {
+        setSubcategories(response.data);
+      } else {
+        setSubcategories([]);
+      }
+    } catch (error) {
+      console.error("Subcategory API Error:", error);
+      setSubcategories([]);
+    }
+  };
+  const fetchProducts = async (page = 1) => {
+    try {
+      setLoading(true);
+      setError("");
 
-    const response = await getProducts(page);
+      const response = await getProducts(page);
 
-    console.log("Products API Response:", response);
+      console.log("Products API Response:", response);
 
-    if (response?.status) {
-      const productData = response?.data;
+      if (response?.status) {
+        const productData = response?.data;
 
-      setProducts(productData?.data || []);
-      setCurrentPage(productData?.current_page || 1);
-      setLastPage(productData?.last_page || 1);
-      setTotalProducts(productData?.total || 0);
-      setPerPage(productData?.per_page || 20);
-    } else {
-      setProducts([]);
+        setProducts(productData?.data || []);
+        setCurrentPage(productData?.current_page || 1);
+        setLastPage(productData?.last_page || 1);
+        setTotalProducts(productData?.total || 0);
+        setPerPage(productData?.per_page || 20);
+      } else {
+        setProducts([]);
+        setError(
+          response?.message || "Failed to fetch products."
+        );
+      }
+    } catch (err) {
+      console.error("Products API Error:", err);
+
       setError(
-        response?.message || "Failed to fetch products."
-      );
-    }
-  } catch (err) {
-    console.error("Products API Error:", err);
-
-    setError(
-      err?.response?.data?.message ||
+        err?.response?.data?.message ||
         err?.message ||
         "Something went wrong while fetching products."
-    );
-  } finally {
-    setLoading(false);
-  }
-};
-useEffect(() => {
-  fetchProducts(1);
-  fetchCategories();
-}, []);
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchProducts(1);
+    fetchCategories();
+  }, []);
 
   const categories = useMemo(() => {
     const uniqueCategories = products
@@ -290,24 +295,128 @@ useEffect(() => {
     fetchProducts(page);
   };
 
-const handleAddProduct = async () => {
+  const handleAddProduct = async () => {
+    try {
+      const formData = new FormData();
+
+      Object.keys(productForm).forEach((key) => {
+        if (productForm[key] !== null && productForm[key] !== "") {
+          formData.append(key, productForm[key]);
+        }
+      });
+
+      const response = await addProduct(formData);
+
+      console.log("Add Product API Response:", response);
+
+      if (response?.status || response?.success) {
+        toast.success(response?.message || "Product added successfully!");
+
+        setShowAddProduct(false);
+
+        setProductForm({
+          category_id: "",
+          subcategory_id: "",
+          name: "",
+          brand: "",
+          description: "",
+          cost_price: "",
+          mrp: "",
+          estimated_selling_price: "",
+          price: "",
+          shipping_fee: "",
+          stock: "",
+          status: "",
+          is_featured: "",
+          is_bestseller: "",
+          is_new: "",
+          is_trending: "",
+          allow_return: "",
+          return_window_days: "",
+          image: null,
+        });
+
+        setSubcategories([]);
+
+        fetchProducts(currentPage);
+      } else {
+        toast.error(response?.message || "Failed to add product.");
+      }
+    } catch (error) {
+      console.error("Add Product Error:", error);
+
+      toast.error(
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong while adding product."
+      );
+    }
+  };
+  const handleDeleteProduct = async () => {
+    if (!deleteProductId) return;
+
+    try {
+      setDeleteLoading(true);
+
+      const response = await deleteProduct(deleteProductId);
+
+      if (response?.status || response?.success) {
+        toast.success(
+          response?.message || "Product deleted successfully!"
+        );
+
+        setShowDeletePopup(false);
+        setDeleteProductId(null);
+
+        // Refresh product list
+        fetchProducts(currentPage);
+      } else {
+        toast.error(
+          response?.message || "Failed to delete product."
+        );
+      }
+    } catch (error) {
+      console.error("Delete Product Error:", error);
+
+      toast.error(
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong while deleting product."
+      );
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+const handleEditProduct = async () => {
+  if (!editProductId) return;
+
   try {
+    setEditLoading(true);
+
     const formData = new FormData();
 
     Object.keys(productForm).forEach((key) => {
-      if (productForm[key] !== null && productForm[key] !== "") {
+      if (
+        productForm[key] !== null &&
+        productForm[key] !== ""
+      ) {
         formData.append(key, productForm[key]);
       }
     });
 
-    const response = await addProduct(formData);
-
-    console.log("Add Product API Response:", response);
+    const response = await updateProduct(
+      editProductId,
+      formData
+    );
 
     if (response?.status || response?.success) {
-      toast.success(response?.message || "Product added successfully!");
+      toast.success(
+        response?.message || "Product updated successfully!"
+      );
 
-      setShowAddProduct(false);
+      setShowEditProduct(false);
+      setEditProductId(null);
 
       setProductForm({
         category_id: "",
@@ -332,22 +441,24 @@ const handleAddProduct = async () => {
       });
 
       setSubcategories([]);
-
       fetchProducts(currentPage);
     } else {
-      toast.error(response?.message || "Failed to add product.");
+      toast.error(
+        response?.message || "Failed to update product."
+      );
     }
   } catch (error) {
-    console.error("Add Product Error:", error);
+    console.error("Update Product Error:", error);
 
     toast.error(
       error?.response?.data?.message ||
-        error?.message ||
-        "Something went wrong while adding product."
+      error?.message ||
+      "Something went wrong while updating product."
     );
+  } finally {
+    setEditLoading(false);
   }
 };
-  /* ================= RESET FILTERS ================= */
 
   const resetFilters = () => {
     setSearch("");
@@ -360,7 +471,47 @@ const handleAddProduct = async () => {
   const openProductDetails = (product) => {
     setSelectedProduct(product);
   };
+const openEditProduct = (product) => {
+  const categoryId =
+    product?.category_id || product?.category?.id || "";
 
+  const subcategoryId =
+    product?.subcategory_id ||
+    product?.subcategory?.id ||
+    "";
+
+  setEditProductId(product.id);
+
+  setProductForm({
+    category_id: categoryId,
+    subcategory_id: subcategoryId,
+    name: product?.name || "",
+    brand: product?.brand || "",
+    description: product?.description || "",
+    cost_price: product?.cost_price ?? "",
+    mrp: product?.mrp ?? "",
+    estimated_selling_price:
+      product?.estimated_selling_price ?? "",
+    price: product?.price ?? "",
+    shipping_fee: product?.shipping_fee ?? "",
+    stock: product?.stock ?? "",
+    status: product?.status ? 1 : 0,
+    is_featured: product?.is_featured ? 1 : 0,
+    is_bestseller: product?.is_bestseller ? 1 : 0,
+    is_new: product?.is_new ? 1 : 0,
+    is_trending: product?.is_trending ? 1 : 0,
+    allow_return: product?.allow_return ? 1 : 0,
+    return_window_days:
+      product?.return_window_days ?? "",
+    image: null,
+  });
+
+  if (categoryId) {
+    fetchSubcategories(categoryId);
+  }
+
+  setShowEditProduct(true);
+};
   const closeProductDetails = () => {
     setSelectedProduct(null);
   };
@@ -418,14 +569,14 @@ const handleAddProduct = async () => {
 
         <div className="tax-header-actions">
 
-       <button
-  type="button"
-  className="add-product-btn"
-  onClick={() => setShowAddProduct(true)}
->
-  <FaPlus />
-  <span>Add Product</span>
-</button>
+          <button
+            type="button"
+            className="add-product-btn"
+            onClick={() => setShowAddProduct(true)}
+          >
+            <FaPlus />
+            <span>Add Product</span>
+          </button>
         </div>
 
       </header>
@@ -525,15 +676,15 @@ const handleAddProduct = async () => {
               placeholder="Search product, UID, seller, category..."
               value={search}
 
-            onChange={(e) => {
-  const categoryId = e.target.value;
+              onChange={(e) => {
+                const categoryId = e.target.value;
 
-  setProductForm({
-    ...productForm,
-    category_id: categoryId,
-    subcategory_id: "",
-  });
-}}
+                setProductForm({
+                  ...productForm,
+                  category_id: categoryId,
+                  subcategory_id: "",
+                });
+              }}
 
               className="product-search-input"
             />
@@ -551,45 +702,45 @@ const handleAddProduct = async () => {
 
           {/* STATUS */}
 
-        {/* ✅ iski jagah yeh daal do */}
-<CustomDropdown
-  value={statusFilter}
-  onChange={(val) => {
-    setStatusFilter(val);
-    setCurrentPage(1);
-  }}
-  options={[
-    { value: "all", label: "All Status" },
-    { value: "active", label: "Active" },
-    { value: "inactive", label: "Inactive" },
-  ]}
-/>
+          {/* ✅ iski jagah yeh daal do */}
+          <CustomDropdown
+            value={statusFilter}
+            onChange={(val) => {
+              setStatusFilter(val);
+              setCurrentPage(1);
+            }}
+            options={[
+              { value: "all", label: "All Status" },
+              { value: "active", label: "Active" },
+              { value: "inactive", label: "Inactive" },
+            ]}
+          />
           {/* CATEGORY */}
 
-        <CustomDropdown
-  value={categoryFilter}
-  onChange={(val) => {
-    setCategoryFilter(val);
-    setCurrentPage(1);
-  }}
-  options={[
-    { value: "all", label: "All Categories" },
-    ...categories.map((category) => ({ value: category, label: category })),
-  ]}
-/>
+          <CustomDropdown
+            value={categoryFilter}
+            onChange={(val) => {
+              setCategoryFilter(val);
+              setCurrentPage(1);
+            }}
+            options={[
+              { value: "all", label: "All Categories" },
+              ...categories.map((category) => ({ value: category, label: category })),
+            ]}
+          />
 
           {/* RESET */}
 
           {(search ||
             statusFilter !== "all" ||
             categoryFilter !== "all") && (
-            <button
-              className="product-reset-btn"
-              onClick={resetFilters}
-            >
-              Reset
-            </button>
-          )}
+              <button
+                className="product-reset-btn"
+                onClick={resetFilters}
+              >
+                Reset
+              </button>
+            )}
 
         </div>
 
@@ -703,11 +854,11 @@ const handleAddProduct = async () => {
 
                   <th>Price</th>
 
-              
+
 
                   <th>Discount</th>
 
-                  
+
 
                   <th>Status</th>
 
@@ -783,7 +934,7 @@ const handleAddProduct = async () => {
                             "—"}
                         </span>
 
-                       
+
 
                       </div>
 
@@ -800,7 +951,7 @@ const handleAddProduct = async () => {
                             ?.subcategory || "—"}
                         </span>
 
-                       
+
 
                       </div>
 
@@ -861,7 +1012,7 @@ const handleAddProduct = async () => {
 
                     </td>
 
-                    
+
                     {/* DISCOUNT */}
 
                     <td>
@@ -872,18 +1023,17 @@ const handleAddProduct = async () => {
 
                     </td>
 
-                   
+
 
                     {/* STATUS */}
 
                     <td>
 
                       <span
-                        className={`tax-status-badge ${
-                          product.status
+                        className={`tax-status-badge ${product.status
                             ? "active"
                             : "inactive"
-                        }`}
+                          }`}
                       >
                         {product.status ? (
                           <>
@@ -915,7 +1065,28 @@ const handleAddProduct = async () => {
                         <FaEye />
                         View
                       </button>
+                      <button
+                        type="button"
+                        className="product-delete-btn"
+                        onClick={() => {
+                          setDeleteProductId(product.id);
+                          setShowDeletePopup(true);
+                        }}
+                        title="Delete Product"
+                      >
+                        <FaTimes />
+                        Delete
+                      </button>
 
+                      <button
+  type="button"
+  className="product-edit-btn"
+  onClick={() => openEditProduct(product)}
+  title="Edit Product"
+>
+  <FaEdit />
+  Edit
+</button>
                     </td>
 
                   </tr>
@@ -978,11 +1149,10 @@ const handleAddProduct = async () => {
                     onClick={() =>
                       handlePageChange(page)
                     }
-                    className={`product-page-number ${
-                      currentPage === page
+                    className={`product-page-number ${currentPage === page
                         ? "active"
                         : ""
-                    }`}
+                      }`}
                   >
                     {page}
                   </button>
@@ -1086,11 +1256,10 @@ const handleAddProduct = async () => {
                   <div className="product-modal-badges">
 
                     <span
-                      className={`tax-status-badge ${
-                        selectedProduct.status
+                      className={`tax-status-badge ${selectedProduct.status
                           ? "active"
                           : "inactive"
-                      }`}
+                        }`}
                     >
                       {selectedProduct.status
                         ? "Active"
@@ -1414,213 +1583,322 @@ const handleAddProduct = async () => {
 
       )}
 
+{/* ================= DELETE CONFIRMATION POPUP ================= */}
 
-{showAddProduct && (
+{showDeletePopup && (
   <div
     className="tax-modal-overlay"
-    onClick={() => setShowAddProduct(false)}
+    onClick={() => {
+      if (!deleteLoading) {
+        setShowDeletePopup(false);
+        setDeleteProductId(null);
+      }
+    }}
   >
     <div
-      className="tax-glass-modal product-add-modal"
+      className="tax-glass-modal delete-confirm-modal"
       onClick={(e) => e.stopPropagation()}
     >
+
+      {/* HEADER */}
       <div className="tax-modal-header">
         <div>
-          <h3>Add Product</h3>
-          <p>Enter product details</p>
+          <h3>Delete Product</h3>
+          <p>Confirm product deletion</p>
         </div>
 
         <button
           className="tax-modal-close-btn"
-          onClick={() => setShowAddProduct(false)}
+          onClick={() => {
+            if (!deleteLoading) {
+              setShowDeletePopup(false);
+              setDeleteProductId(null);
+            }
+          }}
+          disabled={deleteLoading}
         >
           ×
         </button>
       </div>
 
-      <div className="tax-modal-body">
-        <div className="product-form-grid">
+      {/* BODY */}
+      <div className="delete-confirm-body">
 
-     <div className="product-form-group">
-  <label>Category</label>
-
-<select
-  value={productForm.category_id}
- onChange={(e) => {
-  const categoryId = e.target.value;
-
-  setProductForm({
-    ...productForm,
-    category_id: categoryId,
-    subcategory_id: "",
-  });
-
-  fetchSubcategories(categoryId);
-}}
->
-  <option value="">Select Category</option>
-
-  {Array.isArray(categoryList) &&
-    categoryList.map((category) => (
-      <option key={category.id} value={category.id}>
-        {category.category}
-      </option>
-    ))}
-</select>
-</div>
-<div className="product-form-group">
-  <label>Subcategory</label>
-
-  <select
-    value={productForm.subcategory_id}
-    onChange={(e) =>
-      setProductForm({
-        ...productForm,
-        subcategory_id: e.target.value,
-      })
-    }
-    disabled={!productForm.category_id}
-  >
-    <option value="">Select Subcategory</option>
-{subcategories.map((subcategory) => (
-    <option
-      key={subcategory.id}
-      value={subcategory.id}
-    >
-      {subcategory.subcategory}
-    </option>
-  ))}
-  </select>
-</div>
-
-          <div className="product-form-group">
-            <label>Product Name</label>
-            <input
-              type="text"
-              value={productForm.name}
-              onChange={(e) =>
-                setProductForm({
-                  ...productForm,
-                  name: e.target.value,
-                })
-              }
-            />
-          </div>
-
-          <div className="product-form-group">
-            <label>Brand</label>
-            <input
-              type="text"
-              value={productForm.brand}
-              onChange={(e) =>
-                setProductForm({
-                  ...productForm,
-                  brand: e.target.value,
-                })
-              }
-            />
-          </div>
-
-          <div className="product-form-group full-width">
-            <label>Description</label>
-            <textarea
-              value={productForm.description}
-              onChange={(e) =>
-                setProductForm({
-                  ...productForm,
-                  description: e.target.value,
-                })
-              }
-            />
-          </div>
-
-          {[
-            ["cost_price", "Cost Price"],
-            ["mrp", "MRP"],
-            ["estimated_selling_price", "Estimated Selling Price"],
-            ["price", "Price"],
-            ["shipping_fee", "Shipping Fee"],
-            ["stock", "Stock"],
-            ["return_window_days", "Return Window Days"],
-          ].map(([key, label]) => (
-            <div className="product-form-group" key={key}>
-              <label>{label}</label>
-              <input
-                type="number"
-                value={productForm[key]}
-                onChange={(e) =>
-                  setProductForm({
-                    ...productForm,
-                    [key]: e.target.value,
-                  })
-                }
-              />
-            </div>
-          ))}
-
-          {[
-            ["status", "Active Status"],
-            ["is_featured", "Featured"],
-            ["is_bestseller", "Bestseller"],
-            ["is_new", "New Product"],
-            ["is_trending", "Trending"],
-            ["allow_return", "Allow Return"],
-          ].map(([key, label]) => (
-            <div className="product-form-group" key={key}>
-              <label>{label}</label>
-
-              <select
-                value={productForm[key]}
-                onChange={(e) =>
-                  setProductForm({
-                    ...productForm,
-                    [key]: Number(e.target.value),
-                  })
-                }
-              >
-                <option value={1}>Yes</option>
-                <option value={0}>No</option>
-              </select>
-            </div>
-          ))}
-
-          <div className="product-form-group full-width">
-            <label>Product Image</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) =>
-                setProductForm({
-                  ...productForm,
-                  image: e.target.files[0],
-                })
-              }
-            />
-          </div>
-
+        <div className="delete-confirm-icon">
+          <FaTimesCircle />
         </div>
 
-        <div className="product-form-actions">
+        <h4>Are you sure?</h4>
+
+        <p>
+          Are you sure you want to delete this product?
+          This action cannot be undone.
+        </p>
+
+        {/* ACTION BUTTONS */}
+        <div className="delete-confirm-actions">
+
           <button
             type="button"
             className="product-cancel-btn"
-            onClick={() => setShowAddProduct(false)}
+            onClick={() => {
+              setShowDeletePopup(false);
+              setDeleteProductId(null);
+            }}
+            disabled={deleteLoading}
           >
             Cancel
           </button>
 
-         <button
-  type="button"
-  className="add-product-btn"
-  onClick={handleAddProduct}
->
-  <FaPlus />
-  Add Product
-</button>
+          <button
+            type="button"
+            className="product-delete-confirm-btn"
+            onClick={handleDeleteProduct}
+            disabled={deleteLoading}
+          >
+            {deleteLoading ? (
+              <>
+                <span className="btn-spinner"></span>
+                Deleting...
+              </>
+            ) : (
+              <>
+                <FaTimes />
+                Confirm Delete
+              </>
+            )}
+          </button>
+
         </div>
+
       </div>
     </div>
   </div>
+)}
+      {showAddProduct && (
+        <div
+          className="tax-modal-overlay"
+          onClick={() => setShowAddProduct(false)}
+        >
+          <div
+            className="tax-glass-modal product-add-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="tax-modal-header">
+              <div>
+                <h3>Add Product</h3>
+                <p>Enter product details</p>
+              </div>
+
+              <button
+                className="tax-modal-close-btn"
+                onClick={() => setShowAddProduct(false)}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="tax-modal-body">
+              <div className="product-form-grid">
+
+                <div className="product-form-group">
+                  <label>Category</label>
+
+                  <select
+                    value={productForm.category_id}
+                    onChange={(e) => {
+                      const categoryId = e.target.value;
+
+                      setProductForm({
+                        ...productForm,
+                        category_id: categoryId,
+                        subcategory_id: "",
+                      });
+
+                      fetchSubcategories(categoryId);
+                    }}
+                  >
+                    <option value="">Select Category</option>
+
+                    {Array.isArray(categoryList) &&
+                      categoryList.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.category}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+                <div className="product-form-group">
+                  <label>Subcategory</label>
+
+                  <select
+                    value={productForm.subcategory_id}
+                    onChange={(e) =>
+                      setProductForm({
+                        ...productForm,
+                        subcategory_id: e.target.value,
+                      })
+                    }
+                    disabled={!productForm.category_id}
+                  >
+                    <option value="">Select Subcategory</option>
+                    {subcategories.map((subcategory) => (
+                      <option
+                        key={subcategory.id}
+                        value={subcategory.id}
+                      >
+                        {subcategory.subcategory}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="product-form-group">
+                  <label>Product Name</label>
+                  <input
+                    type="text"
+                    value={productForm.name}
+                    onChange={(e) =>
+                      setProductForm({
+                        ...productForm,
+                        name: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="product-form-group">
+                  <label>Brand</label>
+                  <input
+                    type="text"
+                    value={productForm.brand}
+                    onChange={(e) =>
+                      setProductForm({
+                        ...productForm,
+                        brand: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="product-form-group full-width">
+                  <label>Description</label>
+                  <textarea
+                    value={productForm.description}
+                    onChange={(e) =>
+                      setProductForm({
+                        ...productForm,
+                        description: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                {[
+                  ["cost_price", "Cost Price"],
+                  ["mrp", "MRP"],
+                  ["estimated_selling_price", "Estimated Selling Price"],
+                  ["price", "Price"],
+                  ["shipping_fee", "Shipping Fee"],
+                  ["stock", "Stock"],
+                  ["return_window_days", "Return Window Days"],
+                ].map(([key, label]) => (
+                  <div className="product-form-group" key={key}>
+                    <label>{label}</label>
+                    <input
+                      type="number"
+                      value={productForm[key]}
+                      onChange={(e) =>
+                        setProductForm({
+                          ...productForm,
+                          [key]: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                ))}
+
+                {[
+                  ["status", "Active Status"],
+                  ["is_featured", "Featured"],
+                  ["is_bestseller", "Bestseller"],
+                  ["is_new", "New Product"],
+                  ["is_trending", "Trending"],
+                  ["allow_return", "Allow Return"],
+                ].map(([key, label]) => (
+                  <div className="product-form-group" key={key}>
+                    <label>{label}</label>
+
+                    <select
+                      value={productForm[key]}
+                      onChange={(e) =>
+                        setProductForm({
+                          ...productForm,
+                          [key]: Number(e.target.value),
+                        })
+                      }
+                    >
+                      <option value={1}>Yes</option>
+                      <option value={0}>No</option>
+                    </select>
+                  </div>
+                ))}
+
+                <div className="product-form-group full-width">
+                  <label>Product Image</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      setProductForm({
+                        ...productForm,
+                        image: e.target.files[0],
+                      })
+                    }
+                  />
+                </div>
+
+              </div>
+
+              <div className="product-form-actions">
+                <button
+                  type="button"
+                  className="product-cancel-btn"
+                  onClick={() => setShowAddProduct(false)}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  className="add-product-btn"
+                  onClick={handleAddProduct}
+                >
+                  <FaPlus />
+                  Add Product
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showEditProduct && (
+  <EditProductPopup
+    productForm={productForm}
+    setProductForm={setProductForm}
+    categoryList={categoryList}
+    subcategories={subcategories}
+    fetchSubcategories={fetchSubcategories}
+    handleEditProduct={handleEditProduct}
+    editLoading={editLoading}
+    onClose={() => {
+      if (!editLoading) {
+        setShowEditProduct(false);
+        setEditProductId(null);
+      }
+    }}
+  />
 )}
     </div>
   );

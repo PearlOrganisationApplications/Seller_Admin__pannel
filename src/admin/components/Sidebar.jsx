@@ -65,10 +65,25 @@ const Sidebar = React.memo(
   label: "Sub Category",
 },
 
+// {
+//   to: "/admin/products",
+//   icon: <FaShoppingCart />,
+//   label: "Product Management",
+// },
+
 {
-  to: "/admin/products",
+  label: "Product",
   icon: <FaShoppingCart />,
-  label: "Product Management",
+  submenu: [
+    {
+      to: "/admin/products",
+      label: "Product Management",
+    },
+    {
+      to: "/admin/product-variants",
+      label: "Product Variant",
+    },
+  ],
 },
         {
           to: "/admin/SendNotification",
@@ -132,22 +147,56 @@ background: "#d1d5db",         marginTop: "10px",
 
         <div className="sidebar-menu-container">
           <ul className="sidebar-menu">
-            {menu.map((item, i) => (
-              <li key={i} className="sidebar-item">
+     {menu.map((item, i) => (
+  <li key={i} className="sidebar-item">
+
+    {/* Parent Menu */}
+    {!item.submenu ? (
+      <NavLink
+        to={item.to}
+        className={({ isActive }) =>
+          `sidebar-link ${isActive ? "active" : ""}`
+        }
+        onClick={onNavClick}
+      >
+        <span className="sidebar-icon">{item.icon}</span>
+
+        {!collapsed && (
+          <span className="sidebar-label">{item.label}</span>
+        )}
+      </NavLink>
+    ) : (
+      <>
+        <div className="sidebar-link">
+          <span className="sidebar-icon">{item.icon}</span>
+
+          {!collapsed && (
+            <span className="sidebar-label">{item.label}</span>
+          )}
+        </div>
+
+        {!collapsed && (
+          <ul className="sidebar-submenu">
+            {item.submenu.map((subItem, subIndex) => (
+              <li key={subIndex}>
                 <NavLink
-                  to={item.to}
+                  to={subItem.to}
                   className={({ isActive }) =>
-                    `sidebar-link ${isActive ? "active" : ""}`
+                    `sidebar-sublink ${isActive ? "active" : ""}`
                   }
                   onClick={onNavClick}
                 >
-                  <span className="sidebar-icon">{item.icon}</span>
-                  {!collapsed && (
-                    <span className="sidebar-label">{item.label}</span>
-                  )}
+                  {subItem.label}
                 </NavLink>
               </li>
             ))}
+          </ul>
+        )}
+      </>
+    )}
+
+  </li>
+))}
           </ul>
         </div>
 
