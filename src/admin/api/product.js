@@ -1,24 +1,17 @@
 import api from "../api/axios";
 
 // Get All Products
-export const getProducts = async (page = 1, perPage = 20) => 
-    {
-  try
-   {
-    const response = await api.get("/api/admin/products", 
-        {
-      params: 
-      {
+export const getProducts = async (page = 1, perPage = 20) => {
+  try {
+    const response = await api.get("/api/admin/products", {
+      params: {
         page,
         per_page: perPage,
       },
     });
 
     return response.data;
-
-  } catch (error)
-   {
-
+  } catch (error) {
     handleApiError(error);
   }
 };
@@ -38,21 +31,17 @@ export const addProduct = async (data) => {
   }
 };
 
-export const deleteProduct = async (productId) => 
-  {
+export const deleteProduct = async (productId) => {
   try {
     const response = await api.delete(
-
-      `/api/admin/products/${productId}/delete`
+      `/api/admin/products/${productId}/delete`,
     );
 
     return response.data;
-
   } catch (error) {
     throw error;
   }
 };
-
 
 export const updateProduct = async (productId, data) => {
   try {
@@ -63,7 +52,7 @@ export const updateProduct = async (productId, data) => {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      }
+      },
     );
 
     return response.data;
@@ -72,31 +61,23 @@ export const updateProduct = async (productId, data) => {
   }
 };
 
-
-
-export const getVariants = async (page = 1) =>
-   {
+export const getVariants = async (page = 1) => {
   try {
-    const response = await api.get("/api/admin/variants",
-       {
+    const response = await api.get("/api/admin/variants", {
       params: {
         page,
       },
     });
 
     return response.data;
-
-  } catch (error) 
-  {
+  } catch (error) {
     handleApiError(error);
   }
 };
 
-
 export const addVariant = async (formData) => {
   try {
     const response = await api.post(
-
       "/api/admin/variants/add",
 
       formData,
@@ -104,12 +85,46 @@ export const addVariant = async (formData) => {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      }
+      },
     );
 
     return response.data;
-  } 
-  catch (error) {
+  } catch (error) {
+    handleApiError(error);
+  }
+};
+
+
+
+export const updateVariant = async (id, formData) => {
+  try {
+    const response = await api.post(
+      `/api/admin/variants/${id}/update`,
+
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+
+    return response.data;
+  } catch (error) {
+    handleApiError(error);
+  }
+};
+
+
+
+
+export const deleteVariant = async (id) => {
+  try {
+    const response = await api.delete(
+      `/api/admin/variants/${id}`,
+    );
+    return response.data;
+  } catch (error) {
     handleApiError(error);
   }
 };

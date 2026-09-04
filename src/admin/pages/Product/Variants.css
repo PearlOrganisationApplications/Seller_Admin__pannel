@@ -603,3 +603,593 @@
     justify-content: center;
   }
 }
+
+
+
+/* ===========================
+   RESET FILTER BUTTON
+=========================== */
+
+.reset-filter-btn {
+  height: 44px;
+  padding: 0 15px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.reset-filter-btn:hover {
+  background: #f1f5f9;
+  color: #2563eb;
+  border-color: #cbd5e1;
+}
+
+/* ===========================
+   EDIT VARIANT MODAL
+=========================== */
+
+.variant-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.variant-edit-modal {
+  width: 100%;
+  max-width: 720px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.2);
+  animation: variantModalIn 0.2s ease;
+}
+
+@keyframes variantModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ===========================
+   MODAL HEADER
+=========================== */
+
+.variant-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 20px 22px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.variant-modal-header h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 20px;
+  font-weight: 750;
+}
+
+.variant-modal-header p {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.variant-modal-close {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  background: #f8fafc;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.variant-modal-close:hover {
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+/* ===========================
+   EDIT FORM
+=========================== */
+
+.variant-edit-form {
+  padding: 22px;
+}
+
+.variant-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 17px;
+}
+
+.variant-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.variant-form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.variant-form-group label {
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.variant-form-group input,
+.variant-form-group select {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  outline: none;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 13px;
+  transition: 0.2s ease;
+  box-sizing: border-box;
+}
+
+.variant-form-group input:focus,
+.variant-form-group select:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.08);
+}
+
+.variant-form-group input::placeholder {
+  color: #94a3b8;
+}
+
+.variant-form-group select {
+  cursor: pointer;
+}
+
+/* ===========================
+   IMAGE UPLOAD
+=========================== */
+
+.variant-image-upload {
+  min-height: 82px;
+  padding: 12px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.current-variant-image {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.current-variant-image img {
+  width: 58px;
+  height: 58px;
+  border-radius: 9px;
+  object-fit: cover;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.current-variant-image span {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.selected-image-name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 65%;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+  overflow: hidden;
+}
+
+.selected-image-name span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.upload-image-btn {
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid #ddd6fe;
+  border-radius: 8px;
+  background: #ede9fe;
+  color: #6d28d9 !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.2s ease;
+}
+
+.upload-image-btn:hover {
+  background: #ddd6fe;
+}
+
+/* ===========================
+   STATUS
+=========================== */
+
+.status-form-group {
+  justify-content: flex-end;
+}
+
+.status-checkbox-label {
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  background: #f8fafc;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  color: #334155 !important;
+}
+
+.status-checkbox-label input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: #2563eb;
+  cursor: pointer;
+}
+
+.status-checkbox-label span {
+  font-size: 12px;
+  font-weight: 650;
+}
+
+/* ===========================
+   MODAL FOOTER
+=========================== */
+
+.variant-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  padding-top: 20px;
+  margin-top: 22px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.variant-cancel-btn,
+.variant-save-btn {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.variant-cancel-btn {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+}
+
+.variant-cancel-btn:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.variant-save-btn {
+  border: none;
+  background: linear-gradient(
+    135deg,
+    #2563eb,
+    #7c3aed
+  );
+  color: #ffffff;
+  box-shadow: 0 5px 14px rgba(37, 99, 235, 0.18);
+}
+
+.variant-save-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.24);
+}
+
+.variant-cancel-btn:disabled,
+.variant-save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ===========================
+   LOADER
+=========================== */
+
+.animate-spin {
+  animation: variantSpin 0.8s linear infinite;
+}
+
+@keyframes variantSpin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===========================
+   SCROLLBAR
+=========================== */
+
+.variant-edit-modal::-webkit-scrollbar {
+  width: 6px;
+}
+
+.variant-edit-modal::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+.variant-edit-modal::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.variant-edit-modal::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ===========================
+   RESPONSIVE MODAL
+=========================== */
+
+@media (max-width: 650px) {
+  .variant-modal-overlay {
+    padding: 12px;
+    align-items: center;
+  }
+
+  .variant-edit-modal {
+    max-height: 94vh;
+    border-radius: 14px;
+  }
+
+  .variant-modal-header {
+    padding: 17px;
+  }
+
+  .variant-edit-form {
+    padding: 17px;
+  }
+
+  .variant-form-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .variant-form-group.full-width {
+    grid-column: auto;
+  }
+
+  .variant-image-upload {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .upload-image-btn {
+    width: 100%;
+  }
+
+  .selected-image-name {
+    max-width: 100%;
+  }
+
+  .variant-modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .variant-cancel-btn,
+  .variant-save-btn {
+    width: 100%;
+  }
+}
+
+
+.delete-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 9999;
+  animation: deleteOverlayIn 0.2s ease;
+}
+
+.delete-modal {
+  width: 100%;
+  max-width: 430px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.2);
+  text-align: center;
+  animation: deleteModalIn 0.25s ease;
+}
+
+.delete-modal-icon {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-modal-content h3 {
+  margin: 0 0 8px;
+  color: #0f172a;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.delete-modal-content p {
+  margin: 0 auto;
+  max-width: 350px;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.delete-modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.delete-cancel-btn,
+.delete-confirm-btn {
+  height: 42px;
+  padding: 0 20px;
+  border-radius: 9px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: all 0.2s ease;
+}
+
+.delete-cancel-btn {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.delete-cancel-btn:hover {
+  background: #e2e8f0;
+}
+
+.delete-confirm-btn {
+  background: #dc2626;
+  color: #ffffff;
+  min-width: 105px;
+}
+
+.delete-confirm-btn:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.delete-cancel-btn:disabled,
+.delete-confirm-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.delete-spinner {
+  animation: deleteSpin 0.8s linear infinite;
+}
+
+@keyframes deleteOverlayIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes deleteModalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes deleteSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 480px) {
+  .delete-modal {
+    padding: 24px 20px;
+  }
+
+  .delete-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .delete-cancel-btn,
+  .delete-confirm-btn {
+    width: 100%;
+  }
+}
