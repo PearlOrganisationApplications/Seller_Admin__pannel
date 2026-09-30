@@ -25,7 +25,22 @@ import {
   updateVariant,
   deleteVariant,
 } from "../../api/product";
+const getProductImage = (product) => {
+  if (!product?.image) return "https://placehold.co/80x80/png?text=Product";
 
+  let img = product.image;
+
+  try {
+    if (typeof img === "string" && img.trim().startsWith("[")) {
+      const parsed = JSON.parse(img);
+      img = Array.isArray(parsed) && parsed.length > 0 ? parsed[0] : img;
+    }
+  } catch (e) {
+    // agar parse fail ho to original string hi use karo
+  }
+
+  return img || "https://placehold.co/80x80/png?text=Product";
+};
 const Variants = () => {
   const [variants, setVariants] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -210,7 +225,7 @@ const Variants = () => {
 
       toast.error(
         error?.response?.data?.message ||
-          "Something went wrong while adding variant.",
+        "Something went wrong while adding variant.",
       );
     } finally {
       setAddVariantLoading(false);
@@ -231,7 +246,7 @@ const Variants = () => {
           ? Boolean(variant.status)
           : Boolean(variant.product?.status),
       image: null,
-      currentImage: variant.image || "",
+    currentImage: getProductImage(variant.product),
     });
 
     setShowEditPopup(true);
@@ -303,7 +318,7 @@ const Variants = () => {
       } else {
         toast.error(
           error?.response?.data?.message ||
-            "Something went wrong while updating variant.",
+          "Something went wrong while updating variant.",
         );
       }
     } finally {
@@ -511,14 +526,11 @@ const Variants = () => {
 
                     <td>
                       <div className="product-info">
-                        <img
-                          src={
-                            variant.product?.image ||
-                            "https://placehold.co/80x80/png?text=Product"
-                          }
-                          alt={variant.product?.name || "Product"}
-                          className="product-image"
-                        />
+                       <img
+  src={getProductImage(variant.product)}
+  alt={variant.product?.name || "Product"}
+  className="product-image"
+/>
 
                         <div className="product-details">
                           <strong>{variant.product?.name || "N/A"}</strong>
@@ -603,22 +615,26 @@ const Variants = () => {
                           <Eye size={16} />
                         </button>
 
-                        <button
-                          className="action-btn edit-btn"
+                       <button className="action-btn variant-edit-btn"
                           title="Edit"
-                          onClick={() => handleEdit(variant)}
+                          onClick={() => {
+                            setSelectedVariant(variant);
+                            handleEdit(variant);
+                          }}
                         >
                           <Edit size={16} />
                         </button>
 
-                        <button
-                          className="action-btn delete-btn"
+                      <button className="action-btn variant-delete-btn"
                           title="Delete"
-                          onClick={() => handleDelete(variant.id)}
+                          onClick={() => {
+                            handleDelete(variant.id);
+                          }}
                         >
                           <Trash2 size={16} />
                         </button>
                       </div>
+
                     </td>
                   </tr>
                 );
@@ -659,9 +675,8 @@ const Variants = () => {
               (pageNumber) => (
                 <button
                   key={pageNumber}
-                  className={`pagination-number ${
-                    page === pageNumber ? "active" : ""
-                  }`}
+                  className={`pagination-number ${page === pageNumber ? "active" : ""
+                    }`}
                   onClick={() => changePage(pageNumber)}
                 >
                   {pageNumber}

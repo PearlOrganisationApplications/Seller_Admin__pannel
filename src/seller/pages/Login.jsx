@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Mail, Lock, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
 import { loginSeller } from "../api/auth";
 import sellerLogo from "../assets/imgs/seller_Logo.png";
-
+import { requestFCMToken } from "../../firebase";
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -24,44 +24,53 @@ export default function Login() {
     { size: 45, left: "90%", delay: "3s", duration: "15s" },
   ];
 
-  const handleLogin = async (e) => {
-    if (e) e.preventDefault();
-    if (!email || !password) {
-      setError("Please enter both email and password");
-      return;
-    }
-    setError("");
-    setLoading(true);
+const handleLogin = async (e) => {
+  if (e) e.preventDefault();
+  if (!email || !password) {
+    setError("Please enter both email and password");
+    return;
+  }
+  setError("");
+  setLoading(true);
 
-    try {
-      const payload = { email, password, user_type: "seller" };
-      const data = await loginSeller(payload);
+ try {
+  console.log("Step 1: calling requestFCMToken");
+  const fcmToken = await requestFCMToken().catch((err) => {
+    console.error("FCM token fetch failed:", err);
+    return null;
+  });
+  console.log("Step 2: fcmToken value =", fcmToken);
 
-      if (data.status === true || data.success === true) {
-        const token =
-          data.token || data.access_token || (data.user && data.user.token);
-        if (token) {
-          localStorage.setItem("token", token);
-          localStorage.setItem("user_type", "seller");
-          localStorage.setItem(
-            "user_info",
-            JSON.stringify(data.user || data.data),
-          );
-          window.location.href = "/seller/dashboard";
-        } else {
-          setError("Login successful but token not received.");
-        }
+    const payload = {
+      email,
+      password,
+      user_type: "seller",
+      fcm_token: fcmToken || "", // ab yehi payload mein chala jayega
+    };
+
+    const data = await loginSeller(payload);
+
+    if (data.status === true || data.success === true) {
+      const token =
+        data.token || data.access_token || (data.user && data.user.token);
+      if (token) {
+        localStorage.setItem("token", token);
+        localStorage.setItem("user_type", "seller");
+        localStorage.setItem("user_info", JSON.stringify(data.user || data.data));
+        window.location.href = "/seller/dashboard";
       } else {
-        setError(data.message || "Invalid credentials");
+        setError("Login successful but token not received.");
       }
-    } catch (err) {
-      const errMsg = err.response?.data?.message || "Server connection failed.";
-      setError(errMsg);
-    } finally {
-      setLoading(false);
+    } else {
+      setError(data.message || "Invalid credentials");
     }
-  };
-
+  } catch (err) {
+    const errMsg = err.response?.data?.message || "Server connection failed.";
+    setError(errMsg);
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div
       className="min-h-screen flex items-center justify-center p-4 font-sans overflow-hidden relative"
@@ -196,7 +205,15 @@ export default function Login() {
                   )}
                 </button>
               </div>
-
+              <div className="relative group">
+                <select
+                  value="seller"
+                  disabled
+                  className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all text-slate-700 appearance-none cursor-not-allowed"
+                >
+                  <option value="seller">Seller</option>
+                </select>
+              </div>
               <motion.button
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}

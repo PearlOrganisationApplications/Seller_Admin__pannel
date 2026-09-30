@@ -18,23 +18,57 @@ export const addProduct = async (formData) =>
 };
 
 export const fetchCategories = async () => {
-
-    const response = await apiClient.get('/seller/Categories');
-    
+  try {
+    const response = await apiClient.get("/products/categories"); // apna actual endpoint check karo
     return response.data;
+  } catch (error) {
+    console.error("fetchCategories error:", error);
+    return { status: false, data: [] };
+  }
 };
 
-export const fetchColors = async () => {
-    const response = await apiClient.get('/seller/colour');
+
+export const getSubcategoriesByCategory = async (categoryId) => 
+    {
+  try {
+    const response = await apiClient.get(
+
+      `/products/categories/${categoryId}/subcategories`
+    );
+
     return response.data;
+  } 
+  catch (error) 
+  {
+    handleApiError(error);
+  }
+};
+export const fetchColors = async () => {
+  try {
+    const response = await apiClient.get("/seller/colour");
+    return response.data;
+  } catch (error) {
+    console.error("fetchColors error:", error);
+    return { status: false, colors: [] };
+  }
 };
 
 export const fetchSizes = async () => {
-    const response = await apiClient.get('/seller/size');
+  try {
+    const response = await apiClient.get("/seller/size");
     return response.data;
+  } catch (error) {
+    console.error("fetchSizes error:", error);
+    return { status: false, sizes: [] };
+  }
 };
 
 export const fetchSpecifications = async () => {
-    const response = await apiClient.get('/seller/Specification');
+  try {
+    const response = await apiClient.get("/seller/Specification");
     return response.data;
+  } catch (error) {
+    console.error("fetchSpecifications error:", error);
+    return { status: false, specifications: [] };
+  }
 };

@@ -3,7 +3,12 @@ import React, { useState, useEffect, useMemo } from "react";
 import { ChevronLeft, CheckCircle2, XCircle, Package, AlertCircle, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { fetchListedProducts } from "../api/listedProductApi";
-
+const isActiveStatus = (status) => {
+  if (typeof status === "number") {
+    return status === 1; // 1 = active, 0 = inactive (apne DB convention ke hisaab se confirm kar lo)
+  }
+  return status?.toString().toLowerCase() === "active";
+};
 export default function ListedProducts() {
   const navigate = useNavigate();
 
@@ -12,15 +17,14 @@ export default function ListedProducts() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // 1. Automatically calculate stats whenever the products array changes
-  const stats = useMemo(() => {
-    if (!products.length) return { active: 0, inactive: 0 };
+const stats = useMemo(() => {
+  if (!products.length) return { active: 0, inactive: 0 };
 
-    return {
-      active: products.filter(p => p.status?.toLowerCase() === "active").length,
-      inactive: products.filter(p => p.status?.toLowerCase() !== "active").length
-    };
-  }, [products]);
+  return {
+    active: products.filter(p => isActiveStatus(p.status)).length,
+    inactive: products.filter(p => !isActiveStatus(p.status)).length
+  };
+}, [products]);
 
   useEffect(() => {
     loadData();
@@ -145,17 +149,17 @@ export default function ListedProducts() {
                           {item.name}
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        {item.status?.toLowerCase() === "active" ? (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-green-100 text-green-700 uppercase">
-                            <CheckCircle2 size={12} /> Active
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-red-100 text-red-700 uppercase">
-                            <XCircle size={12} /> Inactive
-                          </span>
-                        )}
-                      </td>
+              <td className="px-6 py-4">
+  {isActiveStatus(item.status) ? (
+    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-green-100 text-green-700 uppercase">
+      <CheckCircle2 size={12} /> Active
+    </span>
+  ) : (
+    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-red-100 text-red-700 uppercase">
+      <XCircle size={12} /> Inactive
+    </span>
+  )}
+</td>
                       <td className="px-6 py-4 text-gray-600 text-sm italic">
                         {item.reason || "No remarks available"}
                       </td>
@@ -184,7 +188,7 @@ export default function ListedProducts() {
                     <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">
                       #{item.product_uid || 'N/A'}
                     </span>
-                    {item.status?.toLowerCase() === "active" ? (
+                    {isActiveStatus(item.status) ? (
                       <span className="text-[10px] font-bold text-green-600 uppercase bg-green-50 px-2 py-0.5 rounded-full border border-green-100">Active</span>
                     ) : (
                       <span className="text-[10px] font-bold text-red-600 uppercase bg-red-50 px-2 py-0.5 rounded-full border border-red-100">Inactive</span>

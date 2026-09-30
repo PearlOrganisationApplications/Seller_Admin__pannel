@@ -30,7 +30,17 @@ export default function Notifications() {
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                    <Bell className="text-blue-600" /> Notifications
+               {item.image_url ? (
+  <img
+    src={item.image_url}
+    alt={item.title}
+    className="w-12 h-12 rounded-full object-cover"
+  />
+) : (
+  <div className="bg-blue-100 p-3 rounded-full h-fit">
+    <Bell size={20} className="text-blue-600" />
+  </div>
+)} Notifications
                 </h1>
                 <button
                     onClick={fetchData}
@@ -52,7 +62,7 @@ export default function Notifications() {
                 <div className="grid gap-4">
                     {notifications.map((item, index) => (
                         <div
-                            key={item._id || index}
+                            key={item.id}
                             className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex justify-between items-start"
                         >
                             <div className="flex gap-4">
@@ -63,10 +73,10 @@ export default function Notifications() {
                                     <h3 className="font-semibold text-gray-900 text-lg">
                                         {item.title || "New Notification"}
                                     </h3>
-                                    <p className="text-gray-600 mt-1">{item.message}</p>
+                                    <p className="text-gray-600 mt-1">{item.body}</p>
                                     <div className="flex items-center gap-2 mt-3 text-xs text-gray-400">
                                         <Clock size={14} />
-                                        {new Date(item.createdAt).toLocaleString()}
+                                        {new Date(item.created_at).toLocaleString()}
                                     </div>
                                 </div>
                             </div>

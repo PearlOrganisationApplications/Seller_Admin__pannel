@@ -71,19 +71,16 @@ export default function SellerDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-purple-50 to-white p-6 md:p-10">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* HEADER */}
-        {/* ================= ATTRATIVE HEADER ================= */}
-        <div className="relative w-full bg-gradient-to-br from-purple-100 via-purple-50 to-white px-4 pt-6 pb-8 rounded-b-[3rem] shadow-lg shadow-purple-100 overflow-hidden mb-6 border-b border-purple-100">
-          {/* Decorative background circles */}
+     <div className="relative w-full bg-gradient-to-br from-purple-100 via-purple-50 to-white px-4 pt-6 pb-8 rounded-[3rem] shadow-lg shadow-purple-100 overflow-hidden mb-6 border-b border-purple-100">
           <div className="absolute top-0 right-0 w-64 h-64 bg-purple-200/30 rounded-full -mr-16 -mt-16 blur-2xl"></div>
           <div className="absolute bottom-0 left-0 w-40 h-40 bg-purple-300/20 rounded-full -ml-10 -mb-10 blur-xl"></div>
 
           <div className="relative z-10 max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
             <div>
-              <h1 className="text-3xl md:text-4xl font-extrabold text-purple-900 tracking-tight">
+              <h1 className="text-3xl md:text-4xl font-extrabold text-purple-900 tracking-tight ml-3">
                 Seller Overview
               </h1>
-              <p className="text-purple-500 mt-2 text-lg font-medium">
+              <p className="text-purple-500 mt-2 text-lg font-medium ml-3">
                 Real-time business insights dashboard
               </p>
             </div>

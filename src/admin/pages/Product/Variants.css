@@ -179,7 +179,7 @@
   background: #ffffff;
   border-radius: 16px;
   border: 1px solid #e2e8f0;
-  overflow-x: auto;
+  overflow-x: scroll;
   box-shadow: 0 5px 18px rgba(15, 23, 42, 0.05);
 }
 
@@ -419,7 +419,30 @@
   align-items: center;
   gap: 6px;
 }
+.add-variant-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+  transition: all 0.2s ease;
+}
 
+.add-variant-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 18px rgba(79, 70, 229, 0.35);
+}
+
+.add-variant-btn:active {
+  transform: translateY(0);
+}
 .action-btn {
   width: 32px;
   height: 32px;
@@ -437,15 +460,8 @@
   color: #2563eb;
 }
 
-.edit-btn {
-  background: #ede9fe;
-  color: #7c3aed;
-}
-
-.delete-btn {
-  background: #fee2e2;
-  color: #dc2626;
-}
+.variant-edit-btn { background: #ede9fe; color: #7c3aed; }
+.variant-delete-btn { background: #fee2e2; color: #dc2626; }
 
 .action-btn:hover {
   transform: translateY(-2px);
@@ -1192,4 +1208,21 @@
   .delete-confirm-btn {
     width: 100%;
   }
+}
+
+.variants-table-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.variants-table-wrapper::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.variants-table-wrapper::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.variants-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

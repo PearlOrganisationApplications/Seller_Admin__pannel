@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import {
   addProduct,
   fetchCategories,
+  getSubcategoriesByCategory,
   fetchColors,
   fetchSizes,
   fetchSpecifications,
@@ -14,7 +15,7 @@ import toast from "react-hot-toast";
 export default function ProductListing() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
-
+  const [subcategories, setSubcategories] = useState([]);
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -27,6 +28,7 @@ export default function ProductListing() {
   // --- FORM STATE ---
   const [formData, setFormData] = useState({
     category_id: "",
+    subcategory_id: "",
     name: "",
     description: "",
     sell_different_colors: "no",
@@ -47,48 +49,82 @@ export default function ProductListing() {
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
 
-  // FETCH ALL DATA ON MOUNT
   useEffect(() => {
-    const loadAllData = async () => {
+    const loadInitialData = async () => {
       try {
-        const [catRes, colorRes, sizeRes, specRes] = await Promise.all([
+        const [categoryRes, colorRes, sizeRes, specRes] = await Promise.all([
           fetchCategories(),
           fetchColors(),
           fetchSizes(),
           fetchSpecifications(),
         ]);
-
+        console.log("CATEGORY RESPONSE:", categoryRes);
         // Categories
-        const catArray = Array.isArray(catRes) ? catRes : catRes.data || [];
-        setCategories(catArray);
-        if (catArray.length > 0)
-          setFormData((prev) => ({
-            ...prev,
-            category_id: catArray[0].id.toString(),
-          }));
+        if (categoryRes?.status && Array.isArray(categoryRes.data?.data)) {
+          setCategories(categoryRes.data.data);
+        } else {
+          setCategories([]);
+        }
 
         // Colors
-        if (colorRes.status) setColors(colorRes.colors || []);
+        if (colorRes?.status && Array.isArray(colorRes.colors)) {
+          setColors(colorRes.colors);
+        } else {
+          setColors([]);
+        }
 
         // Sizes
-        if (sizeRes.status) setSizes(sizeRes.sizes || []);
-
-        // Dynamic Specifications
-        if (specRes.status && specRes.specifications) {
-          setSpecLabels(specRes.specifications);
-          const initialSpecs = {};
-          specRes.specifications.forEach((item) => {
-            initialSpecs[item.specification] = "";
-          });
-          setFormData((prev) => ({ ...prev, specs: initialSpecs }));
+        if (sizeRes?.status && Array.isArray(sizeRes.sizes)) {
+          setSizes(sizeRes.sizes);
+        } else {
+          setSizes([]);
         }
-      } catch (err) {
-        console.error("Data fetch failed", err);
-        toast.error("Failed to load listing options");
+
+        // Specifications
+        if (specRes?.status && Array.isArray(specRes.specifications)) {
+          setSpecLabels(specRes.specifications);
+        } else {
+          setSpecLabels([]);
+        }
+      } catch (error) {
+        console.error("Failed to load initial data:", error);
+        toast.error("Failed to load product options");
       }
     };
-    loadAllData();
+
+    loadInitialData();
   }, []);
+  // FETCH SUBCATEGORIES WHEN CATEGORY CHANGES
+  useEffect(() => {
+    const loadSubcategories = async () => {
+      if (!formData.category_id) {
+        setSubcategories([]);
+        return;
+      }
+
+      try {
+        const res = await getSubcategoriesByCategory(formData.category_id);
+
+        if (res?.status && Array.isArray(res.data)) {
+          setSubcategories(res.data);
+        } else {
+          setSubcategories([]);
+        }
+
+        // Category change hone par old subcategory remove
+        setFormData((prev) => ({
+          ...prev,
+          subcategory_id: "",
+        }));
+      } catch (error) {
+        console.error("Failed to load subcategories:", error);
+        setSubcategories([]);
+        toast.error("Failed to load subcategories");
+      }
+    };
+
+    loadSubcategories();
+  }, [formData.category_id]);
 
   const toggleItem = (field, value) => {
     const valStr = value.toString();
@@ -120,6 +156,7 @@ export default function ProductListing() {
     const data = new FormData();
 
     data.append("category_id", formData.category_id);
+    data.append("subcategory_id", formData.subcategory_id);
     data.append("name", formData.name);
     data.append("description", formData.description);
     imageFiles.forEach((file) => {
@@ -205,41 +242,75 @@ export default function ProductListing() {
           <div className="space-y-8">
             {/* 1. BASIC DETAILS */}
             <GlassCard title="Basic Details">
-              <div className="grid gap-4 max-w-md">
-                <FieldLabel>Category</FieldLabel>
-                <select
-                  className="glass-input"
-                  value={formData.category_id}
-                  onChange={(e) =>
-                    setFormData({ ...formData, category_id: e.target.value })
-                  }
-                >
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id} className="bg-white text-gray-800">
-                      {c.category}
-                    </option>
-                  ))}
-                </select>
+              <div className="grid gap-4 max-w-2xl">
+                {/* Category + Subcategory in one line */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <FieldLabel>Category</FieldLabel>
+                    <CustomDropdown
+                      value={formData.category_id}
+                      placeholder="Choose Category"
+                      options={categories}
+                      labelKey="category"
+                      onChange={(value) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          category_id: value,
+                          subcategory_id: "",
+                        }))
+                      }
+                    />
+                  </div>
 
-                <FieldLabel>Product Name</FieldLabel>
-                <input
-                  className="glass-input"
-                  placeholder="e.g. Premium Cotton T-Shirt"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                />
+                  <div>
+                    <FieldLabel>Subcategory</FieldLabel>
+                    <CustomDropdown
+                      value={formData.subcategory_id}
+                      placeholder={
+                        formData.category_id
+                          ? subcategories.length > 0
+                            ? "Choose Subcategory"
+                            : "No Subcategories Available"
+                          : "Choose Category First"
+                      }
+                      options={subcategories}
+                      labelKey="subcategory"
+                      disabled={!formData.category_id || subcategories.length === 0}
+                      onChange={(value) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          subcategory_id: value,
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
 
-                <FieldLabel>Description</FieldLabel>
-                <textarea
-                  className="glass-input h-24 resize-none"
-                  placeholder="Describe your product..."
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <FieldLabel>Product Name</FieldLabel>
+                    <input
+                      className="glass-input"
+                      placeholder="e.g. Premium Cotton T-Shirt"
+                      value={formData.name}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  <div>
+                    <FieldLabel>Description</FieldLabel>
+                    <textarea
+                      className="glass-input h-[42px] resize-none"
+                      placeholder="Describe your product..."
+                      value={formData.description}
+                      onChange={(e) =>
+                        setFormData({ ...formData, description: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
               </div>
             </GlassCard>
 
@@ -597,7 +668,113 @@ const GlassCard = ({ title, children }) => (
     {children}
   </div>
 );
+const CustomDropdown = ({
+  value,
+  placeholder,
+  options = [],
+  labelKey,
+  onChange,
+  disabled = false,
+}) => {
+  const [open, setOpen] = useState(false);
 
+  const selectedOption = options.find(
+    (item) => item.id?.toString() === value?.toString()
+  );
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".custom-dropdown")) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  return (
+    <div className="relative custom-dropdown">
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => setOpen((prev) => !prev)}
+        className={`w-full min-h-[42px] px-4 py-3 rounded-xl border text-left flex items-center justify-between transition-all duration-200
+          ${disabled
+            ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+            : open
+              ? "bg-white border-purple-500 ring-2 ring-purple-100 text-purple-900"
+              : "bg-white/90 border-purple-200 text-purple-700 hover:border-purple-400"
+          }`}
+      >
+        <span className="text-sm truncate">
+          {selectedOption ? selectedOption[labelKey] : placeholder}
+        </span>
+
+        <span
+          className={`ml-2 text-purple-500 transition-transform duration-200 ${open ? "rotate-180" : ""
+            }`}
+        >
+          ▼
+        </span>
+      </button>
+
+      {open && !disabled && (
+<div className="absolute left-0 right-0 top-full mt-2 z-[100] bg-white border border-purple-200 rounded-xl shadow-xl overflow-hidden">
+       <div className="max-h-[120px] overflow-y-auto">
+            {/* Placeholder */}
+            <button
+              type="button"
+              onClick={() => {
+                onChange("");
+                setOpen(false);
+              }}
+              className={`w-full px-4 py-2.5 text-left text-sm transition-colors
+                ${!value
+                  ? "bg-purple-600 text-white font-semibold"
+                  : "text-purple-800 hover:bg-purple-50"
+                }`}
+            >
+              {placeholder}
+            </button>
+
+            {options.map((item) => {
+              const isSelected =
+                item.id?.toString() === value?.toString();
+
+              return (
+                <button
+                  type="button"
+                  key={item.id}
+                  onClick={() => {
+                    onChange(item.id.toString());
+                    setOpen(false);
+                  }}
+                  className={`w-full px-4 py-2.5 text-left text-sm transition-colors
+                    ${isSelected
+                      ? "bg-purple-100 text-purple-800 font-semibold"
+                      : "text-gray-700 hover:bg-purple-50 hover:text-purple-700"
+                    }`}
+                >
+                  {item[labelKey]}
+                </button>
+              );
+            })}
+
+            {options.length === 0 && (
+              <div className="px-4 py-3 text-sm text-gray-400">
+                No options available
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 const FieldLabel = ({ children, small }) => (
   <label
     className={`font-bold text-purple-500 uppercase tracking-wider ${small ? "text-[10px]" : "text-xs"}`}
