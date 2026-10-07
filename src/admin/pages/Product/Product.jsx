@@ -1,6 +1,8 @@
-
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { getCategories, getSubCategoriesByCategory } from "../../api/addCategoryApi";
+import {
+  getCategories,
+  getSubCategoriesByCategory,
+} from "../../api/addCategoryApi";
 import {
   FaSearch,
   FaEye,
@@ -15,14 +17,20 @@ import {
   FaTimesCircle,
   FaStar,
   FaFire,
-  FaPlus,FaEdit ,
+  FaPlus,
+  FaEdit,
 } from "react-icons/fa";
 import EditProductPopup from "./EditProductPopup";
 import "./Product.css";
 import { toast } from "react-toastify";
-import { getProducts, addProduct ,deleteProduct ,updateProduct} from "../../api/product";
+import {
+  getProducts,
+  addProduct,
+  deleteProduct,
+  updateProduct,
+} from "../../api/product";
 
-
+import DUMMY from "../../../seller/assets/DUMMY_IMAGE.png";
 function CustomDropdown({ value, options, onChange, placeholder = "All" }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -53,8 +61,9 @@ function CustomDropdown({ value, options, onChange, placeholder = "All" }) {
           {options.map((opt) => (
             <li
               key={opt.value}
-              className={`custom-dropdown-item ${opt.value === value ? "active" : ""
-                }`}
+              className={`custom-dropdown-item ${
+                opt.value === value ? "active" : ""
+              }`}
               onClick={() => {
                 onChange(opt.value);
                 setOpen(false);
@@ -91,8 +100,8 @@ export default function Products() {
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const [showEditProduct, setShowEditProduct] = useState(false);
-const [editProductId, setEditProductId] = useState(null);
-const [editLoading, setEditLoading] = useState(false);
+  const [editProductId, setEditProductId] = useState(null);
+  const [editLoading, setEditLoading] = useState(false);
   const [categoryList, setCategoryList] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [productForm, setProductForm] = useState({
@@ -114,7 +123,7 @@ const [editLoading, setEditLoading] = useState(false);
     is_trending: "",
     allow_return: "",
     return_window_days: "",
-    image: null,
+    images: [],
   });
 
   const fetchCategories = async () => {
@@ -176,17 +185,15 @@ const [editLoading, setEditLoading] = useState(false);
         setPerPage(productData?.per_page || 20);
       } else {
         setProducts([]);
-        setError(
-          response?.message || "Failed to fetch products."
-        );
+        setError(response?.message || "Failed to fetch products.");
       }
     } catch (err) {
       console.error("Products API Error:", err);
 
       setError(
         err?.response?.data?.message ||
-        err?.message ||
-        "Something went wrong while fetching products."
+          err?.message ||
+          "Something went wrong while fetching products.",
       );
     } finally {
       setLoading(false);
@@ -217,12 +224,8 @@ const [editLoading, setEditLoading] = useState(false);
         product?.product_uid?.toLowerCase().includes(searchValue) ||
         product?.slug?.toLowerCase().includes(searchValue) ||
         product?.seller?.name?.toLowerCase().includes(searchValue) ||
-        product?.category?.category
-          ?.toLowerCase()
-          .includes(searchValue) ||
-        product?.subcategory?.subcategory
-          ?.toLowerCase()
-          .includes(searchValue);
+        product?.category?.category?.toLowerCase().includes(searchValue) ||
+        product?.subcategory?.subcategory?.toLowerCase().includes(searchValue);
 
       const matchesStatus =
         statusFilter === "all" ||
@@ -233,11 +236,7 @@ const [editLoading, setEditLoading] = useState(false);
         categoryFilter === "all" ||
         product?.category?.category === categoryFilter;
 
-      return (
-        matchesSearch &&
-        matchesStatus &&
-        matchesCategory
-      );
+      return matchesSearch && matchesStatus && matchesCategory;
     });
   }, [products, search, statusFilter, categoryFilter]);
 
@@ -248,20 +247,13 @@ const [editLoading, setEditLoading] = useState(false);
 
     const words = description.trim().split(/\s+/);
 
-    return (
-      words.slice(0, 6).join(" ") +
-      (words.length > 6 ? "..." : "")
-    );
+    return words.slice(0, 6).join(" ") + (words.length > 6 ? "..." : "");
   };
 
   /* ================= PRICE ================= */
 
   const formatPrice = (price) => {
-    if (
-      price === null ||
-      price === undefined ||
-      price === ""
-    ) {
+    if (price === null || price === undefined || price === "") {
       return "₹0";
     }
 
@@ -300,7 +292,11 @@ const [editLoading, setEditLoading] = useState(false);
       const formData = new FormData();
 
       Object.keys(productForm).forEach((key) => {
-        if (productForm[key] !== null && productForm[key] !== "") {
+        if (key === "images") {
+          productForm.images.forEach((image) => {
+            formData.append("images[]", image);
+          });
+        } else if (productForm[key] !== null && productForm[key] !== "") {
           formData.append(key, productForm[key]);
         }
       });
@@ -333,7 +329,7 @@ const [editLoading, setEditLoading] = useState(false);
           is_trending: "",
           allow_return: "",
           return_window_days: "",
-          image: null,
+          images: [],
         });
 
         setSubcategories([]);
@@ -347,8 +343,8 @@ const [editLoading, setEditLoading] = useState(false);
 
       toast.error(
         error?.response?.data?.message ||
-        error?.message ||
-        "Something went wrong while adding product."
+          error?.message ||
+          "Something went wrong while adding product.",
       );
     }
   };
@@ -361,9 +357,7 @@ const [editLoading, setEditLoading] = useState(false);
       const response = await deleteProduct(deleteProductId);
 
       if (response?.status || response?.success) {
-        toast.success(
-          response?.message || "Product deleted successfully!"
-        );
+        toast.success(response?.message || "Product deleted successfully!");
 
         setShowDeletePopup(false);
         setDeleteProductId(null);
@@ -371,94 +365,82 @@ const [editLoading, setEditLoading] = useState(false);
         // Refresh product list
         fetchProducts(currentPage);
       } else {
-        toast.error(
-          response?.message || "Failed to delete product."
-        );
+        toast.error(response?.message || "Failed to delete product.");
       }
     } catch (error) {
       console.error("Delete Product Error:", error);
 
       toast.error(
         error?.response?.data?.message ||
-        error?.message ||
-        "Something went wrong while deleting product."
+          error?.message ||
+          "Something went wrong while deleting product.",
       );
     } finally {
       setDeleteLoading(false);
     }
   };
 
-const handleEditProduct = async () => {
-  if (!editProductId) return;
+  const handleEditProduct = async () => {
+    if (!editProductId) return;
 
-  try {
-    setEditLoading(true);
+    try {
+      setEditLoading(true);
 
-    const formData = new FormData();
+      const formData = new FormData();
 
-    Object.keys(productForm).forEach((key) => {
-      if (
-        productForm[key] !== null &&
-        productForm[key] !== ""
-      ) {
-        formData.append(key, productForm[key]);
-      }
-    });
-
-    const response = await updateProduct(
-      editProductId,
-      formData
-    );
-
-    if (response?.status || response?.success) {
-      toast.success(
-        response?.message || "Product updated successfully!"
-      );
-
-      setShowEditProduct(false);
-      setEditProductId(null);
-
-      setProductForm({
-        category_id: "",
-        subcategory_id: "",
-        name: "",
-        brand: "",
-        description: "",
-        cost_price: "",
-        mrp: "",
-        estimated_selling_price: "",
-        price: "",
-        shipping_fee: "",
-        stock: "",
-        status: "",
-        is_featured: "",
-        is_bestseller: "",
-        is_new: "",
-        is_trending: "",
-        allow_return: "",
-        return_window_days: "",
-        image: null,
+      Object.keys(productForm).forEach((key) => {
+        if (productForm[key] !== null && productForm[key] !== "") {
+          formData.append(key, productForm[key]);
+        }
       });
 
-      setSubcategories([]);
-      fetchProducts(currentPage);
-    } else {
-      toast.error(
-        response?.message || "Failed to update product."
-      );
-    }
-  } catch (error) {
-    console.error("Update Product Error:", error);
+      const response = await updateProduct(editProductId, formData);
 
-    toast.error(
-      error?.response?.data?.message ||
-      error?.message ||
-      "Something went wrong while updating product."
-    );
-  } finally {
-    setEditLoading(false);
-  }
-};
+      if (response?.status || response?.success) {
+        toast.success(response?.message || "Product updated successfully!");
+
+        setShowEditProduct(false);
+        setEditProductId(null);
+
+        setProductForm({
+          category_id: "",
+          subcategory_id: "",
+          name: "",
+          brand: "",
+          description: "",
+          cost_price: "",
+          mrp: "",
+          estimated_selling_price: "",
+          price: "",
+          shipping_fee: "",
+          stock: "",
+          status: "",
+          is_featured: "",
+          is_bestseller: "",
+          is_new: "",
+          is_trending: "",
+          allow_return: "",
+          return_window_days: "",
+          images: [],
+        });
+
+        setSubcategories([]);
+        fetchProducts(currentPage);
+      } else {
+        toast.error(response?.message || "Failed to update product.");
+      }
+    } catch (error) {
+      console.error("Update Product Error:", error);
+
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Something went wrong while updating product.",
+      );
+    } finally {
+      setEditLoading(false);
+    }
+  };
 
   const resetFilters = () => {
     setSearch("");
@@ -471,47 +453,42 @@ const handleEditProduct = async () => {
   const openProductDetails = (product) => {
     setSelectedProduct(product);
   };
-const openEditProduct = (product) => {
-  const categoryId =
-    product?.category_id || product?.category?.id || "";
+  const openEditProduct = (product) => {
+    const categoryId = product?.category_id || product?.category?.id || "";
 
-  const subcategoryId =
-    product?.subcategory_id ||
-    product?.subcategory?.id ||
-    "";
+    const subcategoryId =
+      product?.subcategory_id || product?.subcategory?.id || "";
 
-  setEditProductId(product.id);
+    setEditProductId(product.id);
 
-  setProductForm({
-    category_id: categoryId,
-    subcategory_id: subcategoryId,
-    name: product?.name || "",
-    brand: product?.brand || "",
-    description: product?.description || "",
-    cost_price: product?.cost_price ?? "",
-    mrp: product?.mrp ?? "",
-    estimated_selling_price:
-      product?.estimated_selling_price ?? "",
-    price: product?.price ?? "",
-    shipping_fee: product?.shipping_fee ?? "",
-    stock: product?.stock ?? "",
-    status: product?.status ? 1 : 0,
-    is_featured: product?.is_featured ? 1 : 0,
-    is_bestseller: product?.is_bestseller ? 1 : 0,
-    is_new: product?.is_new ? 1 : 0,
-    is_trending: product?.is_trending ? 1 : 0,
-    allow_return: product?.allow_return ? 1 : 0,
-    return_window_days:
-      product?.return_window_days ?? "",
-    image: null,
-  });
+    setProductForm({
+      category_id: categoryId,
+      subcategory_id: subcategoryId,
+      name: product?.name || "",
+      brand: product?.brand || "",
+      description: product?.description || "",
+      cost_price: product?.cost_price ?? "",
+      mrp: product?.mrp ?? "",
+      estimated_selling_price: product?.estimated_selling_price ?? "",
+      price: product?.price ?? "",
+      shipping_fee: product?.shipping_fee ?? "",
+      stock: product?.stock ?? "",
+      status: product?.status ? 1 : 0,
+      is_featured: product?.is_featured ? 1 : 0,
+      is_bestseller: product?.is_bestseller ? 1 : 0,
+      is_new: product?.is_new ? 1 : 0,
+      is_trending: product?.is_trending ? 1 : 0,
+      allow_return: product?.allow_return ? 1 : 0,
+      return_window_days: product?.return_window_days ?? "",
+      images: product?.images || [],
+    });
 
-  if (categoryId) {
-    fetchSubcategories(categoryId);
-  }
+    if (categoryId) {
+      fetchSubcategories(categoryId);
+    }
 
-  setShowEditProduct(true);
-};
+    setShowEditProduct(true);
+  };
   const closeProductDetails = () => {
     setSelectedProduct(null);
   };
@@ -534,7 +511,7 @@ const openEditProduct = (product) => {
           lastPage - 3,
           lastPage - 2,
           lastPage - 1,
-          lastPage
+          lastPage,
         );
       } else {
         pages.push(
@@ -542,7 +519,7 @@ const openEditProduct = (product) => {
           currentPage - 1,
           currentPage,
           currentPage + 1,
-          currentPage + 2
+          currentPage + 2,
         );
       }
     }
@@ -554,11 +531,9 @@ const openEditProduct = (product) => {
 
   return (
     <div className="tax-page product-page">
-
       {/* ================= HEADER ================= */}
 
       <header className="tax-header">
-
         <div className="tax-header-center">
           <h2>Product Management</h2>
 
@@ -568,7 +543,6 @@ const openEditProduct = (product) => {
         </div>
 
         <div className="tax-header-actions">
-
           <button
             type="button"
             className="add-product-btn"
@@ -578,15 +552,12 @@ const openEditProduct = (product) => {
             <span>Add Product</span>
           </button>
         </div>
-
       </header>
 
       {/* ================= SUMMARY CARDS ================= */}
 
       <div className="product-summary-grid">
-
         <div className="product-summary-card">
-
           <div className="product-summary-icon purple">
             <FaBoxOpen />
           </div>
@@ -595,11 +566,9 @@ const openEditProduct = (product) => {
             <span>Total Products</span>
             <strong>{totalProducts}</strong>
           </div>
-
         </div>
 
         <div className="product-summary-card">
-
           <div className="product-summary-icon green">
             <FaCheckCircle />
           </div>
@@ -607,18 +576,12 @@ const openEditProduct = (product) => {
           <div>
             <span>Active Products</span>
             <strong>
-              {
-                products.filter(
-                  (item) => item?.status === true
-                ).length
-              }
+              {products.filter((item) => item?.status === true).length}
             </strong>
           </div>
-
         </div>
 
         <div className="product-summary-card">
-
           <div className="product-summary-icon orange">
             <FaTag />
           </div>
@@ -626,18 +589,12 @@ const openEditProduct = (product) => {
           <div>
             <span>Featured</span>
             <strong>
-              {
-                products.filter(
-                  (item) => item?.is_featured === true
-                ).length
-              }
+              {products.filter((item) => item?.is_featured === true).length}
             </strong>
           </div>
-
         </div>
 
         <div className="product-summary-card">
-
           <div className="product-summary-icon blue">
             <FaStore />
           </div>
@@ -647,35 +604,27 @@ const openEditProduct = (product) => {
             <strong>
               {
                 new Set(
-                  products
-                    .map((item) => item?.seller?.id)
-                    .filter(Boolean)
+                  products.map((item) => item?.seller?.id).filter(Boolean),
                 ).size
               }
             </strong>
           </div>
-
         </div>
-
       </div>
 
       {/* ================= FILTER CARD ================= */}
 
       <section className="tax-card product-filter-card">
-
         <div className="product-filter-row">
-
           {/* SEARCH */}
 
           <div className="product-search-wrapper">
-
             <FaSearch className="product-search-icon" />
 
             <input
               type="text"
               placeholder="Search product, UID, seller, category..."
               value={search}
-
               onChange={(e) => {
                 const categoryId = e.target.value;
 
@@ -685,7 +634,6 @@ const openEditProduct = (product) => {
                   subcategory_id: "",
                 });
               }}
-
               className="product-search-input"
             />
 
@@ -697,7 +645,6 @@ const openEditProduct = (product) => {
                 <FaTimes />
               </button>
             )}
-
           </div>
 
           {/* STATUS */}
@@ -725,59 +672,44 @@ const openEditProduct = (product) => {
             }}
             options={[
               { value: "all", label: "All Categories" },
-              ...categories.map((category) => ({ value: category, label: category })),
+              ...categories.map((category) => ({
+                value: category,
+                label: category,
+              })),
             ]}
           />
 
           {/* RESET */}
 
-          {(search ||
-            statusFilter !== "all" ||
-            categoryFilter !== "all") && (
-              <button
-                className="product-reset-btn"
-                onClick={resetFilters}
-              >
-                Reset
-              </button>
-            )}
-
+          {(search || statusFilter !== "all" || categoryFilter !== "all") && (
+            <button className="product-reset-btn" onClick={resetFilters}>
+              Reset
+            </button>
+          )}
         </div>
-
       </section>
 
       {/* ================= PRODUCT TABLE ================= */}
 
       <section className="tax-card product-table-card">
-
         <div className="product-table-heading">
-
           <div>
-
             <div className="tax-card-title-group">
-
               <FaBoxOpen className="tax-card-icon" />
 
-              <h3 className="tax-card-title">
-                Products
-              </h3>
-
+              <h3 className="tax-card-title">Products</h3>
             </div>
 
             <p className="product-result-text">
               Showing {filteredProducts.length} products
             </p>
-
           </div>
-
         </div>
 
         {loading ? (
-
           /* ================= LOADING ================= */
 
           <div className="tax-loading-state">
-
             <div
               className="btn-spinner"
               style={{
@@ -787,63 +719,40 @@ const openEditProduct = (product) => {
               }}
             />
 
-            <span>
-              Loading products...
-            </span>
-
+            <span>Loading products...</span>
           </div>
-
         ) : error ? (
-
           /* ================= ERROR ================= */
 
           <div className="product-error-state">
-
             <FaTimesCircle />
 
             <p>{error}</p>
 
             <button
               className="product-retry-btn"
-              onClick={() =>
-                fetchProducts(currentPage)
-              }
+              onClick={() => fetchProducts(currentPage)}
             >
               Try Again
             </button>
-
           </div>
-
         ) : filteredProducts.length === 0 ? (
-
           /* ================= EMPTY ================= */
 
           <div className="product-empty-state">
-
             <FaBoxOpen />
 
-            <h3>
-              No Products Found
-            </h3>
+            <h3>No Products Found</h3>
 
-            <p>
-              No products match your current filters.
-            </p>
-
+            <p>No products match your current filters.</p>
           </div>
-
         ) : (
-
           /* ================= TABLE ================= */
 
           <div className="tax-table-wrapper">
-
             <table className="tax-table product-table">
-
               <thead>
-
                 <tr>
-
                   <th>Product</th>
 
                   <th>Category</th>
@@ -854,51 +763,32 @@ const openEditProduct = (product) => {
 
                   <th>Price</th>
 
-
-
                   <th>Discount</th>
-
-
 
                   <th>Status</th>
 
                   <th>Action</th>
-
                 </tr>
-
               </thead>
 
               <tbody>
-
                 {filteredProducts.map((product) => (
-
                   <tr key={product.id}>
-
                     {/* PRODUCT */}
 
                     <td>
-
                       <div className="product-info-cell">
-
                         <img
-                          src={
-                            product.image ||
-                            DUMMY_IMAGE
-                          }
+                          src={product.image || DUMMY}
                           alt={product.name}
                           className="product-table-image"
                           onError={(e) => {
-                            e.currentTarget.src =
-                              DUMMY_IMAGE;
+                            e.currentTarget.src = DUMMY;
                           }}
                         />
 
                         <div className="product-name-wrapper">
-
-                          <strong
-                            className="product-name"
-                            title={product.name}
-                          >
+                          <strong className="product-name" title={product.name}>
                             {product.name || "—"}
                           </strong>
 
@@ -908,132 +798,78 @@ const openEditProduct = (product) => {
 
                           <span
                             className="product-description"
-                            title={
-                              product.description || ""
-                            }
+                            title={product.description || ""}
                           >
-                            {shortDescription(
-                              product.description
-                            )}
+                            {shortDescription(product.description)}
                           </span>
-
                         </div>
-
                       </div>
-
                     </td>
 
                     {/* CATEGORY */}
 
                     <td>
-
                       <div className="product-category-cell">
-
                         <span className="product-category-name">
-                          {product?.category?.category ||
-                            "—"}
+                          {product?.category?.category || "—"}
                         </span>
-
-
-
                       </div>
-
                     </td>
 
                     {/* SUB CATEGORY */}
 
                     <td>
-
                       <div className="product-subcategory-cell">
-
-                        <span>
-                          {product?.subcategory
-                            ?.subcategory || "—"}
-                        </span>
-
-
-
+                        <span>{product?.subcategory?.subcategory || "—"}</span>
                       </div>
-
                     </td>
 
                     {/* SELLER */}
 
                     <td>
-
                       <div className="product-seller-cell">
-
                         <div className="product-seller-avatar">
                           <FaStore />
                         </div>
 
                         <div>
+                          <strong>{product?.seller?.name || "—"}</strong>
 
-                          <strong>
-                            {product?.seller?.name ||
-                              "—"}
-                          </strong>
-
-                          <small>
-                            {product?.seller?.email ||
-                              "—"}
-                          </small>
-
+                          <small>{product?.seller?.email || "—"}</small>
                         </div>
-
                       </div>
-
                     </td>
 
                     {/* PRICE */}
 
                     <td>
-
                       <div className="product-price-cell">
+                        <strong>{formatPrice(product.final_price)}</strong>
 
-                        <strong>
-                          {formatPrice(
-                            product.final_price
-                          )}
-                        </strong>
-
-                        <del>
-                          {formatPrice(product.mrp)}
-                        </del>
+                        <del>{formatPrice(product.mrp)}</del>
 
                         <small>
                           Selling:{" "}
-                          {formatPrice(
-                            product.estimated_selling_price
-                          )}
+                          {formatPrice(product.estimated_selling_price)}
                         </small>
-
                       </div>
-
                     </td>
-
 
                     {/* DISCOUNT */}
 
                     <td>
-
                       <span className="product-discount-badge">
                         {product.discount || "0%"}
                       </span>
-
                     </td>
-
-
 
                     {/* STATUS */}
 
                     <td>
-
                       <span
-                        className={`tax-status-badge ${product.status
-                            ? "active"
-                            : "inactive"
-                          }`}
+                        className={`tax-status-badge ${
+                          product.status ? "active" : "inactive"
+                        }`}
                       >
                         {product.status ? (
                           <>
@@ -1047,19 +883,15 @@ const openEditProduct = (product) => {
                           </>
                         )}
                       </span>
-
                     </td>
 
                     {/* ACTION */}
 
                     <td>
-
                       <button
                         type="button"
                         className="product-view-btn"
-                        onClick={() =>
-                          openProductDetails(product)
-                        }
+                        onClick={() => openProductDetails(product)}
                         title="View Product"
                       >
                         <FaEye />
@@ -1079,138 +911,83 @@ const openEditProduct = (product) => {
                       </button>
 
                       <button
-  type="button"
-  className="product-edit-btn"
-  onClick={() => openEditProduct(product)}
-  title="Edit Product"
->
-  <FaEdit />
-  Edit
-</button>
+                        type="button"
+                        className="product-edit-btn"
+                        onClick={() => openEditProduct(product)}
+                        title="Edit Product"
+                      >
+                        <FaEdit />
+                        Edit
+                      </button>
                     </td>
-
                   </tr>
-
                 ))}
-
               </tbody>
-
             </table>
-
           </div>
-
         )}
 
         {/* ================= PAGINATION ================= */}
 
-        {!loading &&
-          !error &&
-          filteredProducts.length > 0 && (
-            <div className="product-pagination">
-
-              <div className="product-pagination-info">
-
-                Showing{" "}
-                <strong>
-                  {(currentPage - 1) * perPage + 1}
-                </strong>{" "}
-                -{" "}
-                <strong>
-                  {Math.min(
-                    currentPage * perPage,
-                    totalProducts
-                  )}
-                </strong>{" "}
-                of{" "}
-                <strong>{totalProducts}</strong>
-
-              </div>
-
-              <div className="product-pagination-controls">
-
-                <button
-                  type="button"
-                  disabled={currentPage === 1}
-                  onClick={() =>
-                    handlePageChange(
-                      currentPage - 1
-                    )
-                  }
-                  className="product-page-arrow"
-                >
-                  <FaChevronLeft />
-                </button>
-
-                {paginationNumbers.map((page) => (
-
-                  <button
-                    type="button"
-                    key={page}
-                    onClick={() =>
-                      handlePageChange(page)
-                    }
-                    className={`product-page-number ${currentPage === page
-                        ? "active"
-                        : ""
-                      }`}
-                  >
-                    {page}
-                  </button>
-
-                ))}
-
-                <button
-                  type="button"
-                  disabled={
-                    currentPage === lastPage
-                  }
-                  onClick={() =>
-                    handlePageChange(
-                      currentPage + 1
-                    )
-                  }
-                  className="product-page-arrow"
-                >
-                  <FaChevronRight />
-                </button>
-
-              </div>
-
+        {!loading && !error && filteredProducts.length > 0 && (
+          <div className="product-pagination">
+            <div className="product-pagination-info">
+              Showing <strong>{(currentPage - 1) * perPage + 1}</strong> -{" "}
+              <strong>{Math.min(currentPage * perPage, totalProducts)}</strong>{" "}
+              of <strong>{totalProducts}</strong>
             </div>
-          )}
 
+            <div className="product-pagination-controls">
+              <button
+                type="button"
+                disabled={currentPage === 1}
+                onClick={() => handlePageChange(currentPage - 1)}
+                className="product-page-arrow"
+              >
+                <FaChevronLeft />
+              </button>
+
+              {paginationNumbers.map((page) => (
+                <button
+                  type="button"
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  className={`product-page-number ${
+                    currentPage === page ? "active" : ""
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+
+              <button
+                type="button"
+                disabled={currentPage === lastPage}
+                onClick={() => handlePageChange(currentPage + 1)}
+                className="product-page-arrow"
+              >
+                <FaChevronRight />
+              </button>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* ================= PRODUCT DETAILS MODAL ================= */}
 
       {selectedProduct && (
-
-        <div
-          className="tax-modal-overlay"
-          onClick={closeProductDetails}
-        >
-
+        <div className="tax-modal-overlay" onClick={closeProductDetails}>
           <div
             className="tax-glass-modal product-details-modal"
-            onClick={(e) =>
-              e.stopPropagation()
-            }
+            onClick={(e) => e.stopPropagation()}
           >
-
             {/* MODAL HEADER */}
 
             <div className="tax-modal-header">
-
               <div>
+                <h3>Product Details</h3>
 
-                <h3>
-                  Product Details
-                </h3>
-
-                <p>
-                  {selectedProduct.product_uid}
-                </p>
-
+                <p>{selectedProduct.product_uid}</p>
               </div>
 
               <button
@@ -1219,51 +996,35 @@ const openEditProduct = (product) => {
               >
                 ×
               </button>
-
             </div>
 
             {/* MODAL BODY */}
 
             <div className="tax-modal-body">
-
               {/* TOP */}
 
               <div className="product-modal-top">
-
                 <img
-                  src={
-                    selectedProduct.image ||
-                    DUMMY_IMAGE
-                  }
+                  src={selectedProduct.image || DUMMY}
                   alt={selectedProduct.name}
                   className="product-modal-image"
                   onError={(e) => {
-                    e.currentTarget.src =
-                      DUMMY_IMAGE;
+                    e.currentTarget.src = DUMMY;
                   }}
                 />
 
                 <div className="product-modal-main">
+                  <h2>{selectedProduct.name}</h2>
 
-                  <h2>
-                    {selectedProduct.name}
-                  </h2>
-
-                  <p>
-                    {selectedProduct.slug}
-                  </p>
+                  <p>{selectedProduct.slug}</p>
 
                   <div className="product-modal-badges">
-
                     <span
-                      className={`tax-status-badge ${selectedProduct.status
-                          ? "active"
-                          : "inactive"
-                        }`}
+                      className={`tax-status-badge ${
+                        selectedProduct.status ? "active" : "inactive"
+                      }`}
                     >
-                      {selectedProduct.status
-                        ? "Active"
-                        : "Inactive"}
+                      {selectedProduct.status ? "Active" : "Inactive"}
                     </span>
 
                     {selectedProduct.is_featured && (
@@ -1280,9 +1041,7 @@ const openEditProduct = (product) => {
                     )}
 
                     {selectedProduct.is_new && (
-                      <span className="product-mini-tag new">
-                        New
-                      </span>
+                      <span className="product-mini-tag new">New</span>
                     )}
 
                     {selectedProduct.is_trending && (
@@ -1291,228 +1050,146 @@ const openEditProduct = (product) => {
                         Trending
                       </span>
                     )}
-
                   </div>
-
                 </div>
-
               </div>
 
               {/* DESCRIPTION */}
 
               <div className="product-detail-section">
-
-                <h4>
-                  Description
-                </h4>
+                <h4>Description</h4>
 
                 <p>
-                  {selectedProduct.description ||
-                    "No description available."}
+                  {selectedProduct.description || "No description available."}
                 </p>
-
               </div>
 
               {/* CATEGORY DETAILS */}
 
               <div className="product-detail-grid">
-
                 <div className="product-detail-box">
-
                   <span>Category</span>
 
-                  <strong>
-                    {selectedProduct?.category
-                      ?.category || "—"}
-                  </strong>
-
+                  <strong>{selectedProduct?.category?.category || "—"}</strong>
                 </div>
 
                 <div className="product-detail-box">
-
                   <span>Sub Category</span>
 
                   <strong>
-                    {selectedProduct?.subcategory
-                      ?.subcategory || "—"}
+                    {selectedProduct?.subcategory?.subcategory || "—"}
                   </strong>
-
                 </div>
 
                 <div className="product-detail-box">
-
                   <span>Seller</span>
 
-                  <strong>
-                    {selectedProduct?.seller?.name ||
-                      "—"}
-                  </strong>
-
+                  <strong>{selectedProduct?.seller?.name || "—"}</strong>
                 </div>
 
                 <div className="product-detail-box">
-
                   <span>Seller Email</span>
 
-                  <strong>
-                    {selectedProduct?.seller?.email ||
-                      "—"}
-                  </strong>
-
+                  <strong>{selectedProduct?.seller?.email || "—"}</strong>
                 </div>
-
               </div>
 
               {/* PRICE DETAILS */}
 
               <div className="product-detail-section">
-
-                <h4>
-                  Price Details
-                </h4>
+                <h4>Price Details</h4>
 
                 <div className="product-detail-grid">
-
                   <div className="product-detail-box">
                     <span>Cost Price</span>
-                    <strong>
-                      {formatPrice(
-                        selectedProduct.cost_price
-                      )}
-                    </strong>
+                    <strong>{formatPrice(selectedProduct.cost_price)}</strong>
                   </div>
 
                   <div className="product-detail-box">
                     <span>MRP</span>
-                    <strong>
-                      {formatPrice(
-                        selectedProduct.mrp
-                      )}
-                    </strong>
+                    <strong>{formatPrice(selectedProduct.mrp)}</strong>
                   </div>
 
                   <div className="product-detail-box">
                     <span>Selling Price</span>
                     <strong>
-                      {formatPrice(
-                        selectedProduct.estimated_selling_price
-                      )}
+                      {formatPrice(selectedProduct.estimated_selling_price)}
                     </strong>
                   </div>
 
                   <div className="product-detail-box">
                     <span>Final Price</span>
-                    <strong>
-                      {formatPrice(
-                        selectedProduct.final_price
-                      )}
-                    </strong>
+                    <strong>{formatPrice(selectedProduct.final_price)}</strong>
                   </div>
 
                   <div className="product-detail-box">
                     <span>Shipping Fee</span>
-                    <strong>
-                      {formatPrice(
-                        selectedProduct.shipping_fee
-                      )}
-                    </strong>
+                    <strong>{formatPrice(selectedProduct.shipping_fee)}</strong>
                   </div>
 
                   <div className="product-detail-box">
                     <span>Platform Fee</span>
-                    <strong>
-                      {formatPrice(
-                        selectedProduct.platform_fee
-                      )}
-                    </strong>
+                    <strong>{formatPrice(selectedProduct.platform_fee)}</strong>
                   </div>
 
                   <div className="product-detail-box">
                     <span>Inhand Profit</span>
                     <strong>
-                      {formatPrice(
-                        selectedProduct.inhand_profit
-                      )}
+                      {formatPrice(selectedProduct.inhand_profit)}
                     </strong>
                   </div>
 
                   <div className="product-detail-box">
                     <span>Discount</span>
-                    <strong>
-                      {selectedProduct.discount ||
-                        "0%"}
-                    </strong>
+                    <strong>{selectedProduct.discount || "0%"}</strong>
                   </div>
-
                 </div>
-
               </div>
 
               {/* STOCK & RETURN */}
 
               <div className="product-detail-section">
-
-                <h4>
-                  Stock & Return
-                </h4>
+                <h4>Stock & Return</h4>
 
                 <div className="product-detail-grid">
-
                   <div className="product-detail-box">
                     <span>Total Stock</span>
-                    <strong>
-                      {selectedProduct.stock ?? 0}
-                    </strong>
+                    <strong>{selectedProduct.stock ?? 0}</strong>
                   </div>
 
                   <div className="product-detail-box">
                     <span>Allow Return</span>
                     <strong>
-                      {selectedProduct.allow_return
-                        ? "Yes"
-                        : "No"}
+                      {selectedProduct.allow_return ? "Yes" : "No"}
                     </strong>
                   </div>
 
                   <div className="product-detail-box">
                     <span>Return Window</span>
                     <strong>
-                      {selectedProduct
-                        .return_window_days
+                      {selectedProduct.return_window_days
                         ? `${selectedProduct.return_window_days} Days`
                         : "—"}
                     </strong>
                   </div>
-
                 </div>
-
               </div>
 
               {/* VARIANTS */}
 
               <div className="product-detail-section">
-
                 <div className="product-section-title-row">
-
-                  <h4>
-                    Variants
-                  </h4>
+                  <h4>Variants</h4>
 
                   <span className="tax-card-count">
-                    {selectedProduct.variants
-                      ?.length || 0}
+                    {selectedProduct.variants?.length || 0}
                   </span>
-
                 </div>
 
                 {selectedProduct.variants?.length > 0 ? (
-
                   <div className="product-variants-wrapper">
-
                     <table className="product-variants-table">
-
                       <thead>
-
                         <tr>
                           <th>SKU</th>
                           <th>Price</th>
@@ -1520,161 +1197,123 @@ const openEditProduct = (product) => {
                           <th>Color ID</th>
                           <th>Size ID</th>
                         </tr>
-
                       </thead>
 
                       <tbody>
+                        {selectedProduct.variants.map((variant) => (
+                          <tr key={variant.id}>
+                            <td>{variant.sku || "—"}</td>
 
-                        {selectedProduct.variants.map(
-                          (variant) => (
+                            <td>{formatPrice(variant.price)}</td>
 
-                            <tr key={variant.id}>
+                            <td>{variant.stock ?? 0}</td>
 
-                              <td>
-                                {variant.sku || "—"}
-                              </td>
+                            <td>{variant.color_id ?? "—"}</td>
 
-                              <td>
-                                {formatPrice(
-                                  variant.price
-                                )}
-                              </td>
-
-                              <td>
-                                {variant.stock ?? 0}
-                              </td>
-
-                              <td>
-                                {variant.color_id ??
-                                  "—"}
-                              </td>
-
-                              <td>
-                                {variant.size_id ??
-                                  "—"}
-                              </td>
-
-                            </tr>
-
-                          )
-                        )}
-
+                            <td>{variant.size_id ?? "—"}</td>
+                          </tr>
+                        ))}
                       </tbody>
-
                     </table>
-
                   </div>
-
                 ) : (
-
                   <div className="product-no-variants">
                     No variants available.
                   </div>
-
                 )}
-
               </div>
-
             </div>
-
           </div>
-
         </div>
-
       )}
 
-{/* ================= DELETE CONFIRMATION POPUP ================= */}
+      {/* ================= DELETE CONFIRMATION POPUP ================= */}
 
-{showDeletePopup && (
-  <div
-    className="tax-modal-overlay"
-    onClick={() => {
-      if (!deleteLoading) {
-        setShowDeletePopup(false);
-        setDeleteProductId(null);
-      }
-    }}
-  >
-    <div
-      className="tax-glass-modal delete-confirm-modal"
-      onClick={(e) => e.stopPropagation()}
-    >
-
-      {/* HEADER */}
-      <div className="tax-modal-header">
-        <div>
-          <h3>Delete Product</h3>
-          <p>Confirm product deletion</p>
-        </div>
-
-        <button
-          className="tax-modal-close-btn"
+      {showDeletePopup && (
+        <div
+          className="tax-modal-overlay"
           onClick={() => {
             if (!deleteLoading) {
               setShowDeletePopup(false);
               setDeleteProductId(null);
             }
           }}
-          disabled={deleteLoading}
         >
-          ×
-        </button>
-      </div>
-
-      {/* BODY */}
-      <div className="delete-confirm-body">
-
-        <div className="delete-confirm-icon">
-          <FaTimesCircle />
-        </div>
-
-        <h4>Are you sure?</h4>
-
-        <p>
-          Are you sure you want to delete this product?
-          This action cannot be undone.
-        </p>
-
-        {/* ACTION BUTTONS */}
-        <div className="delete-confirm-actions">
-
-          <button
-            type="button"
-            className="product-cancel-btn"
-            onClick={() => {
-              setShowDeletePopup(false);
-              setDeleteProductId(null);
-            }}
-            disabled={deleteLoading}
+          <div
+            className="tax-glass-modal delete-confirm-modal"
+            onClick={(e) => e.stopPropagation()}
           >
-            Cancel
-          </button>
+            {/* HEADER */}
+            <div className="tax-modal-header">
+              <div>
+                <h3>Delete Product</h3>
+                <p>Confirm product deletion</p>
+              </div>
 
-          <button
-            type="button"
-            className="product-delete-confirm-btn"
-            onClick={handleDeleteProduct}
-            disabled={deleteLoading}
-          >
-            {deleteLoading ? (
-              <>
-                <span className="btn-spinner"></span>
-                Deleting...
-              </>
-            ) : (
-              <>
-                <FaTimes />
-                Confirm Delete
-              </>
-            )}
-          </button>
+              <button
+                className="tax-modal-close-btn"
+                onClick={() => {
+                  if (!deleteLoading) {
+                    setShowDeletePopup(false);
+                    setDeleteProductId(null);
+                  }
+                }}
+                disabled={deleteLoading}
+              >
+                ×
+              </button>
+            </div>
 
+            {/* BODY */}
+            <div className="delete-confirm-body">
+              <div className="delete-confirm-icon">
+                <FaTimesCircle />
+              </div>
+
+              <h4>Are you sure?</h4>
+
+              <p>
+                Are you sure you want to delete this product? This action cannot
+                be undone.
+              </p>
+
+              {/* ACTION BUTTONS */}
+              <div className="delete-confirm-actions">
+                <button
+                  type="button"
+                  className="product-cancel-btn"
+                  onClick={() => {
+                    setShowDeletePopup(false);
+                    setDeleteProductId(null);
+                  }}
+                  disabled={deleteLoading}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  className="product-delete-confirm-btn"
+                  onClick={handleDeleteProduct}
+                  disabled={deleteLoading}
+                >
+                  {deleteLoading ? (
+                    <>
+                      <span className="btn-spinner"></span>
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <FaTimes />
+                      Confirm Delete
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-
-      </div>
-    </div>
-  </div>
-)}
+      )}
       {showAddProduct && (
         <div
           className="tax-modal-overlay"
@@ -1700,7 +1339,6 @@ const openEditProduct = (product) => {
 
             <div className="tax-modal-body">
               <div className="product-form-grid">
-
                 <div className="product-form-group">
                   <label>Category</label>
 
@@ -1743,10 +1381,7 @@ const openEditProduct = (product) => {
                   >
                     <option value="">Select Subcategory</option>
                     {subcategories.map((subcategory) => (
-                      <option
-                        key={subcategory.id}
-                        value={subcategory.id}
-                      >
+                      <option key={subcategory.id} value={subcategory.id}>
                         {subcategory.subcategory}
                       </option>
                     ))}
@@ -1849,15 +1484,15 @@ const openEditProduct = (product) => {
                   <input
                     type="file"
                     accept="image/*"
+                    multiple
                     onChange={(e) =>
                       setProductForm({
                         ...productForm,
-                        image: e.target.files[0],
+                        images: Array.from(e.target.files),
                       })
                     }
                   />
                 </div>
-
               </div>
 
               <div className="product-form-actions">
@@ -1884,22 +1519,22 @@ const openEditProduct = (product) => {
       )}
 
       {showEditProduct && (
-  <EditProductPopup
-    productForm={productForm}
-    setProductForm={setProductForm}
-    categoryList={categoryList}
-    subcategories={subcategories}
-    fetchSubcategories={fetchSubcategories}
-    handleEditProduct={handleEditProduct}
-    editLoading={editLoading}
-    onClose={() => {
-      if (!editLoading) {
-        setShowEditProduct(false);
-        setEditProductId(null);
-      }
-    }}
-  />
-)}
+        <EditProductPopup
+          productForm={productForm}
+          setProductForm={setProductForm}
+          categoryList={categoryList}
+          subcategories={subcategories}
+          fetchSubcategories={fetchSubcategories}
+          handleEditProduct={handleEditProduct}
+          editLoading={editLoading}
+          onClose={() => {
+            if (!editLoading) {
+              setShowEditProduct(false);
+              setEditProductId(null);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

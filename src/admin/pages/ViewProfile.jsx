@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import * as ProfileAPI from "../api/viewProfileApi";
-import Defaulting from "../img/admin_profile.webp";
+import Defaulting from "../../assets/img/admin_profile.webp";
 import { motion, AnimatePresence } from "framer-motion";
 const getFieldIcon = (key) => {
   const iconClass =

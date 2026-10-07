@@ -29,6 +29,7 @@ import Notifications from "./pages/Notifications";
 import Rating from "./pages/Rating";
 import Products from "./pages/Product/Product";
 import Variants from "./pages/Product/Variants";
+import SellerApproval from "./pages/SellerApproval";
 export default function AdminApp() {
   return (
     <>
@@ -65,6 +66,7 @@ export default function AdminApp() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="users" element={<Users />} />
           <Route path="Seller" element={<Seller />} />
+          <Route path="SellerApproval" element={<SellerApproval />} />
           <Route path="seller/products/:id" element={<SellerProducts />} />
           <Route path="seller/orders/:id" element={<SellerOrders />} />
           <Route

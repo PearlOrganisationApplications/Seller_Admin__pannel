@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import defaultImg from "../img/admin_profile.webp";
+import defaultImg from "../../assets/img/admin_profile.webp";
 import { BASE_URL } from "../api/axios";
 import { getProfile } from "../api/viewProfileApi";
 import { Bell, Menu, ChevronDown, User } from "lucide-react";
