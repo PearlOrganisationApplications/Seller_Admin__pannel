@@ -480,7 +480,7 @@ export default function Products() {
       is_trending: product?.is_trending ? 1 : 0,
       allow_return: product?.allow_return ? 1 : 0,
       return_window_days: product?.return_window_days ?? "",
-      images: product?.images || [],
+      images: [],
     });
 
     if (categoryId) {
@@ -493,7 +493,6 @@ export default function Products() {
     setSelectedProduct(null);
   };
 
-  /* ================= PAGINATION ================= */
 
   const paginationNumbers = useMemo(() => {
     const pages = [];
@@ -779,7 +778,7 @@ export default function Products() {
                     <td>
                       <div className="product-info-cell">
                         <img
-                          src={product.image || DUMMY}
+                     src={product?.image?.[0] || DUMMY}
                           alt={product.name}
                           className="product-table-image"
                           onError={(e) => {
@@ -1005,7 +1004,7 @@ export default function Products() {
 
               <div className="product-modal-top">
                 <img
-                  src={selectedProduct.image || DUMMY}
+               src={selectedProduct?.image?.[0] || DUMMY}
                   alt={selectedProduct.name}
                   className="product-modal-image"
                   onError={(e) => {
@@ -1344,17 +1343,7 @@ export default function Products() {
 
                   <select
                     value={productForm.category_id}
-                    onChange={(e) => {
-                      const categoryId = e.target.value;
-
-                      setProductForm({
-                        ...productForm,
-                        category_id: categoryId,
-                        subcategory_id: "",
-                      });
-
-                      fetchSubcategories(categoryId);
-                    }}
+                   onChange={(e) => setSearch(e.target.value)}
                   >
                     <option value="">Select Category</option>
 

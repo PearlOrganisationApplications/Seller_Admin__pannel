@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { FaCheck, FaTimes, FaEye, FaUserTie } from "react-icons/fa";
+import {
+  FaCheck,
+  FaTimes,
+  FaEye,
+  FaUserTie,
+  FaTimesCircle,
+} from "react-icons/fa";
 import { toast } from "react-hot-toast";
 
 const API_URL = "https://kalkideals.in/api/admin/products";
-
 const SellerApproval = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -11,23 +16,20 @@ const SellerApproval = () => {
 
   const [approveLoading, setApproveLoading] = useState(null);
   const [rejectLoading, setRejectLoading] = useState(null);
-
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [viewProduct, setViewProduct] = useState(null);
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [approvalAction, setApprovalAction] = useState(null);
-
   const fetchProducts = async () => {
     try {
       setLoading(true);
       setError("");
-
       const token = localStorage.getItem("token");
-
       if (!token) {
         setError("Authentication token missing. Please login again.");
         return;
       }
-
       const response = await fetch(API_URL, {
         method: "GET",
         headers: {
@@ -64,7 +66,10 @@ const SellerApproval = () => {
   useEffect(() => {
     fetchProducts();
   }, []);
-
+  const handleView = (product) => {
+    setViewProduct(product);
+    setShowViewModal(true);
+  };
   const handleApprove = (product) => {
     setSelectedProduct(product);
     setApprovalAction("approve");
@@ -188,10 +193,11 @@ const SellerApproval = () => {
 
       {/* Table */}
       {!loading && !error && products.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm  overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-100 border-b">
+            <table className="w-full text-sm border-0 border-collapse">
+              {" "}
+              <thead className="bg-gray-100 ">
                 <tr>
                   <th className="px-5 py-4 text-left font-semibold text-gray-700">
                     Product
@@ -222,7 +228,6 @@ const SellerApproval = () => {
                   </th>
                 </tr>
               </thead>
-
               <tbody className="divide-y">
                 {products.map((product) => {
                   const seller = product.seller || {};
@@ -300,6 +305,14 @@ const SellerApproval = () => {
                       {/* Actions */}
                       <td className="px-5 py-4">
                         <div className="flex justify-center gap-2">
+                          {/* VIEW */}
+                          <button
+                            onClick={() => handleView(product)}
+                            className="flex items-center gap-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition"
+                          >
+                            <FaEye />
+                            View
+                          </button>
                           {/* APPROVE */}
                           <button
                             onClick={() => handleApprove(product)}
@@ -446,6 +459,371 @@ const SellerApproval = () => {
                     )}
                   </>
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* PRODUCT VIEW MODAL */}
+      {showViewModal && viewProduct && (
+        <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/50 px-4 py-6">
+          <div className="bg-white w-full max-w-5xl max-h-[90vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            {/* Header */}
+            <div className="px-6 py-4 border-b flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-gray-800">
+                  Product Details
+                </h2>
+
+                <p className="text-sm text-gray-500 mt-1">
+                  {viewProduct.product_uid || "N/A"}
+                </p>
+              </div>
+
+              <button
+                onClick={() => {
+                  setShowViewModal(false);
+                  setViewProduct(null);
+                }}
+                className="text-gray-400 hover:text-gray-700 transition"
+              >
+                <FaTimesCircle className="text-2xl" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 overflow-y-auto">
+              {/* Product Images + Basic Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Images */}
+                <div>
+                  <h3 className="font-semibold text-gray-800 mb-3">
+                    Product Images
+                  </h3>
+
+                  {Array.isArray(viewProduct.image) &&
+                  viewProduct.image.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      {viewProduct.image.map((img, index) => (
+                        <img
+                          key={index}
+                          src={img}
+                          alt={`${viewProduct.name} ${index + 1}`}
+                          className="w-full h-40 object-cover rounded-lg border"
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="h-40 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
+                      No image available
+                    </div>
+                  )}
+                </div>
+
+                {/* Basic Details */}
+                <div>
+                  <h3 className="font-semibold text-gray-800 mb-3">
+                    Basic Information
+                  </h3>
+
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-xs text-gray-500">Product Name</p>
+                      <p className="font-semibold text-gray-800">
+                        {viewProduct.name || "N/A"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-gray-500">Product UID</p>
+                      <p className="text-gray-700">
+                        {viewProduct.product_uid || "N/A"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-gray-500">Brand</p>
+                      <p className="text-gray-700">
+                        {viewProduct.brand || "N/A"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-gray-500">Description</p>
+                      <p className="text-gray-700">
+                        {viewProduct.description || "N/A"}
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs text-gray-500">Category</p>
+                        <p className="text-gray-700">
+                          {viewProduct.category?.category || "N/A"}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-xs text-gray-500">Subcategory</p>
+                        <p className="text-gray-700">
+                          {viewProduct.subcategory?.subcategory || "N/A"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Seller Details */}
+              <div className="mt-6 border rounded-xl p-5">
+                <h3 className="font-semibold text-gray-800 mb-4">
+                  Seller Details
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-xs text-gray-500">Seller Name</p>
+                    <p className="font-medium text-gray-800">
+                      {viewProduct.seller?.name || "N/A"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500">Email</p>
+                    <p className="text-gray-700">
+                      {viewProduct.seller?.email || "N/A"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500">Phone</p>
+                    <p className="text-gray-700">
+                      {viewProduct.seller?.phone || "N/A"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500">Business Name</p>
+                    <p className="text-gray-700">
+                      {viewProduct.seller?.business_name || "N/A"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500">Business Type</p>
+                    <p className="text-gray-700">
+                      {viewProduct.seller?.business_type || "N/A"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500">GST Number</p>
+                    <p className="text-gray-700">
+                      {viewProduct.seller?.gst_number || "N/A"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pricing */}
+              <div className="mt-6 border rounded-xl p-5">
+                <h3 className="font-semibold text-gray-800 mb-4">
+                  Pricing & Stock
+                </h3>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <p className="text-xs text-gray-500">Cost Price</p>
+                    <p className="font-semibold">
+                      ₹{viewProduct.cost_price || "0"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500">MRP</p>
+                    <p className="font-semibold">₹{viewProduct.mrp || "0"}</p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500">Selling Price</p>
+                    <p className="font-semibold">₹{viewProduct.price || "0"}</p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500">Final Price</p>
+                    <p className="font-semibold">
+                      ₹{viewProduct.final_price || "0"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500">Shipping Fee</p>
+                    <p className="font-semibold">
+                      ₹{viewProduct.shipping_fee || "0"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500">Platform Fee</p>
+                    <p className="font-semibold">
+                      ₹{viewProduct.platform_fee || "0"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500">Discount</p>
+                    <p className="font-semibold">
+                      {viewProduct.discount || "0%"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500">Stock</p>
+                    <p className="font-semibold">{viewProduct.stock ?? 0}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Return Details */}
+              <div className="mt-6 border rounded-xl p-5">
+                <h3 className="font-semibold text-gray-800 mb-4">
+                  Return & Product Status
+                </h3>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <p className="text-xs text-gray-500">Approval</p>
+                    <span className="inline-flex mt-1 px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
+                      {Number(viewProduct.is_approved) === 1
+                        ? "Approved"
+                        : "Pending"}
+                    </span>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500">Product Status</p>
+                    <span
+                      className={`inline-flex mt-1 px-3 py-1 rounded-full text-xs font-semibold ${
+                        viewProduct.status
+                          ? "bg-green-100 text-green-700"
+                          : "bg-gray-100 text-gray-600"
+                      }`}
+                    >
+                      {viewProduct.status ? "Active" : "Inactive"}
+                    </span>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500">Allow Return</p>
+                    <p className="font-medium text-gray-800">
+                      {viewProduct.allow_return ? "Yes" : "No"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500">Return Window</p>
+                    <p className="font-medium text-gray-800">
+                      {viewProduct.return_window_days ?? 0} days
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Variants */}
+              <div className="mt-6 border rounded-xl p-5">
+                <h3 className="font-semibold text-gray-800 mb-4">Variants</h3>
+
+                {Array.isArray(viewProduct.variants) &&
+                viewProduct.variants.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gray-100">
+                        <tr>
+                          <th className="px-4 py-3 text-left">ID</th>
+                          <th className="px-4 py-3 text-left">Color ID</th>
+                          <th className="px-4 py-3 text-left">Size ID</th>
+                          <th className="px-4 py-3 text-left">Price</th>
+                          <th className="px-4 py-3 text-left">Stock</th>
+                          <th className="px-4 py-3 text-left">SKU</th>
+                        </tr>
+                      </thead>
+
+                      <tbody className="divide-y">
+                        {viewProduct.variants.map((variant) => (
+                          <tr key={variant.id}>
+                            <td className="px-4 py-3">{variant.id}</td>
+
+                            <td className="px-4 py-3">
+                              {variant.color_id ?? "N/A"}
+                            </td>
+
+                            <td className="px-4 py-3">
+                              {variant.size_id ?? "N/A"}
+                            </td>
+
+                            <td className="px-4 py-3 font-medium">
+                              ₹{variant.price || "0"}
+                            </td>
+
+                            <td className="px-4 py-3">{variant.stock ?? 0}</td>
+
+                            <td className="px-4 py-3">
+                              {variant.sku || "N/A"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500">
+                    No variants available.
+                  </p>
+                )}
+              </div>
+
+              {/* Specifications */}
+              <div className="mt-6 border rounded-xl p-5">
+                <h3 className="font-semibold text-gray-800 mb-4">
+                  Specifications
+                </h3>
+
+                {Array.isArray(viewProduct.specifications) &&
+                viewProduct.specifications.length > 0 ? (
+                  <div className="space-y-3">
+                    {viewProduct.specifications.map((spec) => (
+                      <div
+                        key={spec.id}
+                        className="flex flex-col md:flex-row md:items-center gap-2 bg-gray-50 rounded-lg p-3"
+                      >
+                        <span className="font-medium text-gray-800">
+                          {spec.spec_key || "N/A"}
+                        </span>
+
+                        <span className="text-gray-600">
+                          {spec.spec_value || "N/A"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500">
+                    No specifications available.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 bg-gray-50 border-t flex justify-end">
+              <button
+                onClick={() => {
+                  setShowViewModal(false);
+                  setViewProduct(null);
+                }}
+                className="px-5 py-2.5 bg-gray-800 hover:bg-gray-900 text-white rounded-lg text-sm font-medium transition"
+              >
+                Close
               </button>
             </div>
           </div>
