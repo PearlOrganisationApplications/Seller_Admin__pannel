@@ -61,9 +61,8 @@ function CustomDropdown({ value, options, onChange, placeholder = "All" }) {
           {options.map((opt) => (
             <li
               key={opt.value}
-              className={`custom-dropdown-item ${
-                opt.value === value ? "active" : ""
-              }`}
+              className={`custom-dropdown-item ${opt.value === value ? "active" : ""
+                }`}
               onClick={() => {
                 onChange(opt.value);
                 setOpen(false);
@@ -125,7 +124,29 @@ export default function Products() {
     return_window_days: "",
     images: [],
   });
+  const [imageError, setImageError] = useState("");
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    const allowedExtensions = ["jpg", "jpeg", "png", "webp", "gif"];
 
+    const invalidFiles = files.filter((file) => {
+      const extension = file.name.split(".").pop().toLowerCase();
+      return !allowedExtensions.includes(extension);
+    });
+
+    if (invalidFiles.length > 0) {
+      setImageError("Only JPG, JPEG, PNG, WEBP, and GIF images are allowed.");
+      e.target.value = "";
+      return;
+    }
+
+    setImageError("");
+
+    setProductForm((prev) => ({
+      ...prev,
+      images: files,
+    }));
+  };
   const fetchCategories = async () => {
     try {
       const response = await getCategories();
@@ -192,8 +213,8 @@ export default function Products() {
 
       setError(
         err?.response?.data?.message ||
-          err?.message ||
-          "Something went wrong while fetching products.",
+        err?.message ||
+        "Something went wrong while fetching products.",
       );
     } finally {
       setLoading(false);
@@ -343,8 +364,8 @@ export default function Products() {
 
       toast.error(
         error?.response?.data?.message ||
-          error?.message ||
-          "Something went wrong while adding product.",
+        error?.message ||
+        "Something went wrong while adding product.",
       );
     }
   };
@@ -372,8 +393,8 @@ export default function Products() {
 
       toast.error(
         error?.response?.data?.message ||
-          error?.message ||
-          "Something went wrong while deleting product.",
+        error?.message ||
+        "Something went wrong while deleting product.",
       );
     } finally {
       setDeleteLoading(false);
@@ -386,13 +407,26 @@ export default function Products() {
     try {
       setEditLoading(true);
 
+
       const formData = new FormData();
 
       Object.keys(productForm).forEach((key) => {
-        if (productForm[key] !== null && productForm[key] !== "") {
+        if (key === "images") {
+          // Append each selected image separately
+          if (Array.isArray(productForm.images)) {
+            productForm.images.forEach((image) => {
+              formData.append("images[]", image);
+            });
+          }
+        } else if (
+          productForm[key] !== null &&
+          productForm[key] !== undefined &&
+          productForm[key] !== ""
+        ) {
           formData.append(key, productForm[key]);
         }
       });
+
 
       const response = await updateProduct(editProductId, formData);
 
@@ -434,8 +468,8 @@ export default function Products() {
 
       toast.error(
         error?.response?.data?.message ||
-          error?.message ||
-          "Something went wrong while updating product.",
+        error?.message ||
+        "Something went wrong while updating product.",
       );
     } finally {
       setEditLoading(false);
@@ -625,13 +659,8 @@ export default function Products() {
               placeholder="Search product, UID, seller, category..."
               value={search}
               onChange={(e) => {
-                const categoryId = e.target.value;
-
-                setProductForm({
-                  ...productForm,
-                  category_id: categoryId,
-                  subcategory_id: "",
-                });
+                setSearch(e.target.value);
+                setCurrentPage(1);
               }}
               className="product-search-input"
             />
@@ -778,7 +807,7 @@ export default function Products() {
                     <td>
                       <div className="product-info-cell">
                         <img
-                     src={product?.image?.[0] || DUMMY}
+                          src={product?.image?.[0] || DUMMY}
                           alt={product.name}
                           className="product-table-image"
                           onError={(e) => {
@@ -866,9 +895,8 @@ export default function Products() {
 
                     <td>
                       <span
-                        className={`tax-status-badge ${
-                          product.status ? "active" : "inactive"
-                        }`}
+                        className={`tax-status-badge ${product.status ? "active" : "inactive"
+                          }`}
                       >
                         {product.status ? (
                           <>
@@ -951,9 +979,8 @@ export default function Products() {
                   type="button"
                   key={page}
                   onClick={() => handlePageChange(page)}
-                  className={`product-page-number ${
-                    currentPage === page ? "active" : ""
-                  }`}
+                  className={`product-page-number ${currentPage === page ? "active" : ""
+                    }`}
                 >
                   {page}
                 </button>
@@ -1004,7 +1031,7 @@ export default function Products() {
 
               <div className="product-modal-top">
                 <img
-               src={selectedProduct?.image?.[0] || DUMMY}
+                  src={selectedProduct?.image?.[0] || DUMMY}
                   alt={selectedProduct.name}
                   className="product-modal-image"
                   onError={(e) => {
@@ -1019,9 +1046,8 @@ export default function Products() {
 
                   <div className="product-modal-badges">
                     <span
-                      className={`tax-status-badge ${
-                        selectedProduct.status ? "active" : "inactive"
-                      }`}
+                      className={`tax-status-badge ${selectedProduct.status ? "active" : "inactive"
+                        }`}
                     >
                       {selectedProduct.status ? "Active" : "Inactive"}
                     </span>
@@ -1338,12 +1364,23 @@ export default function Products() {
 
             <div className="tax-modal-body">
               <div className="product-form-grid">
+
                 <div className="product-form-group">
                   <label>Category</label>
 
                   <select
                     value={productForm.category_id}
-                   onChange={(e) => setSearch(e.target.value)}
+                    onChange={(e) => {
+                      const categoryId = e.target.value;
+
+                      setProductForm((prev) => ({
+                        ...prev,
+                        category_id: categoryId,
+                        subcategory_id: "",
+                      }));
+
+                      fetchSubcategories(categoryId);
+                    }}
                   >
                     <option value="">Select Category</option>
 
@@ -1355,6 +1392,8 @@ export default function Products() {
                       ))}
                   </select>
                 </div>
+
+
                 <div className="product-form-group">
                   <label>Subcategory</label>
 
@@ -1470,16 +1509,31 @@ export default function Products() {
 
                 <div className="product-form-group full-width">
                   <label>Product Image</label>
+
                   <input
                     type="file"
-                    accept="image/*"
+                    accept=".jpg,.jpeg,.png,.webp,.gif"
                     multiple
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      const allowedExtensions = ["jpg", "jpeg", "png", "webp", "gif"];
+
+                      const invalidFiles = files.filter((file) => {
+                        const extension = file.name.split(".").pop().toLowerCase();
+                        return !allowedExtensions.includes(extension);
+                      });
+
+                      if (invalidFiles.length > 0) {
+                        alert("Only JPG, JPEG, PNG, WEBP, and GIF images are allowed.");
+                        e.target.value = "";
+                        return;
+                      }
+
                       setProductForm({
                         ...productForm,
-                        images: Array.from(e.target.files),
-                      })
-                    }
+                        images: files,
+                      });
+                    }}
                   />
                 </div>
               </div>

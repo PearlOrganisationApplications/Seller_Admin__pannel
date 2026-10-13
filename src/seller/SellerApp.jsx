@@ -3,7 +3,7 @@ import SellerLayout from "./layouts/SellerLayouts";
 import SellerDashboard from "./pages/SellerDashboard";
 import InventoryPage from "./pages/Inventory";
 import ProductListing from "./pages/ProductListing";
-import ListedProducts from "./pages/ListedProducts";
+import ListedProducts from "./pages/sellerProductcrud/ListedProducts";
 import Order from "./pages/Order";
 import AllDetails from "./pages/Alldetails";
 import RequestCertified from "./pages/RequestCertified";

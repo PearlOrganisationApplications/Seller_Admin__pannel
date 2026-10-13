@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   FaEdit,
   FaTimes,
@@ -16,6 +16,7 @@ export default function EditProductPopup({
   editLoading,
   onClose,
 }) {
+  const [imageError, setImageError] = useState("");
   return (
     <div
       className="tax-modal-overlay"
@@ -228,26 +229,54 @@ export default function EditProductPopup({
               </div>
             ))}
 
-            {/* ================= IMAGE ================= */}
+
+            {/* ================= PRODUCT IMAGES ================= */}
+            {imageError && ( <div className="image-error-toast"> {imageError} </div> )}
             <div className="edit-product-form-group full-width">
-              <label>Product Image</label>
+              
+              <label>Product Images</label>
 
               <input
                 type="file"
-                accept="image/*"
-                onChange={(e) =>
+                accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                multiple
+                onChange={(e) => {
+                  const files = Array.from(e.target.files || []);
+                  const allowedFormats = ["jpg", "jpeg", "png", "webp", "gif"];
+
+                  const invalidFiles = files.filter((file) => {
+                    const extension = file.name.split(".").pop().toLowerCase();
+                    return !allowedFormats.includes(extension);
+                  });
+
+                  if (invalidFiles.length > 0) {
+                    setImageError("Only JPG, JPEG, PNG, WEBP, and GIF formats are allowed.");
+                    e.target.value = "";
+                    return;
+                  }
+
+                  setImageError("");
                   setProductForm({
                     ...productForm,
-                    image: e.target.files?.[0] || null,
-                  })
-                }
+                    images: files,
+                  });
+                }}
+
               />
 
               <small className="edit-product-image-help">
-                Leave empty if you don't want to change
-                the existing image.
+                Select multiple images. Leave empty if you don't want to
+                change the existing images.
               </small>
+
+              {productForm.images?.length > 0 && (
+                <small>
+                  {productForm.images.length} image(s) selected
+                </small>
+              )}
             </div>
+
+
 
           </div>
 

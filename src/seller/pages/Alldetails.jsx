@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Pencil, Trash2, ChevronLeft, ShieldCheck, Package, TrendingUp, AlertTriangle, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 // Import the API service
-import { getSellerProducts } from "../api/allDetailsApi"; 
+import { getSellerProducts } from "../api/allDetailsApi";
 
 export default function AllDetails() {
   const navigate = useNavigate();
@@ -15,17 +15,17 @@ export default function AllDetails() {
     fetchProducts();
   }, []);
 
-const fetchProducts = async () => {
+  const fetchProducts = async () => {
     try {
       setLoading(true);
       const result = await getSellerProducts();
-      
+
       if (result.success) {
         // --- SORTING LOGIC: Newest products at the top ---
         const sortedData = (result.data || []).sort((a, b) => {
           return new Date(b.created_at) - new Date(a.created_at);
         });
-        
+
         setProducts(sortedData);
       } else {
         setError(result.message || "Failed to load products");
@@ -43,9 +43,9 @@ const fetchProducts = async () => {
     try {
       // Handle case where image might already be an array or a JSON string
       const images = typeof imgString === 'string' ? JSON.parse(imgString) : imgString;
-      return images[0]; 
+      return images[0];
     } catch (e) {
-      return "https://via.placeholder.com/150"; 
+      return "https://via.placeholder.com/150";
     }
   };
 
@@ -62,7 +62,7 @@ const fetchProducts = async () => {
       <div className="h-screen w-full flex flex-col items-center justify-center bg-slate-50 p-4">
         <AlertTriangle className="text-red-500 mb-2" size={48} />
         <p className="text-slate-800 font-bold">{error}</p>
-        <button 
+        <button
           onClick={fetchProducts}
           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
         >
@@ -125,9 +125,9 @@ const fetchProducts = async () => {
                   <td className="p-4">
                     <div className="flex items-center gap-3">
                       <div className="h-12 w-12 rounded-lg overflow-hidden border border-slate-100 flex-shrink-0 bg-slate-50">
-                        <img 
-                          src={getProductImage(p.image)} 
-                          alt={p.name} 
+                        <img
+                          src={getProductImage(p.image)}
+                          alt={p.name}
                           className="h-full w-full object-cover"
                         />
                       </div>
@@ -150,8 +150,8 @@ const fetchProducts = async () => {
                   </td>
                   <td className="p-4 text-center">
                     <div className="inline-flex items-center gap-1 bg-emerald-50 px-3 py-1 rounded-full">
-                       <TrendingUp size={12} className="text-emerald-500" />
-                       <span className="text-emerald-700 font-bold">₹{p.inhand_profit}</span>
+                      <TrendingUp size={12} className="text-emerald-500" />
+                      <span className="text-emerald-700 font-bold">₹{p.inhand_profit}</span>
                     </div>
                   </td>
                   <td className="p-4 text-center">
@@ -164,11 +164,20 @@ const fetchProducts = async () => {
                     )}
                   </td>
                   <td className="p-4 text-center">
-                    <span className={`px-2 py-1 rounded text-[10px] font-black uppercase ${p.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-500'}`}>
-                      {p.status}
-                    </span>
+
+                    <td className="p-4 text-center">
+                      <span
+                        className={`px-2 py-1 rounded text-[10px] font-black uppercase ${p.status === true
+                            ? "bg-green-100 text-green-700"
+                            : "bg-slate-200 text-slate-600"
+                          }`}
+                      >
+                        {p.status === true ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+
                   </td>
-               </tr>
+                </tr>
               ))}
             </tbody>
           </table>
@@ -182,7 +191,7 @@ const fetchProducts = async () => {
             <div className="flex justify-between items-start mb-4">
               <div className="flex gap-3">
                 <div className="h-14 w-14 rounded-xl overflow-hidden border border-slate-100">
-                    <img src={getProductImage(p.image)} alt={p.name} className="h-full w-full object-cover" />
+                  <img src={getProductImage(p.image)} alt={p.name} className="h-full w-full object-cover" />
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-800">{p.name}</h3>
@@ -195,7 +204,9 @@ const fetchProducts = async () => {
             <div className="grid grid-cols-2 gap-y-4 gap-x-2 border-y border-slate-50 py-4 my-4">
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase">Stock / Status</p>
-                <p className="text-sm font-bold text-slate-700">{p.stock} Units • {p.status}</p>
+             <p className="text-sm font-bold text-slate-700">
+  {p.stock} Units • {p.status === true ? "Active" : "Inactive"}
+</p>
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase">Selling Price</p>
@@ -213,12 +224,12 @@ const fetchProducts = async () => {
 
             <div className="flex justify-between items-center">
               <div className="flex gap-2">
-                 <button className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold hover:bg-blue-600 hover:text-white transition-all">
-                    <Pencil size={14} /> Edit
-                 </button>
-                 <button className="p-2 bg-slate-50 text-slate-400 hover:text-red-600 rounded-xl transition-all">
-                    <Trash2 size={16} />
-                 </button>
+                <button className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold hover:bg-blue-600 hover:text-white transition-all">
+                  <Pencil size={14} /> Edit
+                </button>
+                <button className="p-2 bg-slate-50 text-slate-400 hover:text-red-600 rounded-xl transition-all">
+                  <Trash2 size={16} />
+                </button>
               </div>
               {p.reason && (
                 <div className="flex items-center gap-1 text-amber-600 font-bold text-[10px] max-w-[120px] text-right">

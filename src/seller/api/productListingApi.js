@@ -72,3 +72,5 @@ export const fetchSpecifications = async () => {
     return { status: false, specifications: [] };
   }
 };
+
+

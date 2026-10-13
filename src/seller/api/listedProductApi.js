@@ -13,3 +13,28 @@ export const fetchListedProducts = async () => {
         throw error;
     }
 };
+
+
+// Delete Seller Product
+export const deleteSellerProduct = async (productId) => {
+  const response = await apiClient.delete(
+    `/seller/delete/products/${productId}`
+  );
+
+  return response.data;
+};
+
+// Update Seller Product
+export const updateSellerProduct = async (productId, formData) => {
+  const response = await apiClient.post(
+    `/seller/products/update/${productId}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return response.data;
+};
