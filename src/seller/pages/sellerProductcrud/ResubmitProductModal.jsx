@@ -27,7 +27,7 @@ const inputClass =
 
 const labelClass = "mb-2 block text-sm font-semibold text-gray-700";
 
-// API response se list nikalne ka helper (alag-alag response shapes ke liye)
+
 const pickList = (res, key) => {
   if (Array.isArray(res)) return res;
   if (key && Array.isArray(res?.[key])) return res[key];
@@ -37,7 +37,7 @@ const pickList = (res, key) => {
   return [];
 };
 
-// API kabhi string me JSON deti hai, isliye safe parse
+
 const parseJson = (value, fallback) => {
   if (typeof value !== "string") return value ?? fallback;
   try {

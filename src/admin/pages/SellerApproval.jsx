@@ -127,9 +127,8 @@ const SellerApproval = () => {
 
       toast.error(
         err.message ||
-          `Something went wrong while ${
-            approvalAction === "approve" ? "approving" : "rejecting"
-          } product`
+        `Something went wrong while ${approvalAction === "approve" ? "approving" : "rejecting"
+        } product`
       );
     } finally {
       setApproveLoading(null);
@@ -303,19 +302,18 @@ const SellerApproval = () => {
                       {/* Status */}
                       <td className="px-5 py-4">
                         <span
-                          className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${
-                            Number(product.is_approved) === 1
+                          className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${Number(product.is_approved) === 1
                               ? "bg-green-100 text-green-700"
                               : product.reject_reason
-                              ? "bg-red-100 text-red-700"
-                              : "bg-yellow-100 text-yellow-700"
-                          }`}
+                                ? "bg-red-100 text-red-700"
+                                : "bg-yellow-100 text-yellow-700"
+                            }`}
                         >
                           {Number(product.is_approved) === 1
                             ? "Approved"
                             : product.reject_reason
-                            ? "Rejected"
-                            : "Pending"}
+                              ? "Rejected"
+                              : "Pending"}
                         </span>
                       </td>
 
@@ -401,9 +399,8 @@ const SellerApproval = () => {
             <div className="px-6 py-5 border-b">
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-11 h-11 rounded-full flex items-center justify-center ${
-                    approvalAction === "approve" ? "bg-green-100" : "bg-red-100"
-                  }`}
+                  className={`w-11 h-11 rounded-full flex items-center justify-center ${approvalAction === "approve" ? "bg-green-100" : "bg-red-100"
+                    }`}
                 >
                   {approvalAction === "approve" ? (
                     <FaCheck className="text-green-600 text-lg" />
@@ -424,8 +421,10 @@ const SellerApproval = () => {
               </div>
             </div>
 
-            {/* Resubmit Toggle */}
-            <div className="mt-5 flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-4">
+            <div
+              className={`mt-5 flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-4 ${approvalAction === "approve" ? "hidden" : ""
+                }`}
+            >
               <div>
                 <p className="text-sm font-semibold text-gray-800">
                   Allow Resubmission
@@ -440,19 +439,17 @@ const SellerApproval = () => {
                 role="switch"
                 aria-checked={resubmitAllowed}
                 onClick={() => setResubmitAllowed((prev) => !prev)}
-                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
-                  resubmitAllowed ? "bg-green-600" : "bg-gray-300"
-                }`}
+                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${resubmitAllowed ? "bg-green-600" : "bg-gray-300"
+                  }`}
               >
                 <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    resubmitAllowed ? "translate-x-6" : "translate-x-1"
-                  }`}
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${resubmitAllowed ? "translate-x-6" : "translate-x-1"
+                    }`}
                 />
               </button>
             </div>
 
-            <p className="mt-2 text-right text-xs font-medium">
+            <p className="mt-2 text-center text-xs font-medium">
               <span
                 className={resubmitAllowed ? "text-green-600" : "text-gray-500"}
               >
@@ -524,11 +521,10 @@ const SellerApproval = () => {
                   approveLoading !== null ||
                   (approvalAction === "reject" && !rejectReason.trim())
                 }
-                className={`px-4 py-2.5 rounded-lg text-white text-sm font-medium transition flex items-center gap-2 ${
-                  approvalAction === "approve"
+                className={`px-4 py-2.5 rounded-lg text-white text-sm font-medium transition flex items-center gap-2 ${approvalAction === "approve"
                     ? "bg-green-600 hover:bg-green-700 disabled:bg-green-300"
                     : "bg-red-600 hover:bg-red-700 disabled:bg-red-300"
-                }`}
+                  }`}
               >
                 {approveLoading !== null ? (
                   <>
@@ -597,7 +593,7 @@ const SellerApproval = () => {
                   </h3>
 
                   {Array.isArray(viewProduct.image) &&
-                  viewProduct.image.length > 0 ? (
+                    viewProduct.image.length > 0 ? (
                     <div className="grid grid-cols-2 gap-3">
                       {viewProduct.image.map((img, index) => (
                         <img
@@ -798,19 +794,18 @@ const SellerApproval = () => {
                   <div>
                     <p className="text-xs text-gray-500">Product Status</p>
                     <span
-                      className={`inline-flex mt-1 px-3 py-1 rounded-full text-xs font-semibold ${
-                        Number(viewProduct.is_approved) === 1
+                      className={`inline-flex mt-1 px-3 py-1 rounded-full text-xs font-semibold ${Number(viewProduct.is_approved) === 1
                           ? "bg-green-100 text-green-700"
                           : viewProduct.reject_reason
-                          ? "bg-red-100 text-red-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
+                            ? "bg-red-100 text-red-700"
+                            : "bg-yellow-100 text-yellow-700"
+                        }`}
                     >
                       {Number(viewProduct.is_approved) === 1
                         ? "Approved"
                         : viewProduct.reject_reason
-                        ? "Rejected"
-                        : "Pending"}
+                          ? "Rejected"
+                          : "Pending"}
                     </span>
                   </div>
 
@@ -835,7 +830,7 @@ const SellerApproval = () => {
                 <h3 className="font-semibold text-gray-800 mb-4">Variants</h3>
 
                 {Array.isArray(viewProduct.variants) &&
-                viewProduct.variants.length > 0 ? (
+                  viewProduct.variants.length > 0 ? (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead className="bg-gray-100">
@@ -890,7 +885,7 @@ const SellerApproval = () => {
                 </h3>
 
                 {Array.isArray(viewProduct.specifications) &&
-                viewProduct.specifications.length > 0 ? (
+                  viewProduct.specifications.length > 0 ? (
                   <div className="space-y-3">
                     {viewProduct.specifications.map((spec) => (
                       <div

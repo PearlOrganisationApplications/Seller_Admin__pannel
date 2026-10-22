@@ -13,6 +13,17 @@ import {
 } from "../api/orderApi";
 
 export default function OrderManagement() {
+  const parseAddress = (address) => {
+  if (!address) return null;
+
+  if (typeof address === "object") return address;
+
+  try {
+    return JSON.parse(address);
+  } catch {
+    return { address };
+  }
+};
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -179,11 +190,10 @@ export default function OrderManagement() {
                 {reasons.map((reason, index) => (
                   <label
                     key={index}
-                    className={`flex items-center gap-3 cursor-pointer p-3.5 rounded-2xl border transition-all duration-300 ${
-                      selectedReason === reason
+                    className={`flex items-center gap-3 cursor-pointer p-3.5 rounded-2xl border transition-all duration-300 ${selectedReason === reason
                         ? "border-purple-400 bg-purple-50 shadow-sm"
                         : "border-purple-100 hover:border-purple-200 hover:bg-purple-50/30"
-                    }`}
+                      }`}
                   >
                     <input
                       type="radio"
@@ -212,11 +222,10 @@ export default function OrderManagement() {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleConfirmReject}
                   disabled={!selectedReason || processing}
-                  className={`flex-1 py-3 rounded-2xl text-sm font-bold text-white flex items-center justify-center transition-all shadow-lg ${
-                    selectedReason && !processing
+                  className={`flex-1 py-3 rounded-2xl text-sm font-bold text-white flex items-center justify-center transition-all shadow-lg ${selectedReason && !processing
                       ? "bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 shadow-red-200"
                       : "bg-gray-300 cursor-not-allowed shadow-none"
-                  }`}
+                    }`}
                 >
                   {processing ? <Loader2 className="animate-spin w-5 h-5" /> : "Confirm Reject"}
                 </motion.button>
@@ -361,11 +370,10 @@ export default function OrderManagement() {
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2.5 rounded-2xl font-bold text-xs md:text-sm transition-all duration-300 border ${
-                  isActive
+                className={`px-4 py-2.5 rounded-2xl font-bold text-xs md:text-sm transition-all duration-300 border ${isActive
                     ? "bg-gradient-to-r from-purple-400 to-purple-300 text-white border-purple-300 shadow-md shadow-purple-200"
                     : "bg-white/80 hover:bg-purple-50 text-gray-700 hover:text-purple-600 border-purple-100 hover:border-purple-200"
-                }`}
+                  }`}
               >
                 {tab}
               </motion.button>
@@ -389,94 +397,106 @@ export default function OrderManagement() {
               animate="visible"
               className="space-y-5"
             >
-              {orders.map((order) => (
-                <motion.div
-                  key={order.order_id}
-                  variants={itemVariants}
-                  className="bg-white/80 backdrop-blur-md border border-purple-100 rounded-3xl p-6 shadow-sm hover:shadow-xl hover:shadow-purple-100 hover:border-purple-200 transition-all duration-300"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-purple-50">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-2xl bg-purple-50 flex items-center justify-center text-purple-600 font-bold border border-purple-100">
-                        {order.buyer?.name ? order.buyer.name.charAt(0).toUpperCase() : "C"}
+              {orders.map((order) => {
+                const addressData = parseAddress(
+                  order.buyer?.address || order.address
+                );
+
+                return (
+                  <motion.div
+                    key={order.order_id}
+                    variants={itemVariants}
+                    className="bg-white/80 backdrop-blur-md border border-purple-100 rounded-3xl p-6 shadow-sm hover:shadow-xl hover:shadow-purple-100 hover:border-purple-200 transition-all duration-300"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-purple-50">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-2xl bg-purple-50 flex items-center justify-center text-purple-600 font-bold border border-purple-100">
+                          {order.buyer?.name ? order.buyer.name.charAt(0).toUpperCase() : "C"}
+                        </div>
+                        <div>
+                          <p className="font-extrabold text-gray-900 text-sm md:text-base">
+                            {order.buyer?.name || "Customer"}
+                          </p>
+                          <p className="text-xs text-gray-500 font-medium">
+                            {order.buyer?.mobile || "No Mobile"}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-extrabold text-gray-900 text-sm md:text-base">
-                          {order.buyer?.name || "Customer"}
-                        </p>
-                        <p className="text-xs text-gray-500 font-medium">
-                          {order.buyer?.mobile || "No Mobile"}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-xs text-gray-400 block font-medium">Order Date</span>
-                      <span className="text-xs font-bold text-gray-700">{order.order_date}</span>
-                    </div>
-                  </div>
-
-                  <p className="text-xs text-gray-500 mt-3 font-medium bg-purple-50/60 p-2.5 rounded-xl border border-purple-100/50">
-                    <strong className="text-gray-700">Address: </strong>
-                    {order.buyer?.address || order.address}
-                  </p>
-
-                  {order.items?.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="flex flex-col sm:flex-row gap-5 mt-5 pt-4 border-t border-purple-50 first:border-t-0 first:pt-0"
-                    >
-                      <img
-                        src={item.image}
-                        alt=""
-                        className="w-24 h-28 object-cover rounded-2xl border border-purple-100 shadow-sm"
-                      />
-                      <div className="flex flex-col justify-center text-xs md:text-sm flex-1 space-y-1">
-                        <p className="text-xs font-bold text-gray-400">
-                          Order ID: <span className="text-gray-800">#{order.order_id}</span>
-                        </p>
-                        <p className="font-extrabold text-purple-700 text-base">
-                          {item.product_name}
-                        </p>
-                        <p className="text-gray-500 font-medium">
-                          Size: <span className="text-gray-800 font-bold">{item.variant?.size || "N/A"}</span> | Color: <span className="text-gray-800 font-bold">{item.variant?.color || "N/A"}</span>
-                        </p>
-                      </div>
-
-                      <div className="sm:ml-auto flex flex-col justify-center gap-3 sm:items-end">
-                        <span className="bg-gradient-to-r from-purple-400 to-purple-300 text-white px-5 py-2 rounded-2xl font-black text-base shadow-md shadow-purple-200">
-                          ₹{order.total_amount}
-                        </span>
-                        <p className="text-xs text-gray-500 font-bold">
-                          Payment: <span className="text-purple-600">{order.payment_method || "COD"}</span>
-                        </p>
-
-                        {(order.status === "pending" || order.order_status === "pending") && (
-                          <div className="flex gap-2.5 mt-2">
-                            <motion.button
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              disabled={processing}
-                              onClick={() => handleOpenRejectModal(order.order_id)}
-                              className="px-5 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition-all duration-300 border border-gray-200"
-                            >
-                              Reject
-                            </motion.button>
-                            <motion.button
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              disabled={processing}
-                              onClick={() => handleAccept(order.order_id)}
-                              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-400 to-purple-300 hover:from-purple-500 hover:to-purple-400 text-white font-bold text-xs shadow-md shadow-purple-200 transition-all duration-300"
-                            >
-                              Accept
-                            </motion.button>
-                          </div>
-                        )}
+                      <div className="text-right">
+                        <span className="text-xs text-gray-400 block font-medium">Order Date</span>
+                        <span className="text-xs font-bold text-gray-700">{order.order_date}</span>
                       </div>
                     </div>
-                  ))}
-                </motion.div>
-              ))}
+
+                    <p className="text-xs text-gray-500 mt-3 font-medium bg-purple-50/60 p-2.5 rounded-xl border border-purple-100/50">
+                      <strong className="text-gray-700">Address: </strong>
+                      {[
+                        addressData?.address,
+                        addressData?.city,
+                        addressData?.state,
+                        addressData?.pincode,
+                      ]
+                        .filter(Boolean)
+                        .join(", ") || "Address not available"}
+                    </p>
+                    {order.items?.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="flex flex-col sm:flex-row gap-5 mt-5 pt-4 border-t border-purple-50 first:border-t-0 first:pt-0"
+                      >
+                        <img
+                          src={item.image}
+                          alt=""
+                          className="w-24 h-28 object-cover rounded-2xl border border-purple-100 shadow-sm"
+                        />
+                        <div className="flex flex-col justify-center text-xs md:text-sm flex-1 space-y-1">
+                          <p className="text-xs font-bold text-gray-400">
+                            Order ID: <span className="text-gray-800">#{order.order_id}</span>
+                          </p>
+                          <p className="font-extrabold text-purple-700 text-base">
+                            {item.product_name}
+                          </p>
+                          <p className="text-gray-500 font-medium">
+                            Size: <span className="text-gray-800 font-bold">{item.variant?.size || "N/A"}</span> | Color: <span className="text-gray-800 font-bold">{item.variant?.color || "N/A"}</span>
+                          </p>
+                        </div>
+
+                        <div className="sm:ml-auto flex flex-col justify-center gap-3 sm:items-end">
+                          <span className="bg-gradient-to-r from-purple-400 to-purple-300 text-white px-5 py-2 rounded-2xl font-black text-base shadow-md shadow-purple-200">
+                            ₹{order.total_amount}
+                          </span>
+                          <p className="text-xs text-gray-500 font-bold">
+                            Payment: <span className="text-purple-600">{order.payment_method || "COD"}</span>
+                          </p>
+
+                          {(order.status === "pending" || order.order_status === "pending") && (
+                            <div className="flex gap-2.5 mt-2">
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                disabled={processing}
+                                onClick={() => handleOpenRejectModal(order.order_id)}
+                                className="px-5 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition-all duration-300 border border-gray-200"
+                              >
+                                Reject
+                              </motion.button>
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                disabled={processing}
+                                onClick={() => handleAccept(order.order_id)}
+                                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-400 to-purple-300 hover:from-purple-500 hover:to-purple-400 text-white font-bold text-xs shadow-md shadow-purple-200 transition-all duration-300"
+                              >
+                                Accept
+                              </motion.button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </motion.div>
+                );
+              })}
             </motion.div>
           )}
         </div>
