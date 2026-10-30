@@ -342,12 +342,16 @@ export default function ProductListing() {
       "show_delivery_charge",
       formData.show_delivery_charge.toLowerCase(),
     );
-    data.append("allow_return", formData.allow_returns === "No" ? "no" : "yes");
+   data.append("allow_return", formData.allow_returns === "No" ? "no" : "yes");
 
-    data.append(
-      "return_window_days",
-      formData.allow_returns === "within 7 days" ? 7 : 0,
-    );
+const returnWindowDays =
+  formData.allow_returns === "within 7 days"
+    ? 7
+    : formData.allow_returns === "within 3 days"
+      ? 3
+      : 0;
+
+data.append("return_window_days", returnWindowDays);
 
     try {
       const res = await addProduct(data);
@@ -834,8 +838,9 @@ export default function ProductListing() {
                       })
                     }
                   >
-                    <option className="bg-white">No</option>
-                    <option className="bg-white">within 7 days</option>
+                    <option className="bg-white" value="No">No</option>
+                    <option className="bg-white" value="within 3 days">within 3 days</option>
+                    <option className="bg-white" value="within 7 days">within 7 days</option>
                   </select>
                 </div>
                 <div>

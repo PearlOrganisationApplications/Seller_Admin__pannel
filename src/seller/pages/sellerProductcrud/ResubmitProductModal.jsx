@@ -191,11 +191,10 @@ const ChipGrid = ({
             type="button"
             onClick={() => onToggle(id)}
             aria-pressed={active}
-            className={`relative flex items-center justify-center gap-1.5 rounded-xl border px-2 py-2.5 text-[11px] font-bold transition-all duration-200 ${
-              active
-                ? "-translate-y-0.5 border-[#c9a8ec] bg-gradient-to-br from-[#b98ee3] to-[#9270b5] text-white shadow-lg shadow-[#9270b5]/30"
-                : "border-[#ddd3f3] bg-white text-[#8f6bb8]/70 hover:-translate-y-0.5 hover:border-[#b69ad9] hover:bg-[#faf6ff] hover:text-[#7e5ba2]"
-            }`}
+            className={`relative flex items-center justify-center gap-1.5 rounded-xl border px-2 py-2.5 text-[11px] font-bold transition-all duration-200 ${active
+              ? "-translate-y-0.5 border-[#c9a8ec] bg-gradient-to-br from-[#b98ee3] to-[#9270b5] text-white shadow-lg shadow-[#9270b5]/30"
+              : "border-[#ddd3f3] bg-white text-[#8f6bb8]/70 hover:-translate-y-0.5 hover:border-[#b69ad9] hover:bg-[#faf6ff] hover:text-[#7e5ba2]"
+              }`}
           >
             {active && <Check size={12} strokeWidth={3} />}
             <span className="truncate">{item[labelKey]}</span>
@@ -247,9 +246,9 @@ export default function ResubmitProductModal({
       shipping_fee: product.shipping_fee ?? "0",
       allow_return:
         product.allow_return === "no" ||
-        product.allow_return === 0 ||
-        product.allow_return === "0" ||
-        product.allow_return === false
+          product.allow_return === 0 ||
+          product.allow_return === "0" ||
+          product.allow_return === false
           ? "no"
           : "yes",
       return_window_days: product.return_window_days ?? 7,
@@ -480,6 +479,10 @@ export default function ResubmitProductModal({
     data.append("estimated_selling_price", form.estimated_selling_price);
     data.append("show_delivery_charge", form.show_delivery_charge);
     data.append("shipping_fee", form.shipping_fee === "" ? 0 : form.shipping_fee);
+    data.append("platform_fee", money(platformFee));
+    data.append("final_selling_price", money(finalSellingPrice));
+    data.append("discount_percent", money(discountPercentage));
+    data.append("in_hand_profit", money(inHandProfit));
     data.append("allow_return", form.allow_return);
     data.append(
       "return_window_days",
@@ -488,12 +491,12 @@ export default function ResubmitProductModal({
 
     (form.images || []).forEach((file) => data.append("images[]", file));
 
- 
+
     selectedColors.forEach((colorId, i) => {
       data.append(`variants[${i}][color_id]`, colorId);
 
-      selectedSizes.forEach((sizeId) => {
-        data.append(`variants[${i}][size][]`, sizeId);
+      selectedSizes.forEach((sizeId, j) => {
+        data.append(`variants[${i}][size_id]`, sizeId);
       });
 
       data.append(`variants[${i}][stock]`, form.stock);
@@ -502,7 +505,7 @@ export default function ResubmitProductModal({
         variantRows.find((r) => r.colorId === colorId)?.sku ?? ""
       );
     });
-   
+
 
     data.append("stock", form.stock);
 
@@ -529,6 +532,23 @@ export default function ResubmitProductModal({
     value: String(s.id),
     label: s.subcategory,
   }));
+
+  // Frontend pricing calculations (all amounts are in INR).
+  const mrp = Number(form.mrp) || 0;
+  const estimatedSellingPrice = Number(form.estimated_selling_price) || 0;
+  const shippingFee = Number(form.shipping_fee) || 0;
+  const platformFee = estimatedSellingPrice * 0.10;
+  const shippingAddedToFinalPrice =
+    form.show_delivery_charge === "no" ? shippingFee : 0;
+  const finalSellingPrice =
+    estimatedSellingPrice + platformFee + shippingAddedToFinalPrice;
+  const discountPercentage =
+    mrp > 0 ? ((mrp - finalSellingPrice) / mrp) * 100 : 0;
+  const inHandProfit =
+    finalSellingPrice -
+    (platformFee + (form.show_delivery_charge === "no" ? shippingFee : 0));
+  const money = (amount) =>
+    (Number.isFinite(amount) ? amount : 0).toFixed(2);
 
   return (
     <div
@@ -692,7 +712,7 @@ export default function ResubmitProductModal({
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <Field
-                  label="Price (₹)"
+                  label="Cost Price (₹)"
                   name="price"
                   type="number"
                   min="0"
@@ -725,6 +745,73 @@ export default function ResubmitProductModal({
                 />
 
                 <Field
+                  label="Shipping Fee (₹)"
+                  name="shipping_fee"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.shipping_fee}
+                  onChange={handleChange}
+                />
+
+                <SelectField
+                  label="Show Delivery Charges to Customer?"
+                  name="show_delivery_charge"
+                  value={form.show_delivery_charge}
+                  onChange={handleChange}
+                  options={[
+                    { value: "yes", label: "Yes — show delivery charge" },
+                    { value: "no", label: "No — offer free delivery" },
+                  ]}
+                />
+
+                <div>
+                  <label className={labelClass}>Platform Fee (10%)</label>
+                  <div className={`${inputClass} flex items-center font-semibold`}>
+                    <span className="mr-2 text-[#9270b5]">₹</span>
+                    {money(platformFee)}
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500">
+                    10% of Estimated Selling Price
+                  </p>
+                </div>
+
+                <div>
+                  <label className={labelClass}>Final Selling Price (₹)</label>
+                  <div className={`${inputClass} flex items-center font-semibold`}>
+                    <span className="mr-2 text-[#9270b5]">₹</span>
+                    {money(finalSellingPrice)}
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Estimated Selling Price + Platform Fee
+                    {form.show_delivery_charge === "no" ? " + Shipping Fee" : ""}
+                  </p>
+                </div>
+
+                <div>
+                  <label className={labelClass}>Discount (%)</label>
+                  <div className={`${inputClass} flex items-center font-semibold`}>
+                    <span className="mr-2 text-[#9270b5]">%</span>
+                    {money(discountPercentage)}
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500">
+                    (MRP − Final Selling Price) ÷ MRP × 100
+                  </p>
+                </div>
+
+                <div>
+                  <label className={labelClass}>Your In-Hand Profit (₹)</label>
+                  <div className={`${inputClass} flex items-center font-semibold`}>
+                    <span className="mr-2 text-[#9270b5]">₹</span>
+                    {money(inHandProfit)}
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Final Selling Price − Platform Fee
+                    {form.show_delivery_charge === "no" ? " − Shipping Fee" : ""}
+                  </p>
+                </div>
+
+                <Field
                   label="Stock"
                   name="stock"
                   type="number"
@@ -744,28 +831,7 @@ export default function ResubmitProductModal({
                 description="Configure shipping charges and return policies"
               />
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <Field
-                  label="Shipping Fee (₹)"
-                  name="shipping_fee"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={form.shipping_fee}
-                  onChange={handleChange}
-                />
-
-                <SelectField
-                  label="Show Delivery Charge"
-                  name="show_delivery_charge"
-                  value={form.show_delivery_charge}
-                  onChange={handleChange}
-                  options={[
-                    { value: "yes", label: "Yes, show charge" },
-                    { value: "no", label: "No, hide charge" },
-                  ]}
-                />
-
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <SelectField
                   label="Allow Product Returns"
                   name="allow_return"
@@ -777,15 +843,23 @@ export default function ResubmitProductModal({
                   ]}
                 />
 
-                <Field
-                  label="Return Window (Days)"
-                  name="return_window_days"
-                  type="number"
-                  min="0"
-                  value={form.allow_return === "yes" ? form.return_window_days : 0}
-                  disabled={form.allow_return !== "yes"}
-                  onChange={handleChange}
-                />
+                <div>
+                  <label htmlFor="return_window_days" className={labelClass}>
+                    Return Window (Days)
+                  </label>
+
+                  <select
+                    id="return_window_days"
+                    name="return_window_days"
+                    value={form.return_window_days ?? 7}
+                    onChange={handleChange}
+                    disabled={form.allow_return !== "yes"}
+                    className={inputClass}
+                  >
+                    <option value={3}>3 Days</option>
+                    <option value={7}>7 Days</option>
+                  </select>
+                </div>
               </div>
             </section>
 

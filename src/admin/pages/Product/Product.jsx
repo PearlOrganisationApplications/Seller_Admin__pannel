@@ -31,6 +31,52 @@ import {
 } from "../../api/product";
 
 import DUMMY from "../../../seller/assets/DUMMY_IMAGE.png";
+
+/* ================= HELPERS ================= */
+
+// Laravel "boolean" rule accepts only true/false/1/0/"1"/"0"
+const toBool = (value) =>
+  value === true ||
+    value === 1 ||
+    value === "1" ||
+    value === "yes" ||
+    value === "true"
+    ? "1"
+    : "0";
+
+// Converts any backend value into "yes" / "no" for radio buttons
+const toYesNo = (value) => (toBool(value) === "1" ? "yes" : "no");
+
+const BOOLEAN_KEYS = [
+  "status",
+  "is_featured",
+  "is_bestseller",
+  "is_new",
+  "is_trending",
+];
+
+const initialProductForm = {
+  category_id: "",
+  subcategory_id: "",
+  name: "",
+  brand: "",
+  description: "",
+  cost_price: "",
+  mrp: "",
+  estimated_selling_price: "",
+  shipping_fee: "",
+  show_delivery_charges_to_customer: "no",
+  stock: "",
+  status: 1,
+  is_featured: 0,
+  is_bestseller: 0,
+  is_new: 0,
+  is_trending: 0,
+  allow_return: "yes",
+  return_window_days: 7,
+  images: [],
+};
+
 function CustomDropdown({ value, options, onChange, placeholder = "All" }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -103,28 +149,40 @@ export default function Products() {
   const [editLoading, setEditLoading] = useState(false);
   const [categoryList, setCategoryList] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
-  const [productForm, setProductForm] = useState({
-    category_id: "",
-    subcategory_id: "",
-    name: "",
-    brand: "",
-    description: "",
-    cost_price: "",
-    mrp: "",
-    estimated_selling_price: "",
-    price: "",
-    shipping_fee: "",
-    stock: "",
-    status: "",
-    is_featured: "",
-    is_bestseller: "",
-    is_new: "",
-    is_trending: "",
-    allow_return: "",
-    return_window_days: "",
-    images: [],
-  });
+  const [productForm, setProductForm] = useState(initialProductForm);
+
+  /* ================= PRICE CALCULATIONS ================= */
+
+  const estimatedSellingPrice =
+    Number(productForm.estimated_selling_price) || 0;
+
+  const shippingFee = Number(productForm.shipping_fee) || 0;
+  const mrp = Number(productForm.mrp) || 0;
+
+  const platformFee = (estimatedSellingPrice * 10) / 100;
+
+  // "no"  => delivery charge NOT shown separately => shipping included in final price
+  // "yes" => delivery charge shown separately     => not added here
+  const finalSellingPrice =
+    estimatedSellingPrice +
+    platformFee +
+    (productForm.show_delivery_charges_to_customer === "no" ? shippingFee : 0);
+
+  const discountPercent =
+    mrp > 0
+      ? Math.max(0, ((mrp - finalSellingPrice) / mrp) * 100)
+      : 0;
+
+  const inHandProfit = Number(
+    (
+      finalSellingPrice -
+      platformFee -
+      (productForm.show_delivery_charges_to_customer === "no" ? shippingFee : 0)
+    ),
+  );
+
   const [imageError, setImageError] = useState("");
+
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files || []);
     const allowedExtensions = ["jpg", "jpeg", "png", "webp", "gif"];
@@ -147,6 +205,64 @@ export default function Products() {
       images: files,
     }));
   };
+
+  /* ================= BUILD FORM DATA ================= */
+
+  const buildProductFormData = () => {
+    const formData = new FormData();
+
+    Object.keys(productForm).forEach((key) => {
+      if (key === "images") {
+        if (Array.isArray(productForm.images)) {
+          productForm.images.forEach((image) => {
+            formData.append("images[]", image);
+          });
+        }
+        return;
+      }
+
+      // boolean-type fields are handled separately below
+      if (
+        BOOLEAN_KEYS.includes(key) ||
+        key === "show_delivery_charges_to_customer"
+      ) {
+        return;
+      }
+
+      if (
+        productForm[key] !== null &&
+        productForm[key] !== undefined &&
+        productForm[key] !== ""
+      ) {
+        formData.append(key, productForm[key]);
+      }
+    });
+
+    // Booleans -> always "1" or "0" (Laravel boolean rule)
+    BOOLEAN_KEYS.forEach((key) => {
+      formData.set(key, toBool(productForm[key]));
+    });
+
+    const showDeliveryYesNo =
+      productForm.show_delivery_charges_to_customer === "yes" ? "yes" : "no";
+
+    formData.set("show_delivery_charge", showDeliveryYesNo);
+    formData.delete("show_delivery_charges_to_customer");
+    formData.set("allow_return", toBool(productForm.allow_return));
+    formData.set(
+      "return_window_days",
+      String(Number(productForm.return_window_days) || 7),
+    );
+    formData.set("platform_fee", platformFee.toFixed(2));
+    formData.set("final_selling_price", finalSellingPrice.toFixed(2));
+    formData.set("discount_percent", discountPercent.toFixed(2));
+    formData.set("in_hand_profit", inHandProfit.toFixed(2));
+
+    return formData;
+  };
+
+  /* ================= CATEGORY APIs ================= */
+
   const fetchCategories = async () => {
     try {
       const response = await getCategories();
@@ -187,6 +303,7 @@ export default function Products() {
       setSubcategories([]);
     }
   };
+
   const fetchProducts = async (page = 1) => {
     try {
       setLoading(true);
@@ -220,6 +337,7 @@ export default function Products() {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchProducts(1);
     fetchCategories();
@@ -308,19 +426,11 @@ export default function Products() {
     fetchProducts(page);
   };
 
+  /* ================= ADD PRODUCT ================= */
+
   const handleAddProduct = async () => {
     try {
-      const formData = new FormData();
-
-      Object.keys(productForm).forEach((key) => {
-        if (key === "images") {
-          productForm.images.forEach((image) => {
-            formData.append("images[]", image);
-          });
-        } else if (productForm[key] !== null && productForm[key] !== "") {
-          formData.append(key, productForm[key]);
-        }
-      });
+      const formData = buildProductFormData();
 
       const response = await addProduct(formData);
 
@@ -330,30 +440,9 @@ export default function Products() {
         toast.success(response?.message || "Product added successfully!");
 
         setShowAddProduct(false);
-
-        setProductForm({
-          category_id: "",
-          subcategory_id: "",
-          name: "",
-          brand: "",
-          description: "",
-          cost_price: "",
-          mrp: "",
-          estimated_selling_price: "",
-          price: "",
-          shipping_fee: "",
-          stock: "",
-          status: "",
-          is_featured: "",
-          is_bestseller: "",
-          is_new: "",
-          is_trending: "",
-          allow_return: "",
-          return_window_days: "",
-          images: [],
-        });
-
+        setProductForm(initialProductForm);
         setSubcategories([]);
+        setImageError("");
 
         fetchProducts(currentPage);
       } else {
@@ -369,6 +458,9 @@ export default function Products() {
       );
     }
   };
+
+  /* ================= DELETE PRODUCT ================= */
+
   const handleDeleteProduct = async () => {
     if (!deleteProductId) return;
 
@@ -401,33 +493,15 @@ export default function Products() {
     }
   };
 
+  /* ================= EDIT PRODUCT ================= */
+
   const handleEditProduct = async () => {
     if (!editProductId) return;
 
     try {
       setEditLoading(true);
 
-
-      const formData = new FormData();
-
-      Object.keys(productForm).forEach((key) => {
-        if (key === "images") {
-          // Append each selected image separately
-          if (Array.isArray(productForm.images)) {
-            productForm.images.forEach((image) => {
-              formData.append("images[]", image);
-            });
-          }
-        } else if (
-          productForm[key] !== null &&
-          productForm[key] !== undefined &&
-          productForm[key] !== ""
-        ) {
-          formData.append(key, productForm[key]);
-        }
-      });
-
-
+      const formData = buildProductFormData();
       const response = await updateProduct(editProductId, formData);
 
       if (response?.status || response?.success) {
@@ -435,30 +509,9 @@ export default function Products() {
 
         setShowEditProduct(false);
         setEditProductId(null);
-
-        setProductForm({
-          category_id: "",
-          subcategory_id: "",
-          name: "",
-          brand: "",
-          description: "",
-          cost_price: "",
-          mrp: "",
-          estimated_selling_price: "",
-          price: "",
-          shipping_fee: "",
-          stock: "",
-          status: "",
-          is_featured: "",
-          is_bestseller: "",
-          is_new: "",
-          is_trending: "",
-          allow_return: "",
-          return_window_days: "",
-          images: [],
-        });
-
+        setProductForm(initialProductForm);
         setSubcategories([]);
+
         fetchProducts(currentPage);
       } else {
         toast.error(response?.message || "Failed to update product.");
@@ -487,6 +540,7 @@ export default function Products() {
   const openProductDetails = (product) => {
     setSelectedProduct(product);
   };
+
   const openEditProduct = (product) => {
     const categoryId = product?.category_id || product?.category?.id || "";
 
@@ -504,16 +558,20 @@ export default function Products() {
       cost_price: product?.cost_price ?? "",
       mrp: product?.mrp ?? "",
       estimated_selling_price: product?.estimated_selling_price ?? "",
-      price: product?.price ?? "",
       shipping_fee: product?.shipping_fee ?? "",
+      show_delivery_charges_to_customer: toYesNo(
+        product?.show_delivery_charge ??
+        product?.show_delivery_charges_to_customer ??
+        0,
+      ),
       stock: product?.stock ?? "",
       status: product?.status ? 1 : 0,
       is_featured: product?.is_featured ? 1 : 0,
       is_bestseller: product?.is_bestseller ? 1 : 0,
       is_new: product?.is_new ? 1 : 0,
       is_trending: product?.is_trending ? 1 : 0,
-      allow_return: product?.allow_return ? 1 : 0,
-      return_window_days: product?.return_window_days ?? "",
+      allow_return: toYesNo(product?.allow_return ?? 0),
+      return_window_days: product?.return_window_days ?? 7,
       images: [],
     });
 
@@ -523,10 +581,10 @@ export default function Products() {
 
     setShowEditProduct(true);
   };
+
   const closeProductDetails = () => {
     setSelectedProduct(null);
   };
-
 
   const paginationNumbers = useMemo(() => {
     const pages = [];
@@ -579,7 +637,12 @@ export default function Products() {
           <button
             type="button"
             className="add-product-btn"
-            onClick={() => setShowAddProduct(true)}
+            onClick={() => {
+              setProductForm(initialProductForm);
+              setSubcategories([]);
+              setImageError("");
+              setShowAddProduct(true);
+            }}
           >
             <FaPlus />
             <span>Add Product</span>
@@ -677,7 +740,6 @@ export default function Products() {
 
           {/* STATUS */}
 
-          {/* ✅ iski jagah yeh daal do */}
           <CustomDropdown
             value={statusFilter}
             onChange={(val) => {
@@ -690,6 +752,7 @@ export default function Products() {
               { value: "inactive", label: "Inactive" },
             ]}
           />
+
           {/* CATEGORY */}
 
           <CustomDropdown
@@ -1185,7 +1248,9 @@ export default function Products() {
                   <div className="product-detail-box">
                     <span>Allow Return</span>
                     <strong>
-                      {selectedProduct.allow_return ? "Yes" : "No"}
+                      {toYesNo(selectedProduct.allow_return) === "yes"
+                        ? "Yes"
+                        : "No"}
                     </strong>
                   </div>
 
@@ -1339,6 +1404,9 @@ export default function Products() {
           </div>
         </div>
       )}
+
+      {/* ================= ADD PRODUCT MODAL ================= */}
+
       {showAddProduct && (
         <div
           className="tax-modal-overlay"
@@ -1364,7 +1432,6 @@ export default function Products() {
 
             <div className="tax-modal-body">
               <div className="product-form-grid">
-
                 <div className="product-form-group">
                   <label>Category</label>
 
@@ -1392,7 +1459,6 @@ export default function Products() {
                       ))}
                   </select>
                 </div>
-
 
                 <div className="product-form-group">
                   <label>Subcategory</label>
@@ -1461,10 +1527,8 @@ export default function Products() {
                   ["cost_price", "Cost Price"],
                   ["mrp", "MRP"],
                   ["estimated_selling_price", "Estimated Selling Price"],
-                  ["price", "Price"],
-                  ["shipping_fee", "Shipping Fee"],
                   ["stock", "Stock"],
-                  ["return_window_days", "Return Window Days"],
+                 
                 ].map(([key, label]) => (
                   <div className="product-form-group" key={key}>
                     <label>{label}</label>
@@ -1481,13 +1545,136 @@ export default function Products() {
                   </div>
                 ))}
 
+                {/* Shipping fee and delivery-charge choice must appear before calculated fees. */}
+                <div className="product-form-group">
+                  <label>Shipping Fee (₹)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={productForm.shipping_fee}
+                    onChange={(e) =>
+                      setProductForm((prev) => ({
+                        ...prev,
+                        shipping_fee: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+
+                <div className="product-form-group">
+                  <label>Show Delivery Charges to Customer?</label>
+                  <div
+                    className="product-delivery-choice"
+                    style={{
+                      display: "flex",
+                      gap: "16px",
+                      alignItems: "center",
+                      minHeight: "42px",
+                    }}
+                  >
+                    <label
+                      style={{ display: "flex", alignItems: "center", gap: 6 }}
+                    >
+                      <input
+                        type="radio"
+                        name="show_delivery_charges_to_customer"
+                        value="yes"
+                        checked={
+                          productForm.show_delivery_charges_to_customer ===
+                          "yes"
+                        }
+                        onChange={(e) =>
+                          setProductForm({
+                            ...productForm,
+                            show_delivery_charges_to_customer: e.target.value,
+                          })
+                        }
+                      />
+                      Yes
+                    </label>
+
+                    <label
+                      style={{ display: "flex", alignItems: "center", gap: 6 }}
+                    >
+                      <input
+                        type="radio"
+                        name="show_delivery_charges_to_customer"
+                        value="no"
+                        checked={
+                          productForm.show_delivery_charges_to_customer === "no"
+                        }
+                        onChange={(e) =>
+                          setProductForm({
+                            ...productForm,
+                            show_delivery_charges_to_customer: e.target.value,
+                          })
+                        }
+                      />
+                      No
+                    </label>
+                  </div>
+                  <small>
+                    If Yes, shipping is shown separately. If No, shipping is
+                    included in the final price.
+                  </small>
+                </div>
+
+
+                <div className="product-form-group calculated-field">
+                  <label>Platform Fee (10%)</label>
+                  <input
+                    type="number"
+                    value={platformFee.toFixed(2)}
+                    readOnly
+                  />
+                  <small>10% of Estimated Selling Price</small>
+                </div>
+
+                <div className="product-form-group calculated-field final-price-field">
+                  <label>Final Selling Price (₹)</label>
+                  <input
+                    type="number"
+                    value={finalSellingPrice.toFixed(2)}
+                    readOnly
+                  />
+                  <small>
+
+                    {productForm.show_delivery_charges_to_customer === "no"
+                      ? " + Shipping Fee"
+                      : ""}
+                  </small>
+                </div>
+
+                <div className="product-form-group calculated-field">
+                  <label>Discount (%)</label>
+                  <input
+                    type="number"
+                    value={discountPercent.toFixed(2)}
+                    readOnly
+                  />
+                  <small>
+                    (MRP − Final Selling Price) ÷ MRP × 100
+                  </small>
+                </div>
+
+                <div className="product-form-group calculated-field profit-field">
+                  <label>Your In-Hand Profit (₹)</label>
+                  <input
+                    type="number"
+                    value={inHandProfit.toFixed(2)}
+                    readOnly
+                  />
+
+                </div>
+
+
                 {[
                   ["status", "Active Status"],
                   ["is_featured", "Featured"],
                   ["is_bestseller", "Bestseller"],
                   ["is_new", "New Product"],
                   ["is_trending", "Trending"],
-                  ["allow_return", "Allow Return"],
                 ].map(([key, label]) => (
                   <div className="product-form-group" key={key}>
                     <label>{label}</label>
@@ -1507,6 +1694,24 @@ export default function Products() {
                   </div>
                 ))}
 
+                <div className="product-form-group">
+  <label>Return Window Days</label>
+
+  <select
+    value={Number(productForm.return_window_days ?? 0)}
+    onChange={(e) =>
+      setProductForm((prev) => ({
+        ...prev,
+        return_window_days: Number(e.target.value),
+      }))
+    }
+  >
+    <option value={0}>0 Days (No Return)</option>
+    <option value={3}>Within 3 Days</option>
+    <option value={7}>Within 7 Days</option>
+  </select>
+</div>
+
                 <div className="product-form-group full-width">
                   <label>Product Image</label>
 
@@ -1514,27 +1719,12 @@ export default function Products() {
                     type="file"
                     accept=".jpg,.jpeg,.png,.webp,.gif"
                     multiple
-                    onChange={(e) => {
-                      const files = Array.from(e.target.files || []);
-                      const allowedExtensions = ["jpg", "jpeg", "png", "webp", "gif"];
-
-                      const invalidFiles = files.filter((file) => {
-                        const extension = file.name.split(".").pop().toLowerCase();
-                        return !allowedExtensions.includes(extension);
-                      });
-
-                      if (invalidFiles.length > 0) {
-                        alert("Only JPG, JPEG, PNG, WEBP, and GIF images are allowed.");
-                        e.target.value = "";
-                        return;
-                      }
-
-                      setProductForm({
-                        ...productForm,
-                        images: files,
-                      });
-                    }}
+                    onChange={handleImageChange}
                   />
+
+                  {imageError && (
+                    <small style={{ color: "#dc2626" }}>{imageError}</small>
+                  )}
                 </div>
               </div>
 
@@ -1560,6 +1750,8 @@ export default function Products() {
           </div>
         </div>
       )}
+
+      {/* ================= EDIT PRODUCT POPUP ================= */}
 
       {showEditProduct && (
         <EditProductPopup

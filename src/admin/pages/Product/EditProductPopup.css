@@ -321,3 +321,55 @@
     width: 100%;
   }
 }
+/* Calculated Fields Styling */
+.calculated-field label {
+  font-size: 14px;
+  font-weight: 800;
+  color: #263b2b;
+  letter-spacing: 0.3px;
+  margin-bottom: 8px;
+}
+
+/* Calculated Input */
+.calculated-field input {
+  font-weight: 700;
+  font-size: 15px;
+  background: #f5f8f5;
+  border: 1.5px solid #d5e3d6;
+  color: #263b2b;
+  border-radius: 8px;
+}
+
+/* Final Selling Price */
+.final-price-field label {
+  color: #1d4ed8;
+}
+
+.final-price-field input {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+  font-weight: 800;
+}
+
+/* Profit Section - Green */
+.profit-field {
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.profit-field label {
+  color: #15803d;
+  font-weight: 900;
+  font-size: 15px;
+}
+
+.profit-field input {
+  background: #dcfce7;
+  border: 1.5px solid #86efac;
+  color: #15803d;
+  font-size: 17px;
+  font-weight: 900;
+}

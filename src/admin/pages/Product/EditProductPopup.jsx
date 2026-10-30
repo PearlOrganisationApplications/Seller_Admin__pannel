@@ -17,6 +17,22 @@ export default function EditProductPopup({
   onClose,
 }) {
   const [imageError, setImageError] = useState("");
+  const estimatedSellingPrice =
+    Number(productForm.estimated_selling_price) || 0;
+  const shippingFee = Number(productForm.shipping_fee) || 0;
+  const mrp = Number(productForm.mrp) || 0;
+  const platformFee = (estimatedSellingPrice * 10) / 100;
+  const shippingInPrice =
+    productForm.show_delivery_charges_to_customer === "no" ? shippingFee : 0;
+  const finalSellingPrice =
+    estimatedSellingPrice + platformFee + shippingInPrice;
+  const discountPercent =
+    mrp > 0
+      ? Math.max(0, ((mrp - finalSellingPrice) / mrp) * 100)
+      : 0;
+  const inHandProfit =
+    finalSellingPrice - platformFee - shippingInPrice;
+
   return (
     <div
       className="tax-modal-overlay"
@@ -171,13 +187,9 @@ export default function EditProductPopup({
                 "estimated_selling_price",
                 "Estimated Selling Price",
               ],
-              ["price", "Price"],
               ["shipping_fee", "Shipping Fee"],
               ["stock", "Stock"],
-              [
-                "return_window_days",
-                "Return Window Days",
-              ],
+             
             ].map(([key, label]) => (
               <div
                 className="edit-product-form-group"
@@ -199,6 +211,71 @@ export default function EditProductPopup({
               </div>
             ))}
 
+            <div className="edit-product-form-group full-width">
+              <label>Show Delivery Charges to Customer?</label>
+              <div className="edit-product-delivery-choice">
+                <label>
+                  <input
+                    type="radio"
+                    name="show_delivery_charge"
+                    value="yes"
+                    checked={
+                      productForm.show_delivery_charges_to_customer === "yes"
+                    }
+                    onChange={(e) =>
+                      setProductForm({
+                        ...productForm,
+                        show_delivery_charges_to_customer: e.target.value,
+                      })
+                    }
+                  />
+                  Yes
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="show_delivery_charge"
+                    value="no"
+                    checked={
+                      productForm.show_delivery_charges_to_customer === "no"
+                    }
+                    onChange={(e) =>
+                      setProductForm({
+                        ...productForm,
+                        show_delivery_charges_to_customer: e.target.value,
+                      })
+                    }
+                  />
+                  No
+                </label>
+              </div>
+              <small>
+                If Yes, shipping is shown separately. If No, shipping is
+                included in the final price.
+              </small>
+            </div>
+
+            {[
+              ["platform_fee", "Platform Fee (10%)", platformFee],
+              ["final_selling_price", "Final Selling Price", finalSellingPrice],
+              ["discount_percent", "Discount (%)", discountPercent],
+              ["in_hand_profit", "Your In-Hand Profit", inHandProfit],
+            ].map(([key, label, value]) => (
+              <div
+                className={`edit-product-form-group calculated-field ${key === "in_hand_profit" ? "profit-field" : ""
+                  } ${key === "final_selling_price" ? "final-price-field" : ""}`}
+                key={key}
+              >
+                <label>{label}</label>
+
+                <input
+                  type="number"
+                  value={Number(value).toFixed(2)}
+                  readOnly
+                />
+              </div>
+            ))}
+
             {/* ================= BOOLEAN FIELDS ================= */}
             {[
               ["status", "Active Status"],
@@ -206,7 +283,6 @@ export default function EditProductPopup({
               ["is_bestseller", "Bestseller"],
               ["is_new", "New Product"],
               ["is_trending", "Trending"],
-              ["allow_return", "Allow Return"],
             ].map(([key, label]) => (
               <div
                 className="edit-product-form-group"
@@ -230,10 +306,32 @@ export default function EditProductPopup({
             ))}
 
 
+            <div className="edit-product-form-group">
+              <label>Return Window Days</label>
+
+              <select
+                value={Number(productForm.return_window_days ?? 0)}
+                onChange={(e) => {
+                  const days = Number(e.target.value);
+
+                  setProductForm((prev) => ({
+                    ...prev,
+                    return_window_days: days,
+                    allow_return: days === 0 ? "no" : "yes",
+                  }));
+                }}
+              >
+                <option value={0}>0 Days (No Return)</option>
+                <option value={3}>Within 3 Days</option>
+                <option value={7}>Within 7 Days</option>
+              </select>
+            </div>
+
+
             {/* ================= PRODUCT IMAGES ================= */}
-            {imageError && ( <div className="image-error-toast"> {imageError} </div> )}
+            {imageError && (<div className="image-error-toast"> {imageError} </div>)}
             <div className="edit-product-form-group full-width">
-              
+
               <label>Product Images</label>
 
               <input

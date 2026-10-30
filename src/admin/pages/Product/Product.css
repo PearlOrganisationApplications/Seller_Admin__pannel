@@ -1529,3 +1529,61 @@
 .product-delete-btn {
   margin-right: 0;
 }
+
+/* ================= CALCULATED PRICE FIELDS ================= */
+
+.calculated-field label {
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  color: #263b2b !important;
+  letter-spacing: 0.3px;
+  margin-bottom: 8px;
+}
+
+.calculated-field input {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  background: #f5f8f5 !important;
+  border: 1.5px solid #d5e3d6 !important;
+  color: #263b2b !important;
+  border-radius: 8px;
+}
+
+/* Final Selling Price */
+.final-price-field label {
+  color: #1d4ed8 !important;
+}
+
+.final-price-field input {
+  background: #eff6ff !important;
+  border-color: #bfdbfe !important;
+  color: #1d4ed8 !important;
+  font-weight: 800 !important;
+}
+
+/* In-Hand Profit - Green Highlight */
+.profit-field {
+  background: #f0fdf4 !important;
+  border: 1.5px solid #86efac !important;
+  border-radius: 10px;
+  padding: 12px !important;
+}
+
+.profit-field label {
+  color: #15803d !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+}
+
+.profit-field input {
+  background: #dcfce7 !important;
+  border: 1.5px solid #86efac !important;
+  color: #15803d !important;
+  font-size: 17px !important;
+  font-weight: 900 !important;
+}
+
+.profit-field small {
+  color: #15803d !important;
+  font-weight: 600;
+}
